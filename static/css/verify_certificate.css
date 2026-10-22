@@ -1,0 +1,4 @@
+/* Verify Certificate */
+.verify-certificate-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); min-height: 100vh; padding: 2rem; }
+.verify-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+.valid-icon, .invalid-icon { text-align:center; }

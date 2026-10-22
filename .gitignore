@@ -1,0 +1,54 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+
+# Local databases and logs
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Runtime-generated files
+uploads/
+private_uploads/
+flask_session/
+instance/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+*.so
+venv/
+env/
+ENV/
+.venv/
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local scratch scripts at the repository root
+/test_*.py
+/check_*.py
+/fix_*.py
+
+# Infrastructure secrets and generated state
+ansible/group_vars/all/vault.yml
+terraform/*.tfvars
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/.terraform/
+terraform/tfplan
+
+flask_session/
+.pytest_cache/
+.ruff_cache/

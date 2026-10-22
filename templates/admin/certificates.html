@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Certificate Management - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #fff;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #0c5460;
+            font-size: 14px;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-section input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            flex: 1;
+            min-width: 250px;
+            transition: border-color 0.3s;
+        }
+
+        .filter-section input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Table for Desktop */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .qr-code-img {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .qr-code-img:hover {
+            transform: scale(1.5);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        /* Mobile Card View */
+        .cert-cards {
+            display: none;
+        }
+
+        .cert-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .cert-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            gap: 10px;
+        }
+
+        .cert-card-student {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .cert-card-id {
+            font-size: 13px;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        .cert-card-info {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .info-value {
+            color: #1e293b;
+            flex: 1;
+        }
+
+        .qr-code-container {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        .qr-code-container img {
+            width: 150px;
+            height: 150px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+        }
+
+        .cert-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Modal for QR Code */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.7);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-qr-img {
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            border: 3px solid #667eea;
+            border-radius: 12px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-section input[type="text"] {
+                min-width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Hide table, show cards */
+            .table-container {
+                display: none;
+            }
+
+            .cert-cards {
+                display: block;
+            }
+
+            .cert-card-actions {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px 15px;
+                width: 95%;
+            }
+
+            .modal-qr-img {
+                width: 100%;
+                height: auto;
+                max-width: 250px;
+            }
+
+            .filter-section input[type="text"] {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .cert-card {
+                padding: 15px;
+            }
+
+            .cert-card-student {
+                font-size: 16px;
+            }
+
+            .qr-code-container img {
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates" class="active">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Certificate Management</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>📜 <strong>Certificate System:</strong> View and manage all generated certificates. Students can download their certificates with QR verification.</p>
+            </div>
+
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <!-- Students Without Certificates Section -->
+            <div class="content-card" id="studentsWithoutCertsCard" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">👨‍🎓 Students Without Certificates (<span id="studentCount">0</span>)</h2>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <select id="certStatusFilter" onchange="filterStudentsList()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em;">
+                            <option value="all">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                        <input type="text" id="certStudentSearch" placeholder="Search students..." onkeyup="filterStudentsList()" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9em; width: 200px;">
+                        <button onclick="selectAllStudents()" class="btn btn-secondary">✓ Select All</button>
+                        <button onclick="issueSelectedCertificates()" class="btn btn-success" id="issueSelectedBtn" disabled>🎓 Issue to Selected</button>
+                    </div>
+                </div>
+                
+                <div id="studentsWithoutCertsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #ddd; border-radius: 8px; padding: 10px;">
+                    <!-- Students list will be loaded here -->
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                    <h2 style="margin: 0;">📋 All Certificates</h2>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button onclick="toggleStudentsSection()" class="btn btn-secondary" id="toggleStudentsBtn">👨‍🎓 Show Students</button>
+                        <button onclick="generateAllCertificates()" class="btn btn-primary">🎓 Generate All Certificates</button>
+                    </div>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <label>Search:</label>
+                    <input type="text" id="searchInput" placeholder="Search by student name, WAPL ID..." onkeyup="filterCertificates()">
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>WAPL ID</th>
+                                <th>Certificate ID</th>
+                                <th>Generated On</th>
+                                <th>Report File</th>
+                                <th>QR Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="certificatesTableBody">
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <h3>📋 Loading certificates...</h3>
+                                        <p>Please wait</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="cert-cards" id="certCards">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- QR Code Modal -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQRModal()">&times;</span>
+            <h2 style="margin-bottom: 10px;" id="modalStudentName">QR Code</h2>
+            <p style="color: #666; margin-bottom: 20px;" id="modalCertId">Certificate ID</p>
+            <img id="modalQRImage" class="modal-qr-img" src="" alt="QR Code">
+            <button onclick="downloadQR()" class="btn btn-primary" style="margin-top: 20px; width: 100%;">⬇️ Download QR Code</button>
+        </div>
+    </div>
+
+    <script>
+        let allCertificates = [];
+        let currentQRData = null;
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking super admin:', error);
+            }
+        }
+
+        async function loadCertificates() {
+            try {
+                const response = await fetch('/api/admin/certificates');
+                allCertificates = await response.json();
+                displayCertificates(allCertificates);
+            } catch (error) {
+                console.error('Error loading certificates:', error);
+                showError('Failed to load certificates');
+            }
+        }
+
+        function displayCertificates(certs) {
+            displayTableView(certs);
+            displayCardView(certs);
+        }
+
+        function displayTableView(certs) {
+            const tbody = document.getElementById('certificatesTableBody');
+            
+            if (certs.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <h3>📭 No certificates found</h3>
+                                <p>Generate certificates to get started</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = certs.map(cert => `
+                <tr>
+                    <td><strong>${cert.student_name || 'N/A'}</strong></td>
+                    <td>${cert.wapl_id || 'N/A'}</td>
+                    <td><code style="background: #f0f4ff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">${cert.certificate_unique_id || 'N/A'}</code></td>
+                    <td>${formatDate(cert.issue_date)}</td>
+                    <td>
+                        ${cert.report_file 
+                            ? `<span style="color: #22c55e; font-weight: 500;">✅ Uploaded</span>
+                               <button onclick="deleteReport('${cert.certificate_unique_id}')" class="btn btn-sm" style="margin-left: 5px; padding: 2px 6px; font-size: 11px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer;">🗑️</button>`
+                            : `<button onclick="openReportUpload('${cert.certificate_unique_id}', '${cert.student_name}')" class="btn btn-sm" style="background: #dbeafe; color: #2563eb; border: none; padding: 4px 10px; border-radius: 4px; cursor: pointer;">📤 Upload</button>`
+                        }
+                    </td>
+                    <td>
+                        <img src="/${cert.qr_code}" class="qr-code-img" alt="QR Code" 
+                             onclick='openQRModal(${JSON.stringify(cert).replace(/'/g, "&apos;")})'>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="downloadCertificate('${cert.certificate_unique_id}')" class="btn btn-sm btn-success">📥 Download</button>
+                            <button onclick="regenerateCertificate(${cert.student_id})" class="btn btn-sm btn-warning">🔄 Regenerate</button>
+                            <button onclick="deleteCertificate(${cert.id}, '${cert.student_name}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayCardView(certs) {
+            const cardsContainer = document.getElementById('certCards');
+            
+            if (certs.length === 0) {
+                cardsContainer.innerHTML = '<div class="empty-state"><h3>📭 No certificates found</h3><p>Generate certificates to get started</p></div>';
+                return;
+            }
+
+            cardsContainer.innerHTML = certs.map(cert => `
+                <div class="cert-card">
+                    <div class="cert-card-header">
+                        <div>
+                            <div class="cert-card-student">${cert.student_name || 'N/A'}</div>
+                            <div class="cert-card-id">${cert.wapl_id || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="cert-card-info">
+                        <div class="info-row">
+                            <span class="info-label">📜 Cert ID:</span>
+                            <span class="info-value"><code style="background: #f0f4ff; padding: 2px 6px; border-radius: 4px; font-size: 11px;">${cert.certificate_unique_id || 'N/A'}</code></span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📅 Generated:</span>
+                            <span class="info-value">${formatDate(cert.issue_date)}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📄 Report:</span>
+                            <span class="info-value">
+                                ${cert.report_file 
+                                    ? `<span style="color: #22c55e;">✅ Uploaded</span>
+                                       <button onclick="deleteReport('${cert.certificate_unique_id}')" style="margin-left: 5px; padding: 2px 6px; font-size: 10px; background: #fee2e2; color: #dc2626; border: none; border-radius: 4px; cursor: pointer;">🗑️</button>`
+                                    : `<button onclick="openReportUpload('${cert.certificate_unique_id}', '${cert.student_name}')" style="background: #dbeafe; color: #2563eb; border: none; padding: 3px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">📤 Upload</button>`
+                                }
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="qr-code-container">
+                        <p style="margin-bottom: 10px; color: #64748b; font-size: 13px;">QR Code (Scan to download report)</p>
+                        <img src="/${cert.qr_code}" alt="QR Code" onclick='openQRModal(${JSON.stringify(cert).replace(/'/g, "&apos;")})'>
+                    </div>
+                    
+                    <div class="cert-card-actions">
+                        <button onclick="downloadCertificate('${cert.certificate_unique_id}')" class="btn btn-success">📥 Download</button>
+                        <button onclick="regenerateCertificate(${cert.student_id})" class="btn btn-warning">🔄 Regenerate</button>
+                        <button onclick="deleteCertificate(${cert.id}, '${cert.student_name}')" class="btn btn-danger">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCertificates() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchInput) {
+                displayCertificates(allCertificates);
+                return;
+            }
+            
+            const filtered = allCertificates.filter(cert => 
+                (cert.student_name && cert.student_name.toLowerCase().includes(searchInput)) ||
+                (cert.wapl_id && cert.wapl_id.toLowerCase().includes(searchInput)) ||
+                (cert.certificate_unique_id && cert.certificate_unique_id.toLowerCase().includes(searchInput))
+            );
+            
+            displayCertificates(filtered);
+        }
+
+        function openQRModal(cert) {
+            currentQRData = cert;
+            document.getElementById('modalStudentName').textContent = cert.student_name;
+            document.getElementById('modalCertId').textContent = 'Certificate ID: ' + cert.certificate_unique_id;
+            document.getElementById('modalQRImage').src = '/' + cert.qr_code;
+            document.getElementById('qrModal').style.display = 'block';
+        }
+
+        function closeQRModal() {
+            document.getElementById('qrModal').style.display = 'none';
+            currentQRData = null;
+        }
+
+        function downloadQR() {
+            if (!currentQRData) return;
+            const link = document.createElement('a');
+            link.href = '/' + currentQRData.qr_code;
+            link.download = `QR_${currentQRData.certificate_unique_id}.png`;
+            link.click();
+        }
+
+        function downloadCertificate(certId) {
+            window.open(`/download/certificate/${certId}`, '_blank');
+        }
+
+        async function regenerateCertificate(studentId) {
+            if (!confirm('Regenerate certificate for this student?\n\nThis will create a new certificate with a new ID.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/certificate/regenerate/${studentId}`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('✅ Certificate regenerated successfully!');
+                    loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to regenerate certificate');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while regenerating certificate');
+            }
+        }
+
+        async function deleteCertificate(certId, studentName) {
+            if (!confirm(`🗑️ Delete certificate for "${studentName}"?\n\n⚠️ This action cannot be undone!`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/certificate/${certId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('✅ Certificate deleted successfully!');
+                    loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to delete certificate');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while deleting certificate');
+            }
+        }
+
+        // Report Upload Functions
+        let currentReportCertId = null;
+        let currentReportStudentName = null;
+
+        function openReportUpload(certId, studentName) {
+            currentReportCertId = certId;
+            currentReportStudentName = studentName;
+            
+            // Create or show upload modal
+            let modal = document.getElementById('reportUploadModal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'reportUploadModal';
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content" style="max-width: 500px;">
+                        <span class="close-btn" onclick="closeReportModal()">&times;</span>
+                        <h3 style="margin-bottom: 20px;">📤 Upload Report File</h3>
+                        <p style="margin-bottom: 15px; color: #666;">Student: <strong id="reportStudentName"></strong></p>
+                        <p style="margin-bottom: 15px; color: #666; font-size: 13px;">
+                            This report will be downloadable when someone scans the QR code on the certificate.
+                        </p>
+                        <form id="reportUploadForm" onsubmit="submitReportUpload(event)">
+                            <div style="margin-bottom: 20px;">
+                                <input type="file" id="reportFileInput" name="report_file" 
+                                       accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
+                                       style="width: 100%; padding: 10px; border: 2px dashed #667eea; border-radius: 8px; cursor: pointer;">
+                                <p style="margin-top: 8px; font-size: 12px; color: #888;">
+                                    Allowed: PDF, DOC, DOCX, PNG, JPG (max 16MB)
+                                </p>
+                            </div>
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                📤 Upload Report
+                            </button>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+            }
+            
+            document.getElementById('reportStudentName').textContent = studentName;
+            document.getElementById('reportFileInput').value = '';
+            modal.style.display = 'flex';
+        }
+
+        function closeReportModal() {
+            const modal = document.getElementById('reportUploadModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        async function submitReportUpload(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('reportFileInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showError('Please select a file to upload');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('report_file', fileInput.files[0]);
+            
+            try {
+                const response = await fetch(`/api/admin/certificate/${currentReportCertId}/upload-report`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('✅ Report file uploaded successfully!');
+                    closeReportModal();
+                    loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to upload report file');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while uploading the report');
+            }
+        }
+
+        async function deleteReport(certId) {
+            if (!confirm('🗑️ Delete the report file for this certificate?\n\nThe QR code will no longer provide a downloadable file.')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/certificate/${certId}/report`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess('✅ Report file deleted successfully!');
+                    loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to delete report file');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while deleting the report');
+            }
+        }
+
+        let selectedStudents = new Set();
+
+        async function toggleStudentsSection() {
+            const card = document.getElementById('studentsWithoutCertsCard');
+            const btn = document.getElementById('toggleStudentsBtn');
+            
+            if (card.style.display === 'none') {
+                card.style.display = 'block';
+                btn.textContent = '👨‍🎓 Hide Students';
+                await loadStudentsWithoutCertificates();
+            } else {
+                card.style.display = 'none';
+                btn.textContent = '👨‍🎓 Show Students';
+            }
+        }
+
+        let allStudentsWithoutCerts = []; // Store all students for filtering
+
+        async function loadStudentsWithoutCertificates() {
+            try {
+                const response = await fetch('/api/admin/students/without-certificates');
+                const data = await response.json();
+                
+                if (!data.students || data.students.length === 0) {
+                    allStudentsWithoutCerts = [];
+                    document.getElementById('studentsWithoutCertsList').innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">✅ All students have certificates!</p>';
+                    document.getElementById('studentCount').textContent = '0';
+                    return;
+                }
+                
+                allStudentsWithoutCerts = data.students;
+                document.getElementById('studentCount').textContent = data.students.length;
+                renderStudentsList(data.students);
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load students');
+            }
+        }
+
+        function getStatusBadge(status) {
+            const colors = {
+                'active': { bg: '#d4edda', color: '#155724' },
+                'pending': { bg: '#fff3cd', color: '#856404' },
+                'suspended': { bg: '#f8d7da', color: '#721c24' }
+            };
+            const s = colors[status] || { bg: '#e2e3e5', color: '#383d41' };
+            return `<span style="display:inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.75em; font-weight: 600; background: ${s.bg}; color: ${s.color}; text-transform: capitalize;">${status}</span>`;
+        }
+
+        function renderStudentsList(students) {
+            if (!students || students.length === 0) {
+                document.getElementById('studentsWithoutCertsList').innerHTML = '<p style="text-align: center; padding: 20px; color: #666;">No students match the current filters.</p>';
+                return;
+            }
+            
+            const html = students.map(student => `
+                <div class="student-item" data-status="${student.account_status}" data-name="${student.full_name}" data-wapl="${student.wapl_id}" style="padding: 12px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 12px; transition: background-color 0.2s;">
+                    <input type="checkbox" 
+                           id="student_${student.id}" 
+                           value="${student.id}" 
+                           onchange="updateSelectedStudents()"
+                           style="width: 18px; height: 18px; cursor: pointer;">
+                    <label for="student_${student.id}" style="flex: 1; cursor: pointer; margin: 0;">
+                        <div style="font-weight: 500; color: #333;">${student.full_name} ${getStatusBadge(student.account_status)}</div>
+                        <div style="font-size: 0.9em; color: #666;">${student.wapl_id} • ${student.domain_names || 'No domain'}</div>
+                    </label>
+                </div>
+            `).join('');
+            
+            document.getElementById('studentsWithoutCertsList').innerHTML = html;
+        }
+
+        function filterStudentsList() {
+            const statusFilter = document.getElementById('certStatusFilter').value;
+            const searchTerm = document.getElementById('certStudentSearch').value.toLowerCase().trim();
+            
+            let filtered = allStudentsWithoutCerts;
+            
+            if (statusFilter !== 'all') {
+                filtered = filtered.filter(s => s.account_status === statusFilter);
+            }
+            
+            if (searchTerm) {
+                filtered = filtered.filter(s => 
+                    s.full_name.toLowerCase().includes(searchTerm) || 
+                    s.wapl_id.toLowerCase().includes(searchTerm) ||
+                    (s.domain_names && s.domain_names.toLowerCase().includes(searchTerm))
+                );
+            }
+            
+            renderStudentsList(filtered);
+            // Update visible count
+            document.getElementById('studentCount').textContent = filtered.length;
+        }
+
+        function updateSelectedStudents() {
+            selectedStudents.clear();
+            document.querySelectorAll('#studentsWithoutCertsList input[type="checkbox"]:checked').forEach(cb => {
+                selectedStudents.add(parseInt(cb.value));
+            });
+            
+            const btn = document.getElementById('issueSelectedBtn');
+            btn.disabled = selectedStudents.size === 0;
+            btn.textContent = selectedStudents.size > 0 
+                ? `🎓 Issue to Selected (${selectedStudents.size})` 
+                : '🎓 Issue to Selected';
+        }
+
+        function selectAllStudents() {
+            const checkboxes = document.querySelectorAll('#studentsWithoutCertsList input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(cb => {
+                cb.checked = !allChecked;
+            });
+            
+            updateSelectedStudents();
+        }
+
+        async function issueSelectedCertificates() {
+            if (selectedStudents.size === 0) {
+                showError('Please select at least one student');
+                return;
+            }
+            
+            if (!confirm(`🎓 Issue certificates to ${selectedStudents.size} selected student(s)?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/certificates/issue', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentIds: Array.from(selectedStudents)
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ ${data.message}`);
+                    selectedStudents.clear();
+                    await loadStudentsWithoutCertificates();
+                    await loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to issue certificates');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while issuing certificates');
+            }
+        }
+
+        async function generateAllCertificates() {
+            if (!confirm('🎓 Generate certificates for all students?\n\nThis will create certificates for students who don\'t have one yet.')) {
+                return;
+            }
+            
+            try {
+                // First, get all students without certificates
+                const studentsResponse = await fetch('/api/admin/students/without-certificates');
+                const studentsData = await studentsResponse.json();
+                
+                if (!studentsData.students || studentsData.students.length === 0) {
+                    showError('No students found without certificates');
+                    return;
+                }
+                
+                const studentIds = studentsData.students.map(s => s.id);
+                
+                const response = await fetch('/api/admin/certificates/issue', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        studentIds: studentIds
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ ${data.message}`);
+                    await loadStudentsWithoutCertificates();
+                    await loadCertificates();
+                } else {
+                    showError(data.error || 'Failed to generate certificates');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while generating certificates');
+            }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = '❌ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target == modal) {
+                closeQRModal();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSuperAdmin();
+            loadCertificates();
+        });
+    </script>
+</body>
+</html>

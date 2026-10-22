@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exam Management - WAPL Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; }
+        .admin-container { display: flex; min-height: 100vh; }
+
+        /* Hamburger */
+        .hamburger-btn {
+            display: none; position: fixed; top: 15px; left: 15px; z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .hamburger-btn span { display: block; width: 25px; height: 3px; background: white; margin: 5px 0; border-radius: 2px; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; z-index: 1000;
+        }
+        .logo { padding: 0 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .logo h2 { font-size: 24px; font-weight: bold; }
+        .nav-menu { padding: 0 10px; }
+        .nav-menu a {
+            display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;
+        }
+        .nav-menu a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-menu a.active { background: rgba(255,255,255,0.2); color: white; font-weight: bold; }
+        .nav-menu a i { margin-right: 12px; font-style: normal; }
+
+        /* Main Content */
+        .main-content { margin-left: 250px; padding: 30px; flex: 1; }
+
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; flex-wrap: wrap; gap: 15px;
+        }
+        .page-header h1 { font-size: 28px; color: #1e3c72; }
+        .role-badge {
+            background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+            padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600;
+        }
+
+        /* Tabs */
+        .tab-nav {
+            display: flex; gap: 5px; margin-bottom: 25px; background: white;
+            border-radius: 12px; padding: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            padding: 10px 20px; border: none; background: none; border-radius: 8px;
+            cursor: pointer; font-size: 14px; font-weight: 500; color: #6b7280;
+            transition: all 0.3s; white-space: nowrap;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea, #764ba2); color: white;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Cards */
+        .card {
+            background: white; border-radius: 12px; padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px;
+        }
+        .card h3 { color: #1e3c72; margin-bottom: 15px; font-size: 18px; }
+
+        /* Domain Cards Grid */
+        .domain-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+        .domain-card {
+            background: white; border-radius: 12px; padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #667eea;
+        }
+        .domain-card h3 { color: #1e3c72; margin-bottom: 12px; }
+        .domain-stat { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; color: #4b5563; }
+        .domain-stat span:last-child { font-weight: 600; color: #1e3c72; }
+
+        /* Form styles */
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-weight: 600; color: #374151; margin-bottom: 6px; font-size: 14px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px;
+            font-size: 14px; transition: border-color 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #667eea;
+        }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer;
+            font-size: 14px; font-weight: 600; transition: all 0.3s;
+        }
+        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-success { background: #10b981; color: white; }
+        .btn-success:hover { background: #059669; }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-warning:hover { background: #d97706; }
+        .btn-sm { padding: 6px 14px; font-size: 13px; }
+        .btn-outline {
+            background: transparent; border: 1px solid #d1d5db; color: #374151;
+        }
+        .btn-outline:hover { border-color: #667eea; color: #667eea; }
+
+        /* Table */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th { background: #f9fafb; padding: 12px 16px; text-align: left; font-weight: 600; color: #374151; border-bottom: 2px solid #e5e7eb; }
+        td { padding: 12px 16px; border-bottom: 1px solid #f3f4f6; color: #4b5563; }
+        tr:hover td { background: #f9fafb; }
+
+        /* Badges */
+        .badge {
+            display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 600;
+        }
+        .badge-success { background: #d1fae5; color: #065f46; }
+        .badge-danger { background: #fee2e2; color: #991b1b; }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #dbeafe; color: #1e40af; }
+
+        /* Config button */
+        .config-btn {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 8px;
+            cursor: pointer; font-size: 13px; color: #374151; transition: all 0.2s;
+        }
+        .config-btn:hover { background: #e5e7eb; }
+
+        /* Modal */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal {
+            background: white; border-radius: 16px; padding: 30px; width: 90%; max-width: 550px;
+            max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .modal h2 { color: #1e3c72; margin-bottom: 20px; font-size: 22px; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+
+        /* Enter Result Modal */
+        .result-form { margin-top: 15px; }
+        .student-info-banner {
+            background: #f0f4ff; border-radius: 8px; padding: 12px 16px; margin-bottom: 15px;
+        }
+        .student-info-banner strong { color: #1e3c72; }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+        }
+
+        /* Schedule card in schedules tab */
+        .schedule-card {
+            background: white; border-radius: 12px; padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 16px;
+            border-left: 4px solid #10b981;
+        }
+        .schedule-card.past { border-left-color: #9ca3af; opacity: 0.7; }
+        .schedule-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .schedule-header h4 { color: #1e3c72; font-size: 16px; }
+        .schedule-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+        .schedule-detail { font-size: 13px; color: #4b5563; }
+        .schedule-detail strong { color: #374151; }
+
+        /* No data */
+        .empty-state { text-align: center; padding: 40px 20px; color: #9ca3af; }
+        .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 10px;
+            color: white; font-weight: 500; z-index: 3000; transform: translateY(100px);
+            opacity: 0; transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; padding: 80px 15px 15px; }
+            .form-row, .form-row-3 { grid-template-columns: 1fr; }
+            .domain-grid { grid-template-columns: 1fr; }
+            .tab-btn { padding: 8px 14px; font-size: 13px; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo"><h2>🎓 WAPL Admin</h2></div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard"><i>📊</i> Dashboard</a>
+                <a href="/secure-admin-panel/wapl/students"><i>👨‍🎓</i> Students</a>
+                <a href="/secure-admin-panel/wapl/exams" class="active"><i>📝</i> Exams</a>
+                <a href="/secure-admin-panel/wapl/hrs"><i>👔</i> HRs</a>
+                <a href="/secure-admin-panel/wapl/assign-students"><i>🔗</i> Assign Students</a>
+                <a href="/secure-admin-panel/wapl/recruitment"><i>📋</i> Recruitment</a>
+                <a href="/secure-admin-panel/wapl/payments"><i>💳</i> Payments</a>
+                <a href="/secure-admin-panel/wapl/hr-approvals"><i>✅</i> HR Approvals</a>
+                <a href="/secure-admin-panel/wapl/reports"><i>📈</i> Reports</a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;"><i>🏷️</i> Domains</a>
+                <a href="/secure-admin-panel/wapl/certificates"><i>📜</i> Certificates</a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;"><i>👤</i> Admins</a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;"><i>⚙️</i> Settings</a>
+                <a href="/secure-admin-panel/wapl/logout"><i>🚪</i> Logout</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📝 Exam Management</h1>
+                <span class="role-badge" id="roleBadge">Admin</span>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tab-nav">
+                <button class="tab-btn active" onclick="switchTab('overview', this)">Overview</button>
+                <button class="tab-btn" onclick="switchTab('schedules', this)">Schedules</button>
+                <button class="tab-btn" onclick="switchTab('registrations', this)">Registrations</button>
+                <button class="tab-btn" onclick="switchTab('results', this)">Results</button>
+            </div>
+
+            <!-- ============ OVERVIEW TAB ============ -->
+            <div class="tab-content active" id="tab-overview">
+                <div class="domain-grid" id="overviewGrid">
+                    <div class="empty-state">
+                        <div class="icon">⏳</div>
+                        <p>Loading exam overview...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ SCHEDULES TAB ============ -->
+            <div class="tab-content" id="tab-schedules">
+                <!-- Create Schedule Form -->
+                <div class="card">
+                    <h3>➕ Create Exam Schedule</h3>
+                    <form onsubmit="createSchedule(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Domain</label>
+                                <select id="schedDomain" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label>Exam Title</label>
+                                <input type="text" id="schedTitle" placeholder="e.g. AI Domain Assessment - Batch 1" required>
+                            </div>
+                        </div>
+                        <div class="form-row-3">
+                            <div class="form-group">
+                                <label>Exam Date</label>
+                                <input type="date" id="schedDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Start Time</label>
+                                <input type="time" id="schedStart" required>
+                            </div>
+                            <div class="form-group">
+                                <label>End Time</label>
+                                <input type="time" id="schedEnd" required>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Venue</label>
+                                <input type="text" id="schedVenue" placeholder="e.g. Hall A, Building 3" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Max Students</label>
+                                <input type="number" id="schedMax" value="50" min="1" max="500">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Venue Address</label>
+                            <input type="text" id="schedAddress" placeholder="Full address (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label>Instructions for Students</label>
+                            <textarea id="schedInstructions" rows="3" placeholder="e.g. Bring college ID, arrive 30 minutes early..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Schedule</button>
+                    </form>
+                </div>
+
+                <!-- Existing Schedules -->
+                <div class="card">
+                    <h3>📅 Existing Schedules</h3>
+                    <div id="schedulesList">
+                        <div class="empty-state"><div class="icon">⏳</div><p>Loading schedules...</p></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ REGISTRATIONS TAB ============ -->
+            <div class="tab-content" id="tab-registrations">
+                <div class="card">
+                    <h3>📋 View Registrations by Schedule</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Select Schedule</label>
+                            <select id="regScheduleSelect" onchange="loadRegistrations()">
+                                <option value="">-- Select a schedule --</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="card" id="registrationsCard" style="display:none;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h3 id="regTitle">Registered Students</h3>
+                        <span class="badge badge-info" id="regCount">0</span>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Seat</th>
+                                    <th>Student Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="registrationsBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ RESULTS TAB ============ -->
+            <div class="tab-content" id="tab-results">
+                <div class="card">
+                    <h3>📊 Exam Results</h3>
+                    <div class="form-row" style="margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label>Filter by Domain</label>
+                            <select id="resultDomainFilter" onchange="loadResults()">
+                                <option value="">All Domains</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Filter by Status</label>
+                            <select id="resultStatusFilter" onchange="loadResults()">
+                                <option value="">All</option>
+                                <option value="passed">Passed</option>
+                                <option value="failed">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Domain</th>
+                                    <th>Exam</th>
+                                    <th>Date</th>
+                                    <th>Marks</th>
+                                    <th>%</th>
+                                    <th>Result</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="resultsBody"></tbody>
+                        </table>
+                    </div>
+                    <div class="empty-state" id="noResults" style="display:none;">
+                        <div class="icon">📭</div>
+                        <p>No results found</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Config Modal -->
+    <div class="modal-overlay" id="configModal">
+        <div class="modal">
+            <h2>⚙️ Exam Config — <span id="configDomainName"></span></h2>
+            <form onsubmit="saveConfig(event)">
+                <input type="hidden" id="configDomainId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Max Marks</label>
+                        <input type="number" id="configMax" value="100" min="1" max="1000" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Passing Marks</label>
+                        <input type="number" id="configPassing" value="40" min="1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cooldown Days (on fail)</label>
+                    <input type="number" id="configCooldown" value="90" min="1" max="365" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('configModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Config</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Enter Result Modal -->
+    <div class="modal-overlay" id="resultModal">
+        <div class="modal">
+            <h2>📝 Enter Exam Result</h2>
+            <div class="student-info-banner" id="resultStudentInfo"></div>
+            <form onsubmit="submitResult(event)">
+                <input type="hidden" id="resultStudentId">
+                <input type="hidden" id="resultScheduleId">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Marks Obtained</label>
+                        <input type="number" id="resultMarks" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Max Marks</label>
+                        <input type="number" id="resultMaxMarks" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Passing Marks</label>
+                    <input type="number" id="resultPassingMarks" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Remarks (optional)</label>
+                    <textarea id="resultRemarks" rows="2" placeholder="Any notes..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('resultModal')">Cancel</button>
+                    <button type="submit" class="btn btn-success">Submit Result</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let overviewData = [];
+        let allSchedules = [];
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            loadOverview();
+            checkSuperAdmin();
+        });
+
+        function checkSuperAdmin() {
+            fetch('/api/admin/profile')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.admin) {
+                        document.getElementById('roleBadge').textContent = data.admin.is_super_admin ? 'Super Admin' : 'Admin';
+                        if (data.admin.is_super_admin) {
+                            const el = id => { const e = document.getElementById(id); if(e) e.style.display = ''; };
+                            el('domainsLink'); el('adminsLink'); el('settingsLink');
+                        }
+                    }
+                }).catch(() => {});
+        }
+
+        // ==================== TABS ====================
+        function switchTab(tab, el) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            if (el) el.classList.add('active');
+
+            if (tab === 'overview' || tab === 'schedules') loadOverview();
+            if (tab === 'results') { loadOverview(); loadResults(); }
+            if (tab === 'registrations') { loadOverview(); populateScheduleDropdown(); }
+        }
+
+        // ==================== OVERVIEW ====================
+        function loadOverview() {
+            fetch('/api/admin/exams/overview')
+                .then(r => {
+                    if (!r.ok) throw new Error('API returned ' + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    overviewData = data.overview || [];
+                    populateDomainDropdowns();
+                    collectSchedules();
+                    renderOverview();
+                })
+                .catch(e => {
+                    console.error('Error loading overview:', e);
+                    document.getElementById('overviewGrid').innerHTML =
+                        '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load overview: ' + e.message + '</p></div>';
+                });
+        }
+
+        function renderOverview() {
+            const grid = document.getElementById('overviewGrid');
+            if (!overviewData.length) {
+                grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No domains configured</p></div>';
+                return;
+            }
+
+            try {
+                grid.innerHTML = overviewData.map(item => {
+                    const d = item.domain;
+                    const cfg = item.config;
+                    const passRate = item.total_results > 0
+                        ? Math.round((item.passed_results / item.total_results) * 100)
+                        : '-';
+                    const cfgJson = cfg ? JSON.stringify(cfg).replace(/"/g, '&quot;') : 'null';
+
+                    return `
+                        <div class="domain-card">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                                <h3>${d.domain_name}</h3>
+                                <button class="config-btn" onclick="openConfig(${d.id}, '${d.domain_name.replace(/'/g, "\\'")}', ${cfgJson})">
+                                    ⚙️ Config
+                                </button>
+                            </div>
+                            <div class="domain-stat"><span>Max Marks</span><span>${cfg ? cfg.max_marks : '100 (default)'}</span></div>
+                            <div class="domain-stat"><span>Passing Marks</span><span>${cfg ? cfg.passing_marks : '40 (default)'}</span></div>
+                            <div class="domain-stat"><span>Cooldown</span><span>${cfg ? cfg.cooldown_days + ' days' : '90 days (default)'}</span></div>
+                            <div class="domain-stat"><span>Upcoming Schedules</span><span>${(item.schedules || []).filter(s => s.exam_date >= new Date().toISOString().split('T')[0]).length}</span></div>
+                            <div class="domain-stat"><span>Awaiting Exam</span><span style="color:#f59e0b;">${item.pending_exam_students}</span></div>
+                            <div class="domain-stat"><span>Total Results</span><span>${item.total_results}</span></div>
+                            <div class="domain-stat"><span>Pass Rate</span><span style="color:${passRate !== '-' && passRate >= 50 ? '#10b981' : '#ef4444'}">${passRate}%</span></div>
+                        </div>
+                    `;
+                }).join('');
+            } catch(err) {
+                console.error('renderOverview error:', err);
+                grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Error rendering overview</p></div>';
+            }
+        }
+
+        function collectSchedules() {
+            allSchedules = [];
+            overviewData.forEach(item => {
+                item.schedules.forEach(s => {
+                    s.domain_name = item.domain.domain_name;
+                    allSchedules.push(s);
+                });
+            });
+            renderSchedules();
+        }
+
+        function renderSchedules() {
+            const container = document.getElementById('schedulesList');
+            if (!allSchedules.length) {
+                container.innerHTML = '<div class="empty-state"><div class="icon">📅</div><p>No schedules created yet</p></div>';
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            container.innerHTML = allSchedules.sort((a, b) => a.exam_date > b.exam_date ? 1 : -1).map(s => {
+                const isPast = s.exam_date < today;
+                return `
+                    <div class="schedule-card ${isPast ? 'past' : ''}">
+                        <div class="schedule-header">
+                            <div>
+                                <h4>${s.title}</h4>
+                                <span class="badge badge-info">${s.domain_name}</span>
+                                ${isPast ? '<span class="badge badge-warning" style="margin-left:6px;">Past</span>' : ''}
+                            </div>
+                            <div style="display:flex;gap:8px;">
+                                <span class="badge badge-success">${s.registered_count || 0}/${s.max_students} seats</span>
+                                ${!isPast ? `<button class="btn btn-danger btn-sm" onclick="deleteSchedule(${s.id})">Cancel</button>` : ''}
+                            </div>
+                        </div>
+                        <div class="schedule-details">
+                            <div class="schedule-detail"><strong>📅 Date:</strong> ${s.exam_date}</div>
+                            <div class="schedule-detail"><strong>🕐 Time:</strong> ${s.start_time} - ${s.end_time}</div>
+                            <div class="schedule-detail"><strong>📍 Venue:</strong> ${s.venue}</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== DOMAIN DROPDOWNS ====================
+        function populateDomainDropdowns() {
+            const options = overviewData.map(item =>
+                `<option value="${item.domain.id}">${item.domain.domain_name}</option>`
+            ).join('');
+
+            document.getElementById('schedDomain').innerHTML = '<option value="">Select Domain</option>' + options;
+            document.getElementById('resultDomainFilter').innerHTML = '<option value="">All Domains</option>' + options;
+        }
+
+        function populateScheduleDropdown() {
+            const sel = document.getElementById('regScheduleSelect');
+            sel.innerHTML = '<option value="">-- Select a schedule --</option>' +
+                allSchedules.map(s =>
+                    `<option value="${s.id}">${s.title} — ${s.domain_name} (${s.exam_date})</option>`
+                ).join('');
+        }
+
+        // ==================== CREATE SCHEDULE ====================
+        function createSchedule(e) {
+            e.preventDefault();
+            const body = {
+                domain_id: parseInt(document.getElementById('schedDomain').value),
+                title: document.getElementById('schedTitle').value,
+                exam_date: document.getElementById('schedDate').value,
+                start_time: document.getElementById('schedStart').value,
+                end_time: document.getElementById('schedEnd').value,
+                venue: document.getElementById('schedVenue').value,
+                venue_address: document.getElementById('schedAddress').value,
+                max_students: parseInt(document.getElementById('schedMax').value),
+                instructions: document.getElementById('schedInstructions').value
+            };
+
+            fetch('/api/admin/exams/schedule', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast('Schedule created!', 'success');
+                e.target.reset();
+                loadOverview();
+            })
+            .catch(() => showToast('Failed to create schedule', 'error'));
+        }
+
+        function deleteSchedule(id) {
+            if (!confirm('Cancel this exam schedule?')) return;
+            fetch(`/api/admin/exams/schedule/${id}`, { method: 'DELETE' })
+                .then(r => r.json())
+                .then(data => {
+                    showToast(data.message || 'Deleted', 'success');
+                    loadOverview();
+                })
+                .catch(() => showToast('Failed to delete', 'error'));
+        }
+
+        // ==================== CONFIG ====================
+        function openConfig(domainId, domainName, config) {
+            document.getElementById('configDomainId').value = domainId;
+            document.getElementById('configDomainName').textContent = domainName;
+            document.getElementById('configMax').value = config ? config.max_marks : 100;
+            document.getElementById('configPassing').value = config ? config.passing_marks : 40;
+            document.getElementById('configCooldown').value = config ? config.cooldown_days : 90;
+            document.getElementById('configModal').classList.add('active');
+        }
+
+        function saveConfig(e) {
+            e.preventDefault();
+            const body = {
+                domain_id: parseInt(document.getElementById('configDomainId').value),
+                max_marks: parseInt(document.getElementById('configMax').value),
+                passing_marks: parseInt(document.getElementById('configPassing').value),
+                cooldown_days: parseInt(document.getElementById('configCooldown').value)
+            };
+
+            fetch('/api/admin/exams/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast('Config saved!', 'success');
+                closeModal('configModal');
+                loadOverview();
+            })
+            .catch(() => showToast('Failed to save config', 'error'));
+        }
+
+        // ==================== REGISTRATIONS ====================
+        let currentScheduleConfig = null;
+
+        function loadRegistrations() {
+            const schedId = document.getElementById('regScheduleSelect').value;
+            const card = document.getElementById('registrationsCard');
+            if (!schedId) { card.style.display = 'none'; return; }
+
+            card.style.display = 'block';
+
+            // Find schedule's domain config
+            const sched = allSchedules.find(s => s.id == schedId);
+            if (sched) {
+                const domainItem = overviewData.find(o => o.domain.id == sched.domain_id);
+                currentScheduleConfig = domainItem ? domainItem.config : null;
+            }
+
+            fetch(`/api/admin/exams/schedule/${schedId}/registrations`)
+                .then(r => r.json())
+                .then(data => {
+                    const regs = data.registrations || [];
+                    document.getElementById('regCount').textContent = regs.length + ' students';
+                    const tbody = document.getElementById('registrationsBody');
+
+                    if (!regs.length) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#9ca3af;">No registrations yet</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = regs.map(r => {
+                        const hasResult = r.result != null;
+                        const safeName = r.full_name.replace(/'/g, "\\'");
+                        let statusBadge = '<span class="badge badge-warning">Pending</span>';
+                        let action = `<button class="btn btn-success btn-sm" onclick="openResultModal(${r.student_id}, ${schedId}, '${safeName}')">Enter Marks</button>`;
+
+                        if (hasResult) {
+                            statusBadge = r.result.passed
+                                ? '<span class="badge badge-success">Passed</span>'
+                                : '<span class="badge badge-danger">Failed</span>';
+                            const escapedRemarks = (r.result.remarks || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            action = `<span style="font-weight:600;color:#1e3c72;">${r.result.marks_obtained} marks</span>
+                                <button class="btn btn-warning btn-sm" style="margin-left:8px;font-size:11px;padding:3px 10px;" onclick="openResultModal(${r.student_id}, ${schedId}, '${safeName}', ${r.result.marks_obtained}, '${escapedRemarks}')">✏️ Edit</button>`;
+                        }
+
+                        return `<tr>
+                            <td><strong>${r.seat_number || '-'}</strong></td>
+                            <td>${r.full_name}</td>
+                            <td>${r.email}</td>
+                            <td>${r.phone || '-'}</td>
+                            <td>${statusBadge}</td>
+                            <td>${action}</td>
+                        </tr>`;
+                    }).join('');
+                })
+                .catch(() => showToast('Failed to load registrations', 'error'));
+        }
+
+        // ==================== ENTER RESULT ====================
+        function openResultModal(studentId, scheduleId, studentName, existingMarks, existingRemarks) {
+            document.getElementById('resultStudentId').value = studentId;
+            document.getElementById('resultScheduleId').value = scheduleId;
+            
+            const isEdit = existingMarks !== undefined && existingMarks !== null;
+            document.getElementById('resultStudentInfo').innerHTML =
+                `<strong>Student:</strong> ${studentName}` + (isEdit ? ' <span style="color:#e67e22;font-size:13px;">(Editing existing result)</span>' : '');
+
+            const maxMarks = currentScheduleConfig ? currentScheduleConfig.max_marks : 100;
+            const passingMarks = currentScheduleConfig ? currentScheduleConfig.passing_marks : 40;
+
+            document.getElementById('resultMarks').max = maxMarks;
+            document.getElementById('resultMaxMarks').value = maxMarks;
+            document.getElementById('resultPassingMarks').value = passingMarks;
+            document.getElementById('resultRemarks').value = existingRemarks || '';
+            document.getElementById('resultMarks').value = isEdit ? existingMarks : '';
+
+            document.getElementById('resultModal').classList.add('active');
+        }
+
+        function submitResult(e) {
+            e.preventDefault();
+            const body = {
+                student_id: parseInt(document.getElementById('resultStudentId').value),
+                schedule_id: parseInt(document.getElementById('resultScheduleId').value),
+                marks_obtained: parseInt(document.getElementById('resultMarks').value),
+                remarks: document.getElementById('resultRemarks').value
+            };
+
+            fetch('/api/admin/exams/enter-result', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast(data.message, data.passed ? 'success' : 'error');
+                closeModal('resultModal');
+                loadRegistrations();
+            })
+            .catch(() => showToast('Failed to submit result', 'error'));
+        }
+
+        // ==================== RESULTS ====================
+        function loadResults() {
+            const domain = document.getElementById('resultDomainFilter').value;
+            const status = document.getElementById('resultStatusFilter').value;
+
+            let url = '/api/admin/exams/results?';
+            if (domain) url += `domain_id=${domain}&`;
+            if (status) url += `status=${status}&`;
+
+            fetch(url)
+                .then(r => r.json())
+                .then(data => {
+                    const results = data.results || [];
+                    const tbody = document.getElementById('resultsBody');
+                    const noResults = document.getElementById('noResults');
+
+                    if (!results.length) {
+                        tbody.innerHTML = '';
+                        noResults.style.display = 'block';
+                        return;
+                    }
+                    noResults.style.display = 'none';
+
+                    tbody.innerHTML = results.map(r => `
+                        <tr>
+                            <td><strong>${r.full_name}</strong><br><small style="color:#9ca3af;">${r.email}</small></td>
+                            <td>${r.domain_name}</td>
+                            <td>${r.schedule_title || '-'}</td>
+                            <td>${r.exam_date || '-'}</td>
+                            <td>${r.marks_obtained}/${r.max_marks}</td>
+                            <td>${r.percentage}%</td>
+                            <td>${r.passed ? '<span class="badge badge-success">Passed</span>' : '<span class="badge badge-danger">Failed</span>'}</td>
+                            <td>${r.remarks || '-'}</td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(() => showToast('Failed to load results', 'error'));
+        }
+
+        // ==================== MODALS ====================
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        // ==================== TOAST ====================
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ==================== SIDEBAR ====================
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('active'); document.querySelector('.sidebar-overlay').classList.toggle('active'); }
+        function closeSidebar() { document.getElementById('sidebar').classList.remove('active'); document.querySelector('.sidebar-overlay').classList.remove('active'); }
+    </script>
+</body>
+</html>

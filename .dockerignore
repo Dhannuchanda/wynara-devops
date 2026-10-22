@@ -1,0 +1,14 @@
+.git
+.env
+*.pem
+*.db
+*.log
+__pycache__
+*.py[cod]
+venv
+.venv
+uploads
+private_uploads
+flask_session
+*.md
+gcp_setup.py

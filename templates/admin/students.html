@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students Management - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        /* Sticky filter bar at top while scrolling */
+        .sticky-filters {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: white;
+            padding-bottom: 15px;
+            margin: -30px -30px 20px -30px;
+            padding: 20px 30px 15px;
+            border-radius: 12px 12px 0 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            z-index: 100;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .back-to-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+        .back-to-top.visible {
+            display: flex;
+        }
+
+        .top-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filters {
+            display: flex;
+            gap: 15px;
+            flex: 1;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Table for Desktop */
+        .table-container {
+            overflow-x: auto;
+            display: block;
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+        }
+
+        /* Custom scrollbar for table container */
+        .table-container::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #667eea;
+        }
+        .table-container::-webkit-scrollbar-corner {
+            background: #f1f5f9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .status-suspended {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .hr-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .hr-assigned {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .hr-not-assigned {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .btn-view {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(37, 99, 235, 0.3);
+        }
+
+        .action-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .action-menu-btn {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-menu-btn:hover {
+            background: #e2e8f0;
+            color: #334155;
+            border-color: #cbd5e1;
+        }
+
+        .action-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 6px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+            z-index: 1000;
+            overflow: hidden;
+        }
+
+        .action-menu.show {
+            display: block;
+        }
+
+        .menu-item {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            background: white;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #334155;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-item:hover {
+            background: #f8fafc;
+        }
+
+        .menu-item.warning {
+            color: #d97706;
+        }
+
+        .menu-item.warning:hover {
+            background: #fef3c7;
+        }
+
+        .menu-item.danger {
+            color: #dc2626;
+        }
+
+        .menu-item.danger:hover {
+            background: #fef2f2;
+        }
+
+        .hr-selection-panel {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: #f8f9fa;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+        }
+
+        .hr-selection-panel.show {
+            display: block;
+        }
+
+        .hr-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .hr-panel-close {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .hr-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .hr-card {
+            padding: 15px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .hr-card:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f0f4ff;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        /* Bulk selection */
+        .bulk-checkbox {
+            width: 18px; height: 18px; cursor: pointer; accent-color: #667eea;
+        }
+        .bulk-action-bar {
+            display: none; align-items: center; gap: 15px;
+            padding: 12px 20px; background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            border: 2px solid #ffc107; border-radius: 10px; margin-bottom: 20px;
+            animation: slideDown 0.3s ease;
+        }
+        .bulk-action-bar.show { display: flex; flex-wrap: wrap; }
+        .bulk-action-bar .bulk-count { font-weight: bold; color: #856404; font-size: 15px; }
+        .btn-bulk-delete {
+            padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+            background: linear-gradient(135deg, #dc3545, #c82333); color: white;
+            transition: all 0.3s;
+        }
+        .btn-bulk-delete:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(220,53,69,0.4); }
+        .btn-bulk-action {
+            padding: 8px 18px; border: none; border-radius: 8px; cursor: pointer;
+            font-weight: bold; font-size: 14px; display: inline-flex; align-items: center; gap: 6px;
+            color: white; transition: all 0.3s;
+        }
+        .btn-bulk-activate {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        .btn-bulk-activate:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(40,167,69,0.4); }
+        .btn-bulk-suspend {
+            background: linear-gradient(135deg, #fd7e14, #e85d04);
+        }
+        .btn-bulk-suspend:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(253,126,20,0.4); }
+        .btn-bulk-approve {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+        }
+        .btn-bulk-approve:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-bulk-deselect {
+            padding: 8px 14px; border: 1px solid #aaa; border-radius: 8px; cursor: pointer;
+            background: white; color: #333; font-size: 13px; transition: all 0.2s;
+        }
+        .btn-bulk-deselect:hover { background: #f1f5f9; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        tr.row-selected { background: #fff8e1 !important; }
+
+        /* Mobile Card View */
+        .student-cards {
+            display: none;
+        }
+
+        .student-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .student-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .student-card-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .student-card-wapl-id {
+            font-size: 13px;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        .student-card-info {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: #1e293b;
+        }
+
+        .student-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .table-container {
+                max-height: calc(100vh - 340px);
+            }
+
+            .sticky-filters {
+                margin: -20px -15px 15px -15px;
+                padding: 15px 15px 10px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .top-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Hide table, show cards */
+            .table-container {
+                display: none;
+            }
+
+            .student-cards {
+                display: block;
+            }
+
+            .hr-cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .student-card-actions {
+                flex-direction: column;
+            }
+
+            .btn-view {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .action-menu {
+                left: 0;
+                right: auto;
+                min-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .sticky-filters {
+                margin: -15px -10px 10px -10px;
+                padding: 10px 10px 8px;
+            }
+
+            .student-card {
+                padding: 15px;
+            }
+
+            .student-card-name {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students" class="active">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Students Management</h1>
+                    <span class="role-badge super-admin" id="roleBadge">SUPER ADMIN</span>
+                </div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="content-card">
+                <div class="sticky-filters">
+                    <div class="top-actions">
+                        <div class="filters">
+                            <div class="filter-group">
+                                <label>Filter by Status:</label>
+                                <select id="statusFilter" onchange="filterStudents()">
+                                    <option value="">All Students</option>
+                                    <option value="active">Active</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="suspended">Suspended</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Filter by Domain:</label>
+                                <select id="domainFilter" onchange="filterStudents()">
+                                    <option value="">All Domains</option>
+                                    <option value="__none__">No Domain</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>Search:</label>
+                                <input type="text" id="searchInput" placeholder="Search by name, email, WAPL ID..." oninput="filterStudents()">
+                            </div>
+                        </div>
+                        <button onclick="window.location.href='/secure-admin-panel/wapl/add-student'" class="btn btn-primary">
+                            ➕ Add New Student
+                        </button>
+                        <button onclick="window.location.href='/secure-admin-panel/wapl/bulk-upload-students'" class="btn btn-primary" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                            📤 Bulk Upload
+                        </button>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                        <h2>All Students <span id="studentCount" style="font-size:14px; color:#999; font-weight:normal;"></span></h2>
+                    </div>
+                </div>
+
+                <!-- Bulk Action Bar -->
+                <div class="bulk-action-bar" id="bulkActionBar">
+                    <span class="bulk-count" id="bulkCount">0 selected</span>
+                    <button class="btn-bulk-action btn-bulk-activate" onclick="bulkStatusUpdate('activate')">✅ Activate</button>
+                    <button class="btn-bulk-action btn-bulk-approve" onclick="bulkStatusUpdate('approve')">👍 Approve</button>
+                    <button class="btn-bulk-action btn-bulk-suspend" onclick="bulkStatusUpdate('suspend')">⏸ Suspend</button>
+                    <button class="btn-bulk-delete" onclick="bulkDeleteStudents()">🗑 Delete</button>
+                    <button class="btn-bulk-deselect" onclick="deselectAll()">✖ Deselect All</button>
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:40px;"><input type="checkbox" class="bulk-checkbox" id="selectAllCheckbox" onclick="toggleSelectAll(this)"></th>
+                                <th>WAPL ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Domains</th>
+                                <th>Assigned HR</th>
+                                <th>Status</th>
+                                <th>Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="10">
+                                    <div class="empty-state">
+                                        <h3>Loading students...</h3>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="student-cards" id="studentCards">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Back to Top Button -->
+    <button class="back-to-top" id="backToTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">↑</button>
+
+    <script>
+        let allStudents = [];
+        let allHRs = [];
+        let filteredStudents = [];
+        let selectedStudentIds = new Set();
+
+        // Back-to-top button visibility
+        window.addEventListener('scroll', function() {
+            const btn = document.getElementById('backToTop');
+            if (window.scrollY > 300) {
+                btn.classList.add('visible');
+            } else {
+                btn.classList.remove('visible');
+            }
+        });
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking super admin:', error);
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/admin/students');
+                allStudents = await response.json();
+                filteredStudents = allStudents;
+                populateDomainFilter();
+                displayStudents();
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        function populateDomainFilter() {
+            const select = document.getElementById('domainFilter');
+            const currentValue = select.value;
+            const domainSet = new Set();
+            allStudents.forEach(s => {
+                if (s.domain_names) {
+                    s.domain_names.split(',').forEach(d => {
+                        const trimmed = d.trim();
+                        if (trimmed) domainSet.add(trimmed);
+                    });
+                }
+            });
+            const sorted = Array.from(domainSet).sort((a, b) => a.localeCompare(b));
+            // Keep first two static options, rebuild the rest
+            select.innerHTML = '<option value="">All Domains</option><option value="__none__">No Domain</option>' +
+                sorted.map(d => `<option value="${d}">${d}</option>`).join('');
+            select.value = currentValue;
+        }
+
+        async function loadHRs() {
+            try {
+                const response = await fetch('/api/admin/hrs');
+                allHRs = await response.json();
+            } catch (error) {
+                console.error('Error loading HRs:', error);
+            }
+        }
+
+        function displayStudents() {
+            displayTableView();
+            displayCardView();
+            updateSelectAllCheckbox();
+            // Update count
+            const countEl = document.getElementById('studentCount');
+            if (countEl) {
+                const total = allStudents.length;
+                const showing = filteredStudents.length;
+                countEl.textContent = total === showing ? `(${total})` : `(${showing} of ${total})`;
+            }
+        }
+
+        function displayTableView() {
+            const tbody = document.getElementById('studentsTableBody');
+            
+            if (filteredStudents.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10">
+                            <div class="empty-state">
+                                <h3>📭 No students found</h3>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filteredStudents.map(student => `
+                <tr class="${selectedStudentIds.has(student.id) ? 'row-selected' : ''}">
+                    <td><input type="checkbox" class="bulk-checkbox" ${selectedStudentIds.has(student.id) ? 'checked' : ''} onchange="toggleStudentSelection(${student.id}, this)"></td>
+                    <td><strong>${student.wapl_id || 'N/A'}</strong></td>
+                    <td>${student.full_name || 'N/A'}</td>
+                    <td>${student.email || 'N/A'}</td>
+                    <td>${student.phone || 'N/A'}</td>
+                    <td>${student.domain_names || 'N/A'}</td>
+                    <td>
+                        ${student.assigned_hr_name ? 
+                            `<span class="hr-badge hr-assigned">✓ ${student.assigned_hr_name}</span>` :
+                            `<span class="hr-badge hr-not-assigned">Not Assigned</span>`
+                        }
+                    </td>
+                    <td>
+                        <span class="status-badge status-${student.account_status}">
+                            ${student.account_status || 'N/A'}
+                        </span>
+                    </td>
+                    <td>${formatDate(student.created_at || student.registration_date)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-view" onclick="viewStudent(${student.id})">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                View
+                            </button>
+                            
+                            <div class="action-dropdown">
+                                <button class="action-menu-btn" onclick="toggleActionMenu(event, ${student.id})">
+                                    <svg width="18" height="18" viewBox="0 0 20 20" fill="currentColor">
+                                        <circle cx="10" cy="4" r="1.5"/>
+                                        <circle cx="10" cy="10" r="1.5"/>
+                                        <circle cx="10" cy="16" r="1.5"/>
+                                    </svg>
+                                </button>
+                                <div class="action-menu" id="actionMenu${student.id}">
+                                    ${student.account_status === 'pending' ? 
+                                        `<button onclick="approveStudent(${student.id})" class="menu-item warning">✓ Approve</button>` : ''
+                                    }
+                                    ${student.account_status === 'active' ? 
+                                        `<button onclick="suspendStudent(${student.id})" class="menu-item warning">⏸ Suspend</button>` : 
+                                        `<button onclick="activateStudent(${student.id})" class="menu-item warning">▶ Activate</button>`
+                                    }
+                                    ${student.account_status === 'active' ? 
+                                        `<button onclick="issueCertificate(${student.id}, '${escapeHtml(student.full_name)}')" class="menu-item success">🎓 Issue Certificate</button>` : ''
+                                    }
+                                    <button onclick="deleteStudent(${student.id})" class="menu-item danger">🗑 Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayCardView() {
+            const cardsContainer = document.getElementById('studentCards');
+            
+            if (filteredStudents.length === 0) {
+                cardsContainer.innerHTML = `<div class="empty-state"><h3>📭 No students found</h3></div>`;
+                return;
+            }
+
+            cardsContainer.innerHTML = filteredStudents.map(student => `
+                <div class="student-card">
+                    <div class="student-card-header">
+                        <div>
+                            <div class="student-card-name">${student.full_name || 'N/A'}</div>
+                            <div class="student-card-wapl-id">${student.wapl_id || 'N/A'}</div>
+                        </div>
+                        <span class="status-badge status-${student.account_status}">
+                            ${student.account_status || 'N/A'}
+                        </span>
+                    </div>
+                    
+                    <div class="student-card-info">
+                        <div class="info-row">
+                            <span class="info-label">📧 Email:</span>
+                            <span class="info-value">${student.email || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📱 Phone:</span>
+                            <span class="info-value">${student.phone || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">🏷️ Domains:</span>
+                            <span class="info-value">${student.domain_names || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">👔 HR:</span>
+                            <span class="info-value">
+                                ${student.assigned_hr_name ? 
+                                    `<span class="hr-badge hr-assigned">✓ ${student.assigned_hr_name}</span>` :
+                                    `<span class="hr-badge hr-not-assigned">Not Assigned</span>`
+                                }
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📅 Registered:</span>
+                            <span class="info-value">${formatDate(student.created_at || student.registration_date)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="student-card-actions">
+                        <button class="btn-view" onclick="viewStudent(${student.id})" style="width: 100%;">
+                            👁️ View Details
+                        </button>
+                        ${student.account_status === 'pending' ? 
+                            `<button onclick="approveStudent(${student.id})" class="btn-view" style="background: #28a745; width: 100%;">✓ Approve</button>` : ''
+                        }
+                        ${student.account_status === 'active' ? 
+                            `<button onclick="issueCertificate(${student.id}, '${escapeHtml(student.full_name)}')" class="btn-view" style="background: #667eea; width: 100%;">🎓 Issue Certificate</button>` : ''
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleActionMenu(event, studentId) {
+            event.stopPropagation();
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                if (menu.id !== `actionMenu${studentId}`) {
+                    menu.classList.remove('show');
+                }
+            });
+            document.getElementById(`actionMenu${studentId}`).classList.toggle('show');
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.action-menu').forEach(menu => {
+                menu.classList.remove('show');
+            });
+        });
+
+        async function approveStudent(studentId) {
+            if (!confirm('Approve this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/approve`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudents();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function suspendStudent(studentId) {
+            if (!confirm('Suspend this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/suspend`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudents();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function activateStudent(studentId) {
+            if (!confirm('Activate this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/activate`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudents();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        async function deleteStudent(studentId) {
+            if (!confirm('⚠️ Are you sure you want to delete this student? This action cannot be undone!')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}`, { method: 'DELETE' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    selectedStudentIds.delete(studentId);
+                    updateBulkBar();
+                    loadStudents();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        // ========== BULK SELECT / DELETE ==========
+
+        function toggleStudentSelection(studentId, checkbox) {
+            if (checkbox.checked) {
+                selectedStudentIds.add(studentId);
+                checkbox.closest('tr').classList.add('row-selected');
+            } else {
+                selectedStudentIds.delete(studentId);
+                checkbox.closest('tr').classList.remove('row-selected');
+            }
+            updateBulkBar();
+            updateSelectAllCheckbox();
+        }
+
+        function toggleSelectAll(masterCheckbox) {
+            if (masterCheckbox.checked) {
+                filteredStudents.forEach(s => selectedStudentIds.add(s.id));
+            } else {
+                filteredStudents.forEach(s => selectedStudentIds.delete(s.id));
+            }
+            updateBulkBar();
+            displayStudents();
+        }
+
+        function deselectAll() {
+            selectedStudentIds.clear();
+            const master = document.getElementById('selectAllCheckbox');
+            if (master) master.checked = false;
+            updateBulkBar();
+            displayStudents();
+        }
+
+        function updateBulkBar() {
+            const bar = document.getElementById('bulkActionBar');
+            const countEl = document.getElementById('bulkCount');
+            const count = selectedStudentIds.size;
+            if (count > 0) {
+                bar.classList.add('show');
+                countEl.textContent = `${count} student${count > 1 ? 's' : ''} selected`;
+            } else {
+                bar.classList.remove('show');
+            }
+        }
+
+        function updateSelectAllCheckbox() {
+            const master = document.getElementById('selectAllCheckbox');
+            if (!master) return;
+            const allFilteredIds = filteredStudents.map(s => s.id);
+            const allSelected = allFilteredIds.length > 0 && allFilteredIds.every(id => selectedStudentIds.has(id));
+            const someSelected = allFilteredIds.some(id => selectedStudentIds.has(id));
+            master.checked = allSelected;
+            master.indeterminate = someSelected && !allSelected;
+        }
+
+        async function bulkDeleteStudents() {
+            const count = selectedStudentIds.size;
+            if (count === 0) return;
+            if (!confirm(`⚠️ Are you sure you want to permanently delete ${count} student${count > 1 ? 's' : ''}? This action cannot be undone!`)) return;
+
+            try {
+                const response = await fetch('/api/admin/students/bulk-delete', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_ids: Array.from(selectedStudentIds) })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    let msg = `✅ ${data.message}`;
+                    if (data.errors && data.errors.length > 0) {
+                        msg += '\n\nErrors:\n' + data.errors.join('\n');
+                    }
+                    alert(msg);
+                    selectedStudentIds.clear();
+                    updateBulkBar();
+                    loadStudents();
+                } else {
+                    alert('❌ ' + (data.error || 'Bulk delete failed'));
+                }
+            } catch (error) {
+                console.error('Bulk delete error:', error);
+                alert('❌ An error occurred during bulk delete');
+            }
+        }
+
+        async function bulkStatusUpdate(action) {
+            const count = selectedStudentIds.size;
+            if (count === 0) return;
+
+            const actionLabels = {
+                'activate': { label: 'activate', emoji: '✅', color: 'active' },
+                'suspend': { label: 'suspend', emoji: '⏸', color: 'suspended' },
+                'approve': { label: 'approve', emoji: '👍', color: 'approved' }
+            };
+            const info = actionLabels[action];
+            if (!info) return;
+
+            if (!confirm(`${info.emoji} Are you sure you want to ${info.label} ${count} student${count > 1 ? 's' : ''}?`)) return;
+
+            try {
+                const response = await fetch('/api/admin/students/bulk-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ student_ids: Array.from(selectedStudentIds), action: action })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    let msg = `${info.emoji} ${data.message}`;
+                    if (data.errors && data.errors.length > 0) {
+                        msg += '\n\nErrors:\n' + data.errors.join('\n');
+                    }
+                    alert(msg);
+                    selectedStudentIds.clear();
+                    updateBulkBar();
+                    loadStudents();
+                } else {
+                    alert('❌ ' + (data.error || `Bulk ${info.label} failed`));
+                }
+            } catch (error) {
+                console.error(`Bulk ${action} error:`, error);
+                alert(`❌ An error occurred during bulk ${info.label}`);
+            }
+        }
+
+        async function issueCertificate(studentId, studentName) {
+            if (!confirm(`🎓 Issue certificate for ${studentName}?`)) return;
+            try {
+                const response = await fetch('/api/admin/certificates/issue', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentIds: [studentId] })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ Certificate issued successfully!');
+                    loadStudents();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to issue certificate'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred while issuing certificate');
+            }
+        }
+
+        function viewStudent(studentId) {
+            window.location.href = `/secure-admin-panel/wapl/student/${studentId}`;
+        }
+
+        function filterStudents() {
+            const status = document.getElementById('statusFilter').value;
+            const domain = document.getElementById('domainFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            filteredStudents = allStudents.filter(student => {
+                const matchesStatus = !status || student.account_status === status;
+
+                let matchesDomain = true;
+                if (domain === '__none__') {
+                    matchesDomain = !student.domain_names;
+                } else if (domain) {
+                    matchesDomain = student.domain_names && student.domain_names.split(',').map(d => d.trim()).includes(domain);
+                }
+
+                const matchesSearch = !search || 
+                    student.full_name?.toLowerCase().includes(search) ||
+                    student.email?.toLowerCase().includes(search) ||
+                    student.wapl_id?.toLowerCase().includes(search) ||
+                    student.phone?.includes(search);
+
+                return matchesStatus && matchesDomain && matchesSearch;
+            });
+
+            displayStudents();
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return 'N/A';
+                return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch (error) {
+                return 'N/A';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkSuperAdmin();
+            await loadHRs();
+            await loadStudents();
+        });
+    </script>
+</body>
+</html>

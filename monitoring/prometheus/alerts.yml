@@ -1,0 +1,25 @@
+groups:
+  - name: wynara
+    rules:
+      - alert: WynaraAppDown
+        expr: up{job="wynara"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: Wynara application is down
+          description: Prometheus cannot scrape the Wynara application for one minute.
+
+      - alert: WynaraHigh5xxRate
+        expr: |
+          (
+            sum(rate(flask_http_request_total{job="wynara",status=~"5.."}[5m]))
+            /
+            clamp_min(sum(rate(flask_http_request_total{job="wynara"}[5m])), 0.001)
+          ) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: Wynara 5xx error rate is above 5%
+          description: More than 5% of requests returned 5xx responses for five minutes.

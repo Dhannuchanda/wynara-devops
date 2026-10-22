@@ -1,0 +1,83 @@
+/* Home (index.html) */
+.landing-page {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.hero-section {
+  background: var(--brand-gradient);
+  padding: 10rem 2rem;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+}
+.hero-section .container {
+  text-align: center;
+  z-index: 2;
+}
+.hero-title {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  margin-bottom: 1rem;
+  animation: slideInUp 0.8s ease both;
+}
+.hero-subtitle {
+  font-size: 1.5rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 3rem;
+  font-weight: 500;
+  animation: slideInUp 0.8s ease both 0.1s;
+}
+.hero-buttons {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: slideInUp 0.8s ease both 0.2s;
+}
+.hero-buttons .btn { animation: slideInUp 0.6s ease both; }
+.hero-buttons .btn + .btn { animation-delay: 0.1s; }
+
+.features-section .feature-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.features-section .feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+}
+
+.hero-buttons .btn-primary,
+.hero-buttons .btn-secondary {
+  background: var(--brand-gradient);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-colored);
+  position: relative;
+  overflow: hidden;
+}
+.hero-buttons .btn-primary::after,
+.hero-buttons .btn-secondary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+.hero-buttons .btn-primary:hover::after,
+.hero-buttons .btn-secondary:hover::after { left: 150%; }

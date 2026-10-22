@@ -1,0 +1,6 @@
+/* Admin Certificates */
+.admin-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); padding: 2rem; }
+.dashboard-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+.dashboard-card::before { content:''; display:block; height:6px; background: var(--brand-gradient); border-radius: var(--radius-sm); }
+.modal .modal-content { border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+#certificatesTable table { border-radius: var(--radius-md); overflow:hidden; }

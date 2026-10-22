@@ -1,0 +1,51 @@
+{
+  "annotations": {"list": []},
+  "editable": false,
+  "panels": [
+    {
+      "title": "Request rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+      "targets": [{"expr": "sum(rate(flask_http_request_total{job=\"wynara\"}[5m]))", "legendFormat": "requests/s"}]
+    },
+    {
+      "title": "5xx error rate",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+      "targets": [{"expr": "sum(rate(flask_http_request_total{job=\"wynara\",status=~\"5..\"}[5m])) / clamp_min(sum(rate(flask_http_request_total{job=\"wynara\"}[5m])), 0.001)", "legendFormat": "5xx ratio"}]
+    },
+    {
+      "title": "Request latency p95",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+      "targets": [{"expr": "histogram_quantile(0.95, sum(rate(flask_http_request_duration_seconds_bucket{job=\"wynara\"}[5m])) by (le))", "legendFormat": "seconds"}]
+    },
+    {
+      "title": "Container CPU",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+      "targets": [{"expr": "sum(rate(container_cpu_usage_seconds_total{name!=\"\"}[5m])) by (name)", "legendFormat": "{{name}}"}]
+    },
+    {
+      "title": "Container memory",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+      "targets": [{"expr": "sum(container_memory_working_set_bytes{name!=\"\"}) by (name)", "legendFormat": "{{name}}"}]
+    },
+    {
+      "title": "Host disk available",
+      "type": "timeseries",
+      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+      "targets": [{"expr": "100 * node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"}", "legendFormat": "available %"}]
+    }
+  ],
+  "refresh": "15s",
+  "schemaVersion": 39,
+  "style": "dark",
+  "tags": ["wynara"],
+  "templating": {"list": []},
+  "time": {"from": "now-1h", "to": "now"},
+  "title": "Wynara Overview",
+  "uid": "wynara-overview",
+  "version": 1
+}

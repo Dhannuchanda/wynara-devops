@@ -1,0 +1,68 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows:
+      - CI
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: [self-hosted, linux, x64]
+    steps:
+      - name: Check out deployed commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Log in to GHCR
+        env:
+          GHCR_USERNAME: ${{ secrets.GHCR_USERNAME }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          test -n "$GHCR_USERNAME"
+          test -n "$GHCR_TOKEN"
+          printf '%s' "$GHCR_TOKEN" | docker login ghcr.io \
+            --username "$GHCR_USERNAME" --password-stdin
+
+      - name: Pull and start application
+        env:
+          WYNARA_IMAGE: ghcr.io/${{ github.repository }}
+          WYNARA_TAG: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          export WYNARA_IMAGE="${WYNARA_IMAGE,,}"
+          test -f .env
+          test -f nginx/certs/wynara.crt
+          test -f nginx/certs/wynara.key
+          docker compose pull web
+          docker compose up -d --no-build
+
+      - name: Verify deployment
+        run: |
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error --insecure https://127.0.0.1/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          docker compose ps
+          exit 1
+
+      - name: Roll back after failed deployment
+        if: ${{ failure() && vars.WYNARA_ROLLBACK_SHA != '' }}
+        env:
+          WYNARA_IMAGE: ghcr.io/${{ github.repository }}
+          WYNARA_TAG: ${{ vars.WYNARA_ROLLBACK_SHA }}
+        run: |
+          export WYNARA_IMAGE="${WYNARA_IMAGE,,}"
+          docker compose pull web
+          docker compose up -d --no-build
+          curl --fail --silent --show-error --insecure https://127.0.0.1/health

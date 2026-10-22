@@ -1,0 +1,7 @@
+/* Student Dashboard */
+.dashboard-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); }
+.dashboard-card { composes: glass-card; }
+.dashboard-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+.dashboard-card::before { content:''; display:block; height:6px; background: var(--brand-gradient); border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); }
+.dashboard-card:hover { transform: translateY(-4px); box-shadow: 0 18px 48px rgba(0,0,0,0.12); transition: all 0.3s ease; }
+.dashboard-actions .btn { background: var(--brand-gradient); color:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-colored); }

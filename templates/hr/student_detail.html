@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Student Profile - WAPL HR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .hr-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a,
+        .nav-menu button {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu button:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i,
+        .nav-menu button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .hr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .hr-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .btn-back {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .profile-header {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .profile-pic-container {
+            flex-shrink: 0;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 3px solid #1e3c72;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-pic.placeholder {
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #64748b;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .profile-wapl-id {
+            font-size: 14px;
+            color: #1e3c72;
+            font-family: monospace;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .content-card h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1e3c72;
+        }
+
+        .resume-section {
+            background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 100%);
+            border-left: 4px solid #2196f3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .resume-file {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .resume-icon {
+            font-size: 30px;
+        }
+
+        .resume-info {
+            flex: 1;
+        }
+
+        .resume-name {
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .resume-size {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .status-viewed { background: #dbeafe; color: #1e40af; }
+        .status-shortlisted { background: #fef3c7; color: #92400e; }
+        .status-interview_scheduled { background: #ede9fe; color: #5b21b6; }
+        .status-selected { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .notes-box {
+            background: #f8fafc;
+            border-left: 4px solid #1e3c72;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 15px;
+            color: #475569;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-content h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .hr-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 20px;
+            }
+
+            .btn-back {
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                padding: 20px 15px;
+            }
+
+            .profile-name {
+                font-size: 22px;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .resume-file {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 18px;
+            }
+
+            .profile-pic {
+                width: 120px;
+                height: 120px;
+                font-size: 48px;
+            }
+
+            .profile-name {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="hr-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>👔 WAPL HR</h2>
+                <p>Human Resources Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/hr/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/hr/students" class="active">
+                    <i>👨‍🎓</i> My Students
+                </a>
+                <a href="/hr/profile">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/hr/messages">
+                    <i>💬</i> Messages
+                </a>
+                <button onclick="logout()">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="hr-header">
+                <h1>Student Profile</h1>
+                <a href="/hr/students" class="btn-back">← Back to Students</a>
+            </div>
+
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <div id="studentDetail">
+                <p style="padding: 40px; text-align: center; color: #666;">Loading student details...</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const studentId = window.location.pathname.split('/').pop();
+        let currentStatus = 'viewed';
+        let currentStudent = null;
+
+        const statusLabels = {
+            'viewed': '👁️ Viewed',
+            'shortlisted': '⭐ Shortlisted',
+            'interview_scheduled': '📅 Interview Scheduled',
+            'selected': '✅ Selected',
+            'rejected': '❌ Rejected'
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function loadStudentDetail() {
+            try {
+                const res = await fetch(`/api/hr/student/${studentId}`);
+                const student = await res.json();
+
+                if (!res.ok) {
+                    document.getElementById('studentDetail').innerHTML = '<div class="content-card"><p>Student not found</p></div>';
+                    return;
+                }
+
+                currentStudent = student;
+
+                const statusRes = await fetch(`/api/hr/student/${studentId}/status`);
+                const statusData = await statusRes.json();
+                currentStatus = statusData.status || 'viewed';
+
+                // Profile picture
+                let profilePicHTML = '';
+                if (student.profile_pic) {
+                    let profileName = student.profile_pic.split('/').pop().split('\\').pop();
+                    const profilePath = `/uploads/profile_pics/${profileName}`;
+                    profilePicHTML = `<img src="${profilePath}" alt="${student.full_name}" class="profile-pic" onerror="this.outerHTML='<div class=\\'profile-pic placeholder\\'>👤</div>'">`;
+                } else {
+                    profilePicHTML = `<div class="profile-pic placeholder">👤</div>`;
+                }
+
+                // Resume section
+                let resumeHTML = '';
+                if (student.resume) {
+                    let resumePath;
+                    let resumeName;
+                    
+                    if (student.resume.startsWith('http')) {
+                        resumePath = student.resume;
+                        try {
+                            resumeName = decodeURIComponent(student.resume.split('/').pop().split('?')[0]);
+                        } catch (e) {
+                            resumeName = "Resume";
+                        }
+                    } else {
+                        let resumeFile = student.resume.split('/').pop().split('\\').pop();
+                        resumePath = `/download/resumes/${resumeFile}`;
+                        resumeName = resumeFile.split('_').slice(1).join('_') || resumeFile;
+                    }
+                    
+                    resumeHTML = `
+                        <div class="resume-section">
+                            <h2>📄 Resume</h2>
+                            <div class="resume-file">
+                                <div class="resume-icon">📑</div>
+                                <div class="resume-info">
+                                    <div class="resume-name">${resumeName}</div>
+                                    <div class="resume-size">Click download to view PDF</div>
+                                </div>
+                                <a href="${resumePath}" class="btn btn-primary" target="_blank">⬇️ Download</a>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                const studentHTML = `
+                    <div class="profile-header">
+                        <div class="profile-pic-container">
+                            ${profilePicHTML}
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name">${student.full_name}</div>
+                            <div class="profile-wapl-id">WAPL ID: ${student.wapl_id}</div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Email</div>
+                                    <div class="info-value">${student.email}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Phone</div>
+                                    <div class="info-value">${student.phone || 'N/A'}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Domain</div>
+                                    <div class="info-value">${student.domain_name || 'N/A'}</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Address</div>
+                                    <div class="info-value">${student.address || 'N/A'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    ${resumeHTML}
+
+                    ${student.skills && student.skills.length > 0 ? `
+                        <div class="content-card">
+                            <h2>💼 Skills</h2>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                ${(Array.isArray(student.skills) ? student.skills : [student.skills]).map(s => 
+                                    `<span style="background: #e3f2fd; color: #1565c0; padding: 4px 12px; border-radius: 16px; font-size: 0.9em;">${typeof s === 'object' ? (s.name || JSON.stringify(s)) : s}</span>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${student.projects && student.projects.length > 0 ? `
+                        <div class="content-card">
+                            <h2>🚀 Projects</h2>
+                            ${(Array.isArray(student.projects) ? student.projects : []).map(p => `
+                                <div style="margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <strong>${typeof p === 'object' ? (p.title || p.name || 'Project') : p}</strong>
+                                    ${typeof p === 'object' && p.description ? `<p style="margin: 4px 0 0; color: #666;">${p.description}</p>` : ''}
+                                    ${typeof p === 'object' && p.link ? `<a href="${p.link}" target="_blank" style="color: #1976d2; font-size: 0.9em;">View Project</a>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    ${student.education_details && student.education_details.length > 0 ? `
+                        <div class="content-card">
+                            <h2>🎓 Education</h2>
+                            ${(Array.isArray(student.education_details) ? student.education_details : []).map(ed => `
+                                <div style="margin-bottom: 12px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                                    <strong>${typeof ed === 'object' ? (ed.degree || ed.institution || 'Education') : ed}</strong>
+                                    ${typeof ed === 'object' && ed.institution ? `<p style="margin: 2px 0 0; color: #555;">${ed.institution}</p>` : ''}
+                                    ${typeof ed === 'object' && ed.year ? `<span style="color: #888; font-size: 0.85em;">${ed.year}</span>` : ''}
+                                    ${typeof ed === 'object' && ed.percentage ? `<span style="color: #888; font-size: 0.85em;"> | ${ed.percentage}</span>` : ''}
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+
+                    <div class="content-card">
+                        <h2>📋 Recruitment Status</h2>
+                        <div class="status-badge status-${currentStatus}">
+                            ${statusLabels[currentStatus] || 'Unknown'}
+                        </div>
+                        ${statusData.notes ? `<div class="notes-box"><strong>Notes:</strong> ${statusData.notes}</div>` : ''}
+                        
+                        <div class="action-grid">
+                            <button class="btn btn-primary" onclick="openShortlistModal()">⭐ Shortlist</button>
+                            <button class="btn btn-primary" onclick="openInterviewModal()">📅 Schedule Interview</button>
+                            <button class="btn btn-success" onclick="openSelectModal()">✅ Select/Hire</button>
+                            <button class="btn btn-danger" onclick="openRejectModal()">❌ Reject</button>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('studentDetail').innerHTML = studentHTML;
+            } catch (e) {
+                console.error('Error loading student:', e);
+                document.getElementById('studentDetail').innerHTML = '<div class="content-card"><p>Error loading student details</p></div>';
+            }
+        }
+
+        function openShortlistModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>⭐ Shortlist Student</h2>
+                    <div class="form-group">
+                        <label>Notes (optional)</label>
+                        <textarea id="shortlistNotes" placeholder="Add notes about why this candidate was shortlisted"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button class="btn btn-primary" onclick="shortlistStudent()">Shortlist</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function shortlistStudent() {
+            const notes = document.getElementById('shortlistNotes').value;
+            
+            try {
+                const res = await fetch(`/api/hr/student/${studentId}/shortlist`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: notes || '' })
+                });
+                
+                if (res.ok) {
+                    showSuccess('✅ Student shortlisted successfully!');
+                    document.querySelector('.modal').remove();
+                    loadStudentDetail();
+                } else {
+                    const err = await res.json();
+                    showError(err.error || 'Failed to shortlist student');
+                }
+            } catch (e) {
+                showError('An error occurred');
+            }
+        }
+
+        function openInterviewModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>📅 Schedule Interview</h2>
+                    <div class="form-group">
+                        <label>Interview Date</label>
+                        <input type="date" id="interviewDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Time</label>
+                        <input type="time" id="interviewTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Interview Location</label>
+                        <input type="text" id="interviewLocation" placeholder="e.g., Conference Room A" required>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button class="btn btn-primary" onclick="scheduleInterview()">Schedule</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function scheduleInterview() {
+            const date = document.getElementById('interviewDate').value;
+            const time = document.getElementById('interviewTime').value;
+            const location = document.getElementById('interviewLocation').value;
+            
+            if (!date || !time || !location) {
+                showError('Please fill in all fields');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/hr/student/${studentId}/interview`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        interview_date: date,
+                        interview_time: time,
+                        interview_location: location
+                    })
+                });
+                
+                if (res.ok) {
+                    showSuccess('✅ Interview scheduled successfully!');
+                    document.querySelector('.modal').remove();
+                    loadStudentDetail();
+                } else {
+                    const err = await res.json();
+                    showError(err.error || 'Failed to schedule interview');
+                }
+            } catch (e) {
+                showError('An error occurred');
+            }
+        }
+
+        function openSelectModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>✅ Select/Hire Student</h2>
+                    <div class="form-group">
+                        <label>Offer Notes (optional)</label>
+                        <textarea id="offerNotes" placeholder="e.g., Salary offer, position details, start date"></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button class="btn btn-success" onclick="selectStudent()">Confirm Selection</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function selectStudent() {
+            const notes = document.getElementById('offerNotes').value;
+            
+            try {
+                const res = await fetch(`/api/hr/student/${studentId}/select`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ offer_notes: notes })
+                });
+                
+                if (res.ok) {
+                    showSuccess('✅ Student selected successfully!');
+                    document.querySelector('.modal').remove();
+                    loadStudentDetail();
+                } else {
+                    const err = await res.json();
+                    showError(err.error || 'Failed to select student');
+                }
+            } catch (e) {
+                showError('An error occurred');
+            }
+        }
+
+        function openRejectModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>❌ Reject Student</h2>
+                    <div class="form-group">
+                        <label>Reason for Rejection</label>
+                        <textarea id="rejectionReason" placeholder="Provide feedback for the candidate" required></textarea>
+                    </div>
+                    <div class="modal-buttons">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">Cancel</button>
+                        <button class="btn btn-danger" onclick="rejectStudent()">Confirm Rejection</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        async function rejectStudent() {
+            const reason = document.getElementById('rejectionReason').value;
+            
+            if (!reason.trim()) {
+                showError('Please provide a rejection reason');
+                return;
+            }
+            
+            try {
+                const res = await fetch(`/api/hr/student/${studentId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: reason })
+                });
+                
+                if (res.ok) {
+                    showSuccess('Student rejected successfully');
+                    document.querySelector('.modal').remove();
+                    loadStudentDetail();
+                } else {
+                    const err = await res.json();
+                    showError(err.error || 'Failed to reject student');
+                }
+            } catch (e) {
+                showError('An error occurred');
+            }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = '❌ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/hr/login';
+            } catch (error) {
+                window.location.href = '/hr/login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadStudentDetail();
+        });
+    </script>
+</body>
+</html>

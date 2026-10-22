@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR Profile - WAPL</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .hr-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a,
+        .nav-menu button {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu button:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i,
+        .nav-menu button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .hr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .hr-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .content-card h2 {
+            font-size: 22px;
+            margin-bottom: 25px;
+            color: #333;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #1e3c72;
+            display: inline-block;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .form-group input:disabled,
+        .form-group textarea:disabled {
+            background: #f1f5f9;
+            cursor: not-allowed;
+            color: #64748b;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .hr-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .content-card h2 {
+                font-size: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-group input,
+            .form-group textarea {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 20px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="hr-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>👔 WAPL HR</h2>
+                <p>Human Resources Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/hr/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/hr/students">
+                    <i>👨‍🎓</i> My Students
+                </a>
+                <a href="/hr/profile" class="active">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/hr/messages">
+                    <i>💬</i> Messages
+                </a>
+                <button onclick="logout()">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="hr-header">
+                <h1>My Profile</h1>
+            </div>
+
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+            <div id="pendingBanner" style="display:none; background: #fef3c7; border: 1px solid #f59e0b; color: #92400e; padding: 15px 20px; border-radius: 10px; margin-bottom: 20px; font-weight: 500;">
+                ⏳ <strong>Pending Changes:</strong> You have a profile change request awaiting admin approval. You cannot submit new changes until it is reviewed.
+            </div>
+
+            <div class="content-card">
+                <h2>📋 Basic Information</h2>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="full_name" placeholder="Your full name" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="your.email@company.com" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" placeholder="1234567890" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Designation</label>
+                        <input type="text" id="designation" placeholder="HR Manager" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company Name</label>
+                        <input type="text" id="company_name" placeholder="Company Name" disabled>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Company Website</label>
+                        <input type="url" id="company_website" placeholder="https://company.com" disabled>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label>Company Address</label>
+                        <textarea id="address" placeholder="Complete company address" disabled></textarea>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="editBtn" onclick="enableEdit()">✏️ Edit Profile</button>
+                    <button class="btn btn-primary" id="saveBtn" onclick="saveProfile()" style="display:none;">💾 Save Changes</button>
+                    <button class="btn btn-secondary" id="cancelBtn" onclick="cancelEdit()" style="display:none;">❌ Cancel</button>
+                </div>
+            </div>
+
+            <!-- Change Password Section -->
+            <div class="content-card">
+                <h2>🔒 Change Password</h2>
+
+                <div id="pwdSuccessAlert" class="alert alert-success"></div>
+                <div id="pwdErrorAlert" class="alert alert-error"></div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Current Password <span style="color:#dc3545;">*</span></label>
+                        <input type="password" id="currentPassword" placeholder="Enter current password">
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Password <span style="color:#dc3545;">*</span></label>
+                        <input type="password" id="newPassword" placeholder="Min 6 characters">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm New Password <span style="color:#dc3545;">*</span></label>
+                        <input type="password" id="confirmPassword" placeholder="Re-enter new password">
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button class="btn btn-primary" id="changePwdBtn" onclick="changePassword()">🔑 Change Password</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let originalData = {};
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        function toggleFields(disabled) {
+            ['full_name', 'email', 'company_name', 'company_website', 'phone', 'designation', 'address'].forEach(id => {
+                const field = document.getElementById(id);
+                if (field) field.disabled = disabled;
+            });
+        }
+
+        function fillForm(data) {
+            document.getElementById('full_name').value = data.full_name || '';
+            document.getElementById('email').value = data.email || data.username || '';
+            document.getElementById('company_name').value = data.company_name || data.company || '';
+            document.getElementById('company_website').value = data.company_website || '';
+            document.getElementById('phone').value = data.phone || '';
+            document.getElementById('designation').value = data.designation || '';
+            document.getElementById('address').value = data.address || '';
+        }
+
+        function enableEdit() {
+            toggleFields(false);
+            document.getElementById('editBtn').style.display = 'none';
+            document.getElementById('saveBtn').style.display = 'inline-flex';
+            document.getElementById('cancelBtn').style.display = 'inline-flex';
+        }
+
+        function cancelEdit() {
+            fillForm(originalData);
+            toggleFields(true);
+            document.getElementById('editBtn').style.display = 'inline-flex';
+            document.getElementById('saveBtn').style.display = 'none';
+            document.getElementById('cancelBtn').style.display = 'none';
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/hr/profile');
+                if (!res.ok) throw new Error('Failed to load profile');
+                
+                const data = await res.json();
+                originalData = {...data};
+                fillForm(data);
+
+                // Check for pending changes
+                const pendingRes = await fetch('/api/hr/profile/pending');
+                const pending = await pendingRes.json();
+                if (pending && pending.id) {
+                    document.getElementById('pendingBanner').style.display = 'block';
+                    document.getElementById('editBtn').disabled = true;
+                    document.getElementById('editBtn').style.opacity = '0.5';
+                    document.getElementById('editBtn').title = 'Changes pending admin approval';
+                } else {
+                    document.getElementById('pendingBanner').style.display = 'none';
+                    document.getElementById('editBtn').disabled = false;
+                    document.getElementById('editBtn').style.opacity = '1';
+                }
+            } catch (e) {
+                console.error('Error loading profile:', e);
+                showError('Failed to load profile data');
+            }
+        }
+
+        async function saveProfile() {
+            const saveBtn = document.getElementById('saveBtn');
+            const originalText = saveBtn.textContent;
+            saveBtn.disabled = true;
+            saveBtn.textContent = '⏳ Saving...';
+
+            try {
+                const res = await fetch('/api/hr/profile', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        full_name: document.getElementById('full_name').value,
+                        email: document.getElementById('email').value,
+                        company_name: document.getElementById('company_name').value,
+                        company_website: document.getElementById('company_website').value,
+                        phone: document.getElementById('phone').value,
+                        designation: document.getElementById('designation').value,
+                        address: document.getElementById('address').value
+                    })
+                });
+                
+                if (res.ok) {
+                    const result = await res.json();
+                    showSuccess(result.message || '✅ Profile change request submitted for admin approval!');
+                    toggleFields(true);
+                    document.getElementById('editBtn').style.display = 'inline-flex';
+                    document.getElementById('saveBtn').style.display = 'none';
+                    document.getElementById('cancelBtn').style.display = 'none';
+                    loadProfile(); // Reload to show pending banner
+                } else {
+                    const error = await res.json();
+                    showError(error.error || 'Failed to update profile');
+                }
+            } catch (e) {
+                console.error('Error saving profile:', e);
+                showError('An error occurred while saving profile');
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.textContent = originalText;
+            }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = '❌ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/hr/login';
+            } catch (error) {
+                window.location.href = '/hr/login';
+            }
+        }
+
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showPwdError('All password fields are required');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showPwdError('New password must be at least 6 characters');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showPwdError('New passwords do not match');
+                return;
+            }
+
+            const btn = document.getElementById('changePwdBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Changing...';
+
+            try {
+                const res = await fetch('/api/hr/change-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showPwdSuccess(data.message || 'Password changed successfully!');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    showPwdError(data.error || 'Failed to change password');
+                }
+            } catch (e) {
+                console.error(e);
+                showPwdError('An error occurred while changing password');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔑 Change Password';
+            }
+        }
+
+        function showPwdSuccess(msg) {
+            const el = document.getElementById('pwdSuccessAlert');
+            el.textContent = '✅ ' + msg;
+            el.style.display = 'block';
+            document.getElementById('pwdErrorAlert').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showPwdError(msg) {
+            const el = document.getElementById('pwdErrorAlert');
+            el.textContent = '❌ ' + msg;
+            el.style.display = 'block';
+            document.getElementById('pwdSuccessAlert').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+        });
+    </script>
+</body>
+</html>

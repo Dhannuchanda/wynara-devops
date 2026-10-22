@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Student Dashboard - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --bg-gradient: radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image:
+                radial-gradient(at 40% 20%, hsla(260, 100%, 93%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(340, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(356, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, hsla(343, 100%, 96%, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Glass Utility */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+
+        .student-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
+        }
+
+        .logo h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: white;
+            color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 2rem 3rem;
+        }
+
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .header-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .header-title p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 0.25rem;
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0.5rem 0.5rem 1rem;
+            border-radius: 50px;
+            background: white;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            text-align: right;
+            margin-right: 0.5rem;
+        }
+
+        .user-info .name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .user-info .role {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            transition: transform 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            word-break: break-all;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+
+        .section-card {
+            padding: 2rem;
+            border-radius: 20px;
+            height: 100%;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .info-item label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            font-weight: 500;
+        }
+
+        .info-item p {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Documents Section */
+        .docs-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .doc-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            transition: background 0.2s;
+        }
+
+        .doc-item:hover {
+            background: white;
+        }
+
+        .doc-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .doc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #e0e7ff;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d1d5db;
+            color: var(--text-main);
+        }
+
+        .btn-outline:hover {
+            background: white;
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        /* Mobile Responsive */
+        .hamburger-btn {
+            display: none;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-main);
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                background: rgba(255, 255, 255, 0.95);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .hamburger-btn {
+                display: block;
+            }
+
+            .header-bar {
+                gap: 1rem;
+            }
+
+            .user-info {
+                display: none;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Status Badges */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .badge-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Recruitment Status */
+        .recruitment-card {
+            padding: 1.5rem;
+            border-radius: 16px;
+        }
+
+        .recruitment-status-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: capitalize;
+            letter-spacing: 0.3px;
+        }
+
+        .recruitment-status-badge.status-viewed {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+
+        .recruitment-status-badge.status-shortlisted {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .recruitment-status-badge.status-interview_scheduled {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .recruitment-status-badge.status-selected {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .recruitment-status-badge.status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .recruitment-timeline {
+            margin-top: 1rem;
+            padding-left: 1rem;
+            border-left: 3px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .recruitment-timeline .timeline-item {
+            padding: 0.5rem 0;
+        }
+
+        .recruitment-timeline .timeline-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .recruitment-timeline .timeline-value {
+            font-size: 0.9rem;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+
+        /* Loading Spinner */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e7ff;
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ========================
+    LOGOUT ANIMATION STYLES
+    ======================== */
+        .logout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111827;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .door-container {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            transform-style: preserve-3d;
+        }
+
+        .door-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid #4b5563;
+            border-bottom: none;
+            background: #1f2937;
+        }
+
+        .door {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #374151;
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #6b7280;
+            display: flex;
+            align-items: center;
+        }
+
+        .door-knob {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fbbf24;
+            margin-left: auto;
+            margin-right: 15px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+            transform: rotateY(90deg);
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .person {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 40px;
+            height: 100px;
+            background: #fff;
+            transform: translateX(-50%) translateZ(20px) scale(0);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: all 1s ease-in-out;
+        }
+
+        .logout-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .logout-overlay.animate .door {
+            transform: rotateY(-110deg);
+        }
+
+        .logout-overlay.animate .light-beam {
+            transform: rotateY(0deg);
+            opacity: 0.5;
+        }
+
+        .logout-overlay.animate .person {
+            animation: exitDoor 1.5s forwards 0.5s;
+            opacity: 1;
+            transform: translateX(-50%) translateZ(0) scale(1);
+        }
+
+        @keyframes exitDoor {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateX(-50%) scale(0.8);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateX(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Logout Animation Overlay -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="door-container">
+            <div class="light-beam"></div>
+            <div class="door-frame"></div>
+            <div class="person"></div>
+            <div class="door">
+                <div class="door-knob"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="student-container">
+
+        <!-- Glass Sidebar -->
+        <aside class="sidebar glass" id="sidebar">
+            <div class="logo" style="text-align: center; padding-left: 0;">
+                <video autoplay muted loop playsinline
+                    style="width: 100%; max-width: 180px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                    <source src="/static/logo/logo.mp4" type="video/mp4">
+                    <h2>WAPL</h2>
+                </video>
+            </div>
+
+            <nav class="nav-menu">
+                <a href="/student/dashboard" class="nav-item active">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/student/profile" class="nav-item">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/exam" class="nav-item">
+                    <i>📝</i> Exam
+                </a>
+                <a href="/student/certificate" class="nav-item">
+                    <i>📜</i> Certificate
+                </a>
+                <a href="/student/messages" class="nav-item">
+                    <i>💬</i> Messages
+                </a>
+                <button onclick="triggerLogout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- Header -->
+            <header class="header-bar">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                    <div class="header-title">
+                        <h1>Dashboard</h1>
+                        <p>Welcome back, <span id="welcomeName">Student</span> 👋</p>
+                    </div>
+                </div>
+
+                <div class="user-pill">
+                    <div class="user-info">
+                        <div class="name" id="pillName">Loading...</div>
+                        <div class="role">Student</div>
+                    </div>
+                    <div class="user-avatar" id="headerAvatar">
+                        <span>S</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="dashboard-grid">
+
+                <!-- Top Row: Stats -->
+                <div class="stats-row">
+                    <div class="stat-card glass">
+                        <span class="stat-label">WAPL ID</span>
+                        <span class="stat-value" id="statId">...</span>
+                    </div>
+                    <div class="stat-card glass" style="--accent-color: #10b981;">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value" id="statStatus">...</span>
+                    </div>
+                    <div class="stat-card glass" style="--accent-color: #f59e0b;">
+                        <span class="stat-label">Domain</span>
+                        <span class="stat-value" id="statDomain">...</span>
+                    </div>
+                    <div class="stat-card glass" style="--accent-color: #3b82f6;">
+                        <span class="stat-label">Phone</span>
+                        <span class="stat-value" id="statPhone">...</span>
+                    </div>
+                </div>
+
+                <!-- Main Content Grid -->
+                <div class="content-grid">
+
+                    <!-- Left Column: Personal Info -->
+                    <div class="section-card glass">
+                        <div class="section-header">
+                            <div class="section-title">
+                                <span>📋</span> Personal Information
+                            </div>
+                            <a href="/student/profile" class="btn btn-outline">Edit</a>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <label>Full Name</label>
+                                <p id="infoName">-</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Email</label>
+                                <p id="infoEmail" style="font-size: 0.9rem; word-break: break-all;">-</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Phone</label>
+                                <p id="infoPhone">-</p>
+                            </div>
+                            <div class="info-item">
+                                <label>Address</label>
+                                <p id="infoAddress">-</p>
+                            </div>
+                        </div>
+
+                        <div id="hrSection" style="margin-top: 2rem; display: none;">
+                            <div
+                                style="background: rgba(102, 126, 234, 0.1); padding: 1rem; border-radius: 12px; border: 1px solid rgba(102, 126, 234, 0.2);">
+                                <label
+                                    style="font-size: 0.75rem; color: #667eea; font-weight: 700; text-transform: uppercase;">Assigned
+                                    HR</label>
+                                <p style="font-weight: 600; margin-top: 0.25rem;" id="hrName">Name</p>
+                                <p style="font-size: 0.85rem; color: var(--text-muted);" id="hrCompany">Company</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Documents & Actions -->
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+
+                        <!-- Documents -->
+                        <div class="section-card glass">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>📂</span> Documents
+                                </div>
+                            </div>
+
+                            <div class="docs-container">
+                                <!-- Resume -->
+                                <div class="doc-item">
+                                    <div class="doc-info">
+                                        <div class="doc-icon">📄</div>
+                                        <div>
+                                            <p style="font-weight: 600;">Resume</p>
+                                            <p style="font-size: 0.75rem; color: var(--text-muted);" id="resumeStatus">
+                                                Checking...</p>
+                                        </div>
+                                    </div>
+                                    <div id="resumeActions" style="margin-top: 10px;">
+                                        <!-- Buttons injected by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Certificate -->
+                                <div class="doc-item">
+                                    <div class="doc-info">
+                                        <div class="doc-icon">📜</div>
+                                        <div>
+                                            <p style="font-weight: 600;">Certificate</p>
+                                            <p style="font-size: 0.75rem; color: var(--text-muted);" id="certStatus">
+                                                Checking...</p>
+                                        </div>
+                                    </div>
+                                    <a href="/student/certificate" class="btn btn-outline">Details</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recruitment Status -->
+                        <div class="section-card glass recruitment-card" id="recruitmentCard" style="display: none;">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>🎯</span> Recruitment Status
+                                </div>
+                            </div>
+                            <div style="margin-top: 0.5rem;">
+                                <span class="recruitment-status-badge" id="recruitmentBadge">-</span>
+                            </div>
+                            <div class="recruitment-timeline">
+                                <div class="timeline-item" id="recruitmentNotesItem" style="display: none;">
+                                    <div class="timeline-label">Notes from HR</div>
+                                    <div class="timeline-value" id="recruitmentNotes">-</div>
+                                </div>
+                                <div class="timeline-item">
+                                    <div class="timeline-label">Last Updated</div>
+                                    <div class="timeline-value" id="recruitmentUpdated">-</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Skills/Extra -->
+                        <div class="section-card glass" id="skillsCard" style="display: none;">
+                            <div class="section-header">
+                                <div class="section-title">
+                                    <span>💡</span> Skills
+                                </div>
+                            </div>
+                            <div id="skillsList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // State
+        const state = {
+            profile: null,
+            certificate: null
+        };
+
+        // UI Helpers
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // --- LOGOUT ANIMATION ---
+        function triggerLogout() {
+            const overlay = document.getElementById('logoutOverlay');
+            overlay.classList.add('active');
+
+            // Start animation after a brief delay
+            setTimeout(() => {
+                overlay.classList.add('animate');
+            }, 100);
+
+            // Redirect after animation completes (approx 2s)
+            setTimeout(async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch { window.location.href = '/login'; }
+            }, 2000);
+        }
+
+        function setBinder(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text || '-';
+        }
+
+        // Data Loading
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/student/profile');
+                if (!res.ok) throw new Error('Failed to load');
+                const p = await res.json();
+                state.profile = p;
+
+                // Header
+                setBinder('welcomeName', p.full_name);
+                setBinder('pillName', p.full_name);
+                if (p.profile_pic) {
+                    let picPath = p.profile_pic;
+                    let imgSrc;
+                    if (picPath.startsWith('http')) {
+                        imgSrc = picPath;
+                    } else {
+                        let filename = picPath.split('/').pop().split('\\').pop();
+                        imgSrc = '/uploads/profile_pics/' + filename;
+                    }
+                    document.getElementById('headerAvatar').innerHTML = `<img src="${imgSrc}" alt="Avatar">`;
+                }
+
+                // Stats
+                setBinder('statId', p.wapl_id);
+                setBinder('statStatus', p.account_status);
+                setBinder('statDomain', p.domain_name);
+                setBinder('statPhone', p.phone);
+
+                // Info
+                setBinder('infoName', p.full_name);
+                setBinder('infoEmail', p.email);
+                setBinder('infoPhone', p.phone);
+                setBinder('infoAddress', p.address);
+
+                // HR
+                if (p.assigned_hr) {
+                    document.getElementById('hrSection').style.display = 'block';
+                    setBinder('hrName', p.assigned_hr.full_name);
+                    setBinder('hrCompany', p.assigned_hr.company_name);
+                }
+
+                // Resume
+                const resumeActions = document.getElementById('resumeActions');
+                if (p.resume) {
+                    setBinder('resumeStatus', 'Document available');
+                    // Check if it's a GCS URL or local path
+                    let resumeViewUrl, resumeDownloadUrl;
+                    if (p.resume.startsWith('http')) {
+                        resumeViewUrl = p.resume;
+                        resumeDownloadUrl = p.resume;
+                    } else {
+                        resumeViewUrl = `/uploads/${p.resume}`;
+                        resumeDownloadUrl = `/download/${p.resume}`;
+                    }
+                    resumeActions.innerHTML = `
+                        <a href="${resumeViewUrl}" target="_blank" class="btn btn-outline" style="font-size:0.8rem; padding:6px 12px; margin-right:8px;">View</a>
+                        <a href="${resumeDownloadUrl}" class="btn btn-primary" style="font-size:0.8rem; padding:6px 12px;">Download</a>
+                    `;
+                } else {
+                    setBinder('resumeStatus', 'Not uploaded');
+                    resumeActions.innerHTML = '';
+                }
+
+                // Skills
+                if (p.skills && Array.isArray(p.skills) && p.skills.length > 0) {
+                    const skillContainer = document.getElementById('skillsList');
+                    document.getElementById('skillsCard').style.display = 'block';
+                    skillContainer.innerHTML = p.skills.map(s =>
+                        `<span style="background:rgba(255,255,255,0.5); padding:4px 10px; border-radius:6px; font-size:0.8rem; border:1px solid rgba(0,0,0,0.1);">${s.trim()}</span>`
+                    ).join('');
+                }
+
+                // Recruitment Status
+                if (p.recruitment_status) {
+                    const rs = p.recruitment_status;
+                    document.getElementById('recruitmentCard').style.display = 'block';
+
+                    const statusLabels = {
+                        'viewed': 'Viewed',
+                        'shortlisted': 'Shortlisted',
+                        'interview_scheduled': 'Interview Scheduled',
+                        'selected': 'Selected',
+                        'rejected': 'Rejected'
+                    };
+
+                    const badge = document.getElementById('recruitmentBadge');
+                    badge.textContent = statusLabels[rs.status] || rs.status;
+                    badge.className = 'recruitment-status-badge status-' + rs.status;
+
+                    if (rs.notes && rs.notes.trim()) {
+                        document.getElementById('recruitmentNotesItem').style.display = 'block';
+                        document.getElementById('recruitmentNotes').textContent = rs.notes;
+                    }
+
+                    if (rs.updated_at) {
+                        const d = new Date(rs.updated_at);
+                        document.getElementById('recruitmentUpdated').textContent = d.toLocaleDateString('en-IN', {
+                            day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                        });
+                    }
+                }
+
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function loadCertificate() {
+            try {
+                const res = await fetch('/api/student/certificate');
+                if (res.ok) {
+                    state.certificate = await res.json();
+                    setBinder('certStatus', 'Active • ' + state.certificate.certificate_unique_id);
+                } else {
+                    setBinder('certStatus', 'No active certificate');
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // Init
+        document.addEventListener('DOMContentLoaded', async () => {
+            await Promise.all([loadProfile(), loadCertificate()]);
+            document.getElementById('loading').style.opacity = '0';
+            setTimeout(() => document.getElementById('loading').remove(), 300);
+        });
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Verify Certificate - WAPL{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/verify_certificate.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="verify-certificate-container">
+    <div class="verify-card">
+        {% if valid %}
+        <div class="certificate-valid">
+            <div class="valid-icon">✓</div>
+            <h2>Certificate Verified</h2>
+            <div class="certificate-details">
+                <p><strong>Student Name:</strong> {{ certificate.full_name }}</p>
+                <p><strong>WAPL ID:</strong> {{ certificate.wapl_id }}</p>
+                <p><strong>Domain:</strong> {{ certificate.domain_name }}</p>
+                <p><strong>Issue Date:</strong> {{ certificate.issue_date.strftime('%Y-%m-%d') if certificate.issue_date is not string else certificate.issue_date[:10] }}</p>
+                <p><strong>Expiry Date:</strong> {{ certificate.expiry_date.strftime('%Y-%m-%d') if certificate.expiry_date is not string else certificate.expiry_date[:10] }}</p>
+                <p><strong>Certificate ID:</strong> {{ certificate.certificate_unique_id }}</p>
+            </div>
+            <div class="certificate-actions" style="margin-top: 20px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <a href="/download-report/{{ certificate.certificate_unique_id }}" 
+                   style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: #2563eb; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s;">
+                    📄 View Report
+                </a>
+                <a href="/download-report/{{ certificate.certificate_unique_id }}/file" 
+                   style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: #16a34a; color: #fff; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; transition: background 0.2s;">
+                    ⬇️ Download Report
+                </a>
+            </div>
+        </div>
+        {% else %}
+        <div class="certificate-invalid">
+            <div class="invalid-icon">✗</div>
+            <h2>Certificate Verification Failed</h2>
+            <p class="error-message">{{ message }}</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

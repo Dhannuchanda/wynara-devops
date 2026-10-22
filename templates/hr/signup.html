@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Signup - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.24), transparent 26%),
+                radial-gradient(circle at bottom left, rgba(245, 158, 11, 0.22), transparent 28%),
+                linear-gradient(135deg, #081120 0%, #0b1324 55%, #111827 100%);
+            color: #e5e7eb;
+            padding: 24px;
+        }
+        .wrap {
+            width: min(1100px, 100%);
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 0.95fr 1.05fr;
+            gap: 22px;
+            align-items: stretch;
+        }
+        .intro, .form-card {
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(15, 23, 42, 0.84);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+            backdrop-filter: blur(18px);
+        }
+        .intro {
+            padding: 38px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 760px;
+        }
+        .badge {
+            width: fit-content;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.14);
+            color: #bfdbfe;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        h1 {
+            margin-top: 18px;
+            font-size: clamp(2.3rem, 4.5vw, 4.4rem);
+            line-height: 0.95;
+            color: #fff;
+            letter-spacing: -0.05em;
+        }
+        .intro p {
+            margin-top: 18px;
+            color: #cbd5e1;
+            line-height: 1.75;
+            font-size: 1rem;
+        }
+        .feature-list {
+            display: grid;
+            gap: 14px;
+            margin-top: 28px;
+        }
+        .feature {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .feature strong { display: block; color: #fff; margin-bottom: 6px; }
+        .feature span { color: #94a3b8; font-size: 13px; line-height: 1.55; }
+        .footer-note {
+            margin-top: 20px;
+            color: #94a3b8;
+            line-height: 1.6;
+            font-size: 13px;
+        }
+        .form-card {
+            padding: 34px;
+        }
+        .form-card h2 {
+            color: #fff;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+        .form-card .sub {
+            color: #94a3b8;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .alert {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .alert.error { background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.28); color: #fca5a5; }
+        .alert.success { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); color: #6ee7b7; }
+        form {
+            display: grid;
+            gap: 14px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .span-2 { grid-column: span 2; }
+        .field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .field input {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            outline: none;
+            font-size: 15px;
+            transition: 0.2s ease;
+        }
+        .field input:focus {
+            border-color: rgba(59, 130, 246, 0.8);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        }
+        .hint {
+            margin-top: 6px;
+            color: #94a3b8;
+            font-size: 12px;
+        }
+        .submit-row {
+            grid-column: span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 4px;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: #111827;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.28);
+        }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .links {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+        .links a { color: #fbbf24; text-decoration: none; }
+        .links a:hover { text-decoration: underline; }
+        @media (max-width: 960px) {
+            .wrap { grid-template-columns: 1fr; }
+            .intro { min-height: auto; }
+        }
+        @media (max-width: 700px) {
+            body { padding: 14px; }
+            .form-card, .intro { padding: 22px; border-radius: 22px; }
+            form, .submit-row, .span-2 { grid-column: span 2; }
+            form { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <section class="intro">
+            <div>
+                <span class="badge">HR Onboarding</span>
+                <h1>Register your HR account for admin review.</h1>
+                <p>
+                    Submit your company details, years of experience, and a verification document.
+                    The account stays in <strong>pending</strong> status until an admin approves it.
+                </p>
+                <div class="feature-list">
+                    <div class="feature">
+                        <strong>Secure password hashing</strong>
+                        <span>Your password is stored using secure one-way hashing before it ever hits the database.</span>
+                    </div>
+                    <div class="feature">
+                        <strong>Private document storage</strong>
+                        <span>Uploaded proof files are stored outside the public uploads path and are only served to admins.</span>
+                    </div>
+                    <div class="feature">
+                        <strong>Status-aware login</strong>
+                        <span>Pending accounts receive a review message, approved accounts can sign in, and rejected accounts are blocked.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-note">
+                Accepted file types: PDF, JPG, PNG. Maximum size: 5MB.
+            </div>
+        </section>
+
+        <section class="form-card">
+            <h2>HR Registration</h2>
+            <p class="sub">Fill in the details below to request access.</p>
+            <div id="errorBox" class="alert error"></div>
+            <div id="successBox" class="alert success"></div>
+            <form id="hrSignupForm" enctype="multipart/form-data">
+                <div class="field">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" required>
+                </div>
+                <div class="field">
+                    <label for="email">Work Email</label>
+                    <input type="email" id="email" name="email" placeholder="hr@company.com" required>
+                </div>
+                <div class="field">
+                    <label for="company_name">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" required>
+                </div>
+                <div class="field">
+                    <label for="years_of_experience">Years of Experience</label>
+                    <input type="number" id="years_of_experience" name="years_of_experience" min="0" max="60" required>
+                </div>
+                <div class="field">
+                    <label for="designation">Designation</label>
+                    <input type="text" id="designation" name="designation" placeholder="Recruitment Manager" required>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" minlength="8" required>
+                </div>
+                <div class="field span-2">
+                    <label for="verification_proof">Upload Verification Proof</label>
+                    <input type="file" id="verification_proof" name="verification_proof" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <div class="hint">Upload a PDF, JPG, or PNG file up to 5MB.</div>
+                </div>
+                <div class="submit-row">
+                    <button type="submit" class="btn" id="submitBtn">Submit Registration</button>
+                    <div class="links">
+                        <a href="/hr/login">Already registered? Login</a>
+                        <a href="/login">General portal login</a>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        const form = document.getElementById('hrSignupForm');
+        const errorBox = document.getElementById('errorBox');
+        const successBox = document.getElementById('successBox');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function showMessage(type, message) {
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+            const box = type === 'error' ? errorBox : successBox;
+            box.textContent = message;
+            box.style.display = 'block';
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+
+            try {
+                const formData = new FormData(form);
+                const response = await fetch('/api/hr/register', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showMessage('error', data.error || 'Registration failed');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Registration';
+                    return;
+                }
+
+                showMessage('success', data.message || 'Registration successful');
+                form.reset();
+                setTimeout(() => {
+                    window.location.href = data.redirect || '/hr/login';
+                }, 1500);
+            } catch (error) {
+                showMessage('error', 'Network error. Please try again.');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Registration';
+            }
+        });
+    </script>
+</body>
+</html>

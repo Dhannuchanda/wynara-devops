@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAPL - Digital Identity System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Video Background */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.8);
+            /* 80% dark overlay for text pop */
+            z-index: -1;
+            backdrop-filter: blur(5px);
+        }
+
+        /* Navigation (Transparent) */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 25px 5%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            margin-left: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #fff;
+        }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
+            position: relative;
+        }
+
+        .hero-content {
+            z-index: 5;
+            animation: fadeUp 1s ease-out;
+            max-width: 800px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(99, 102, 241, 0.4);
+            border-radius: 50px;
+            color: #818cf8;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 25px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 72px;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 25px;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        p.lead {
+            font-size: 20px;
+            color: #94a3b8;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-primary {
+            background: #fff;
+            color: #0f172a;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #fff;
+            transform: translateY(-3px);
+        }
+
+        /* Features Section (Glass Cards) */
+        .features {
+            display: flex;
+            gap: 30px;
+            margin-top: 80px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .feature-card {
+            background: rgba(30, 41, 59, 0.4);
+            backdrop-filter: blur(20px);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            width: 250px;
+            text-align: left;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(30, 41, 59, 0.6);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: inline-block;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 48px;
+            }
+
+            .features {
+                display: none;
+            }
+
+            /* Hide on small mobile for cleaner look */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="video-bg">
+        <source src="/static/logo/logo.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <nav>
+        <div class="logo">WAPL</div>
+        <div class="nav-links">
+            <a href="/login">Portal Login</a>
+            <a href="/hr/login">HR Portal</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">Next Gen Identity</div>
+            <h1>Secure.<br>Verified.<br>Yours.</h1>
+            <p class="lead">The advanced digital ID platform for modern education.<br>Seamlessly manage your student
+                credentials.</p>
+
+            <div class="cta-buttons">
+                <a href="/register" class="btn btn-primary">Get Your WAPL ID</a>
+                <a href="/login" class="btn btn-outline">Member Login</a>
+                <a href="/hr/signup" class="btn btn-outline">HR Signup</a>
+            </div>
+
+            <div class="features">
+                <div class="feature-card">
+                    <span class="feature-icon">🛡️</span>
+                    <h3>Secure Access</h3>
+                    <p>Bank-grade security for your personal data.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Instant Verification</h3>
+                    <p>Real-time QR code verification system.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📱</span>
+                    <h3>Mobile First</h3>
+                    <p>Access your ID card anywhere, anytime.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

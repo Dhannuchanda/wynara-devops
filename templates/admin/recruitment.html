@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Recruitment Tracking - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #fff;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s;
+            text-align: center;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        .stat-card h3 {
+            font-size: 32px;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+
+        .stat-card p {
+            color: #64748b;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat-card.status-viewed {
+            border-left: 4px solid #3b82f6;
+        }
+
+        .stat-card.status-viewed h3 {
+            color: #3b82f6;
+        }
+
+        .stat-card.status-shortlisted {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .stat-card.status-shortlisted h3 {
+            color: #f59e0b;
+        }
+
+        .stat-card.status-interview {
+            border-left: 4px solid #8b5cf6;
+        }
+
+        .stat-card.status-interview h3 {
+            color: #8b5cf6;
+        }
+
+        .stat-card.status-selected {
+            border-left: 4px solid #10b981;
+        }
+
+        .stat-card.status-selected h3 {
+            color: #10b981;
+        }
+
+        .stat-card.status-rejected {
+            border-left: 4px solid #ef4444;
+        }
+
+        .stat-card.status-rejected h3 {
+            color: #ef4444;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filters select,
+        .filters input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filters select:focus,
+        .filters input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Table for Desktop */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        thead {
+            background: #667eea;
+            color: white;
+        }
+
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f0f4ff;
+        }
+
+        .status-badge-tiny {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .status-badge-tiny.status-viewed {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-badge-tiny.status-shortlisted {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge-tiny.status-interview {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .status-badge-tiny.status-selected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-badge-tiny.status-rejected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Mobile Card View */
+        .recruitment-cards {
+            display: none;
+        }
+
+        .recruitment-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .recruitment-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            gap: 10px;
+        }
+
+        .recruitment-card-student {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .recruitment-card-wapl {
+            font-size: 13px;
+            color: #667eea;
+            font-family: monospace;
+        }
+
+        .recruitment-card-info {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 90px;
+        }
+
+        .info-value {
+            color: #1e293b;
+            flex: 1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #0c5460;
+            font-size: 14px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card h3 {
+                font-size: 24px;
+            }
+
+            .stat-card p {
+                font-size: 11px;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filters select,
+            .filters input {
+                min-width: 100%;
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+
+            /* Hide table, show cards */
+            .table-container {
+                display: none;
+            }
+
+            .recruitment-cards {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .recruitment-card {
+                padding: 15px;
+            }
+
+            .recruitment-card-student {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment" class="active">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Recruitment Tracking</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>📈 <strong>Real-time Tracking:</strong> Monitor student recruitment progress across all HRs. Data refreshes automatically every 5 seconds.</p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalCount">0</h3>
+                    <p>Total Trackings</p>
+                </div>
+                <div class="stat-card status-viewed">
+                    <h3 id="viewedCount">0</h3>
+                    <p>👁️ Viewed</p>
+                </div>
+                <div class="stat-card status-shortlisted">
+                    <h3 id="shortlistedCount">0</h3>
+                    <p>⭐ Shortlisted</p>
+                </div>
+                <div class="stat-card status-interview">
+                    <h3 id="interviewCount">0</h3>
+                    <p>📅 Interview</p>
+                </div>
+                <div class="stat-card status-selected">
+                    <h3 id="selectedCount">0</h3>
+                    <p>✅ Selected</p>
+                </div>
+                <div class="stat-card status-rejected">
+                    <h3 id="rejectedCount">0</h3>
+                    <p>❌ Rejected</p>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h2 style="margin-bottom: 20px;">📋 All Recruitment Activities</h2>
+                
+                <!-- Filters -->
+                <div class="filters">
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="viewed">👁️ Viewed</option>
+                        <option value="shortlisted">⭐ Shortlisted</option>
+                        <option value="interview_scheduled">📅 Interview Scheduled</option>
+                        <option value="selected">✅ Selected</option>
+                        <option value="rejected">❌ Rejected</option>
+                    </select>
+                    <input type="text" id="searchBox" placeholder="Search by student name, HR, company, WAPL ID..." onkeyup="applyFilters()">
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="table-container" id="recruitmentTable">
+                    <p style="padding: 20px; text-align: center; color: #666;">Loading recruitment data...</p>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="recruitment-cards" id="recruitmentCards">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allRecruitment = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking super admin:', error);
+            }
+        }
+
+        async function loadRecruitment() {
+            try {
+                const response = await fetch('/api/admin/recruitment');
+                const data = await response.json();
+                
+                if (response.ok) {
+                    allRecruitment = data;
+                    calculateStats(data);
+                    applyFilters();
+                } else {
+                    document.getElementById('recruitmentTable').innerHTML = '<p style="padding: 20px; text-align: center; color: #dc3545;">Error loading recruitment data</p>';
+                    document.getElementById('recruitmentCards').innerHTML = '<div class="empty-state"><h3>❌ Error loading data</h3></div>';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('recruitmentTable').innerHTML = '<p style="padding: 20px; text-align: center; color: #dc3545;">Error loading recruitment data</p>';
+                document.getElementById('recruitmentCards').innerHTML = '<div class="empty-state"><h3>❌ Error loading data</h3></div>';
+            }
+        }
+
+        function calculateStats(data) {
+            const stats = {
+                viewed: 0,
+                shortlisted: 0,
+                interview_scheduled: 0,
+                selected: 0,
+                rejected: 0
+            };
+            
+            data.forEach(item => {
+                stats[item.status] = (stats[item.status] || 0) + 1;
+            });
+
+            // Every tracked student has been viewed, so viewed = total records
+            // (students enter pipeline only when an HR views them)
+            const totalViewed = data.length;
+            
+            document.getElementById('totalCount').textContent = data.length;
+            document.getElementById('viewedCount').textContent = totalViewed;
+            document.getElementById('shortlistedCount').textContent = stats.shortlisted || 0;
+            document.getElementById('interviewCount').textContent = stats.interview_scheduled || 0;
+            document.getElementById('selectedCount').textContent = stats.selected || 0;
+            document.getElementById('rejectedCount').textContent = stats.rejected || 0;
+        }
+
+        function renderTableView(data) {
+            if (data.length === 0) {
+                document.getElementById('recruitmentTable').innerHTML = '<p style="padding: 20px; text-align: center; color: #666;">No recruitment activity yet</p>';
+                return;
+            }
+            
+            let html = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>WAPL ID</th>
+                            <th>Domain</th>
+                            <th>HR Name</th>
+                            <th>Company</th>
+                            <th>Status</th>
+                            <th>Notes</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            data.forEach(item => {
+                const statusClass = getStatusClass(item.status);
+                const statusText = formatStatus(item.status);
+                const updatedDate = formatDate(item.updated_at);
+                
+                html += `
+                    <tr>
+                        <td><strong>${item.student_name}</strong></td>
+                        <td style="font-family: monospace; color: #667eea;">${item.wapl_id}</td>
+                        <td>${item.domain_name || 'N/A'}</td>
+                        <td>${item.hr_name || 'Unassigned'}</td>
+                        <td>${item.company_name || 'N/A'}</td>
+                        <td><span class="status-badge-tiny ${statusClass}">${statusText}</span></td>
+                        <td style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="${item.notes || ''}">${item.notes || '-'}</td>
+                        <td style="color: #999; font-size: 12px;">${updatedDate}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table>';
+            document.getElementById('recruitmentTable').innerHTML = html;
+        }
+
+        function renderCardView(data) {
+            if (data.length === 0) {
+                document.getElementById('recruitmentCards').innerHTML = '<div class="empty-state"><h3>📭 No recruitment activity yet</h3></div>';
+                return;
+            }
+
+            const html = data.map(item => {
+                const statusClass = getStatusClass(item.status);
+                const statusText = formatStatus(item.status);
+                const updatedDate = formatDate(item.updated_at);
+
+                return `
+                    <div class="recruitment-card">
+                        <div class="recruitment-card-header">
+                            <div>
+                                <div class="recruitment-card-student">${item.student_name}</div>
+                                <div class="recruitment-card-wapl">${item.wapl_id}</div>
+                            </div>
+                            <span class="status-badge-tiny ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="recruitment-card-info">
+                            <div class="info-row">
+                                <span class="info-label">🏷️ Domain:</span>
+                                <span class="info-value">${item.domain_name || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">👔 HR:</span>
+                                <span class="info-value">${item.hr_name || 'Unassigned'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">🏢 Company:</span>
+                                <span class="info-value">${item.company_name || 'N/A'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">📝 Notes:</span>
+                                <span class="info-value">${item.notes || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">📅 Updated:</span>
+                                <span class="info-value">${updatedDate}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('recruitmentCards').innerHTML = html;
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'viewed': '👁️ Viewed',
+                'shortlisted': '⭐ Shortlisted',
+                'interview_scheduled': '📅 Interview Scheduled',
+                'selected': '✅ Selected',
+                'rejected': '❌ Rejected'
+            };
+            return statusMap[status] || status;
+        }
+
+        function getStatusClass(status) {
+            const classMap = {
+                'viewed': 'status-viewed',
+                'shortlisted': 'status-shortlisted',
+                'interview_scheduled': 'status-interview',
+                'selected': 'status-selected',
+                'rejected': 'status-rejected'
+            };
+            return classMap[status] || '';
+        }
+
+        function applyFilters() {
+            const statusFilter = document.getElementById('statusFilter').value;
+            const searchText = document.getElementById('searchBox').value.toLowerCase();
+            
+            let filtered = allRecruitment;
+            
+            if (statusFilter) {
+                filtered = filtered.filter(item => item.status === statusFilter);
+            }
+            
+            if (searchText) {
+                filtered = filtered.filter(item => 
+                    (item.student_name && item.student_name.toLowerCase().includes(searchText)) ||
+                    (item.hr_name && item.hr_name.toLowerCase().includes(searchText)) ||
+                    (item.company_name && item.company_name.toLowerCase().includes(searchText)) ||
+                    (item.wapl_id && item.wapl_id.toLowerCase().includes(searchText))
+                );
+            }
+            
+            renderTableView(filtered);
+            renderCardView(filtered);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSuperAdmin();
+            loadRecruitment();
+            // Auto-refresh every 5 seconds
+            setInterval(loadRecruitment, 5000);
+        });
+    </script>
+</body>
+</html>

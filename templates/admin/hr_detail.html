@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR Detail - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-back:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .hr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .hr-name-section h2 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .hr-company {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #1e293b;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .students-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .students-table th,
+        .students-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .students-table th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .students-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-pending {
+            background: #fef9c3;
+            color: #854d0e;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 70px 15px 20px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 15px;
+            }
+
+            .admin-header h1 {
+                font-size: 22px;
+            }
+
+            .hr-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .students-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+
+<body>
+    <div class="admin-container">
+        <!-- Hamburger Button -->
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+        <!-- Overlay for mobile -->
+        <div class="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2>🏢 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs" class="active">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="admin-header">
+                <h1>👔 HR Details</h1>
+                <a href="/secure-admin-panel/wapl/hrs" class="btn btn-back">← Back to HRs</a>
+            </div>
+
+            <div class="content-card" id="hrDetails">
+                <div class="loading">Loading HR details...</div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="section-title">Verification Review</h3>
+                <div id="verificationPanel">
+                    <div class="loading">Loading verification tools...</div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <h3 class="section-title">👨‍🎓 Assigned Students</h3>
+                <div id="studentsContainer">
+                    <div class="loading">Loading students...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const hrId = {{ hr_id }};
+        let currentHR = null;
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.overlay').classList.toggle('active');
+        }
+
+        // Check if super admin for settings link
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                if (data.is_super_admin && document.getElementById('settingsLink')) {
+                    document.getElementById('settingsLink').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+            }
+        }
+        checkSuperAdmin();
+
+        async function loadHRDetails() {
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}`);
+                if (!response.ok) {
+                    throw new Error('HR not found');
+                }
+                const hr = await response.json();
+                currentHR = hr;
+                displayHRDetails(hr);
+            } catch (error) {
+                document.getElementById('hrDetails').innerHTML = `
+                    <div class="empty-state">
+                        <h3>❌ Error loading HR details</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusLabel(status) {
+            const normalized = (status || 'pending').toLowerCase();
+            return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+        }
+
+        function displayHRDetails(hr) {
+            const container = document.getElementById('hrDetails');
+            container.innerHTML = `
+                <div class="hr-header">
+                    <div class="hr-name-section">
+                        <h2>${hr.fullname || hr.full_name || 'N/A'}</h2>
+                        <div class="hr-company">🏢 ${hr.companyname || hr.company_name || 'N/A'}</div>
+                    </div>
+                    <div>
+                        <button onclick="deleteHR(${hr.id}, '${hr.fullname || hr.full_name}')" class="btn btn-danger">🗑️ Delete HR</button>
+                    </div>
+                </div>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Email</div>
+                        <div class="info-value">📧 ${hr.email || 'N/A'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phone</div>
+                        <div class="info-value">📱 ${hr.phone || 'N/A'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Assigned Students</div>
+                        <div class="info-value">👨‍🎓 ${hr.assigned_count || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Created At</div>
+                        <div class="info-value">📅 ${hr.created_at ? new Date(hr.created_at).toLocaleDateString() : 'N/A'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">HR Status</div>
+                        <div class="info-value">${getStatusLabel(hr.status)}</div>
+                    </div>
+                </div>
+            `;
+
+            const verificationPanel = document.getElementById('verificationPanel');
+            const hrProofAvailable = !!hr.verification_proof_path;
+            const adminProofAvailable = !!hr.admin_verification_proof_path;
+            const approveDisabled = !adminProofAvailable || (hr.status || 'pending') === 'approved';
+
+            verificationPanel.innerHTML = `
+                <div class="info-grid" style="margin-bottom: 20px;">
+                    <div class="info-item">
+                        <div class="info-label">HR Submitted Proof</div>
+                        <div class="info-value">${hrProofAvailable ? 'Available' : 'Missing'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Admin Verification Proof</div>
+                        <div class="info-value">${adminProofAvailable ? 'Uploaded' : 'Not uploaded yet'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Approval State</div>
+                        <div class="info-value">${getStatusLabel(hr.status)}</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; gap: 18px;">
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #1e293b;">Uploaded Documents</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-primary" onclick="viewHRProof()" ${hrProofAvailable ? '' : 'disabled'}>View HR Proof</button>
+                            <button class="btn btn-primary" onclick="viewAdminProof()" ${adminProofAvailable ? '' : 'disabled'}>View Admin Proof</button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #1e293b;">Upload Admin Verification Proof</h4>
+                        <form id="adminProofForm" enctype="multipart/form-data" style="display: grid; gap: 12px; max-width: 560px;">
+                            <input type="file" id="adminVerificationProof" name="verification_proof" accept=".pdf,.jpg,.jpeg,.png" required>
+                            <small style="color: #64748b;">Upload a PDF, JPG, or PNG file up to 5MB.</small>
+                            <button type="submit" class="btn btn-primary">Upload Admin Proof</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        <h4 style="margin-bottom: 10px; color: #1e293b;">Approval Actions</h4>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                            <button class="btn btn-success" onclick="approveHR()" ${approveDisabled ? 'disabled' : ''}>Approve HR</button>
+                            <button class="btn btn-danger" onclick="rejectHR()">Reject HR</button>
+                        </div>
+                        <small style="display: block; margin-top: 8px; color: #64748b;">Approval is locked until admin proof is uploaded.</small>
+                    </div>
+                </div>
+            `;
+
+            const adminProofForm = document.getElementById('adminProofForm');
+            if (adminProofForm) {
+                adminProofForm.addEventListener('submit', uploadAdminProof);
+            }
+        }
+
+        function viewHRProof() {
+            if (!currentHR || !currentHR.verification_proof_path) {
+                alert('HR proof not available');
+                return;
+            }
+            window.open(`/api/admin/hr/${hrId}/verification-document`, '_blank', 'noopener,noreferrer');
+        }
+
+        function viewAdminProof() {
+            if (!currentHR || !currentHR.admin_verification_proof_path) {
+                alert('Admin proof not available');
+                return;
+            }
+            window.open(`/api/admin/hr/${hrId}/admin-verification-document`, '_blank', 'noopener,noreferrer');
+        }
+
+        async function uploadAdminProof(event) {
+            event.preventDefault();
+            const fileInput = document.getElementById('adminVerificationProof');
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Please choose a file first');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('admin_verification_proof', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/admin-verification-proof`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || 'Admin proof uploaded');
+                    await loadHRDetails();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to upload proof'));
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        }
+
+        async function approveHR() {
+            if (!confirm('Approve this HR account after verification?')) return;
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/approve`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || 'HR approved successfully');
+                    await loadHRDetails();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to approve HR'));
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        }
+
+        async function rejectHR() {
+            const reason = prompt('Optional rejection reason:', '');
+            if (reason === null) return;
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || 'HR rejected successfully');
+                    await loadHRDetails();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to reject HR'));
+                }
+            } catch (error) {
+                alert('❌ ' + error.message);
+            }
+        }
+
+        async function loadAssignedStudents() {
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/students`);
+                if (!response.ok) {
+                    throw new Error('Failed to load students');
+                }
+                const students = await response.json();
+                displayStudents(students);
+            } catch (error) {
+                document.getElementById('studentsContainer').innerHTML = `
+                    <div class="empty-state">
+                        <h3>❌ Error loading students</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayStudents(students) {
+            const container = document.getElementById('studentsContainer');
+            
+            if (!students || students.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📋 No Students Assigned</h3>
+                        <p>This HR has no students assigned yet.</p>
+                        <a href="/secure-admin-panel/wapl/assign-students" class="btn btn-primary" style="margin-top: 15px;">Assign Students</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="students-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>WAPL ID</th>
+                            <th>Domains</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${students.map(student => `
+                            <tr>
+                                <td>${student.full_name || 'N/A'}</td>
+                                <td>${student.email || 'N/A'}</td>
+                                <td><code>${student.wapl_id || 'N/A'}</code></td>
+                                <td>${student.domain_names || 'None'}</td>
+                                <td>
+                                    <span class="status-badge ${student.account_status === 'active' ? 'status-active' : 'status-pending'}">
+                                        ${student.account_status || 'pending'}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/secure-admin-panel/wapl/student/${student.id}" class="btn btn-primary" style="padding: 5px 10px; font-size: 12px;">View</a>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        async function deleteHR(hrId, hrName) {
+            if (!confirm(`🗑️ Are you sure you want to delete HR "${hrName}"?\n\nThis action cannot be undone.`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ HR deleted successfully!');
+                    window.location.href = '/secure-admin-panel/wapl/hrs';
+                } else {
+                    alert('❌ Error: ' + (data.error || 'Failed to delete HR'));
+                }
+            } catch (error) {
+                alert('❌ Error: ' + error.message);
+            }
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadHRDetails();
+            loadAssignedStudents();
+        });
+    </script>
+</body>
+
+</html>

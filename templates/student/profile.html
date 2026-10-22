@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>My Profile - WAPL Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            background-image:
+                radial-gradient(at 40% 20%, hsla(260, 100%, 93%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(340, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(356, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, hsla(343, 100%, 96%, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Glass Utility */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 20px;
+            margin-bottom: 2.5rem;
+        }
+
+        .student-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
+        }
+
+        .logo h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: white;
+            color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 2rem 3rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Profile Grid */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        .profile-sidebar-card {
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+
+        .profile-pic-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        #profilePic {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-overlay {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: var(--accent-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 3px solid white;
+            transition: transform 0.2s;
+        }
+
+        .upload-overlay:hover {
+            transform: scale(1.1);
+        }
+
+        /* Forms */
+        .form-section {
+            padding: 2rem;
+            margin-bottom: 2.5rem;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.07);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            color: var(--text-main);
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            background: rgba(255, 255, 255, 0.8);
+            font-family: inherit;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        /* Dynamic Lists */
+        .list-item {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .list-item-content {
+            flex: 1;
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.08);
+        }
+
+        .project-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .project-card {
+            position: relative;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            border-radius: 16px;
+            padding: 1rem;
+            box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .project-card img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 12px;
+            display: block;
+            margin-bottom: 0.85rem;
+        }
+
+        .project-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            color: var(--text-main);
+        }
+
+        .project-card p {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.45;
+        }
+
+        .project-card .project-delete {
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .project-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .project-modal.open {
+            display: flex;
+        }
+
+        .project-modal-content {
+            width: min(520px, 100%);
+            background: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 20px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+            padding: 1.5rem;
+        }
+
+        .project-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-modal-head h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .project-modal-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .project-modal-actions .btn {
+            min-width: 110px;
+            justify-content: center;
+        }
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--text-main);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-danger {
+            background: #ffe4e6;
+            color: #e11d48;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                background: rgba(255, 255, 255, 0.95);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .hamburger-btn {
+                display: block;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+
+        /* ========================
+           LOGOUT ANIMATION STYLES
+           ======================== */
+        .logout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111827;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .door-container {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            transform-style: preserve-3d;
+        }
+
+        .door-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid #4b5563;
+            border-bottom: none;
+            background: #1f2937;
+        }
+
+        .door {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #374151;
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #6b7280;
+            display: flex;
+            align-items: center;
+        }
+
+        .door-knob {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fbbf24;
+            margin-left: auto;
+            margin-right: 15px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+            transform: rotateY(90deg);
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .person {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 40px;
+            height: 100px;
+            background: #fff;
+            transform: translateX(-50%) translateZ(20px) scale(0);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: all 1s ease-in-out;
+        }
+
+        .logout-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .logout-overlay.animate .door {
+            transform: rotateY(-110deg);
+        }
+
+        .logout-overlay.animate .light-beam {
+            transform: rotateY(0deg);
+            opacity: 0.5;
+        }
+
+        .logout-overlay.animate .person {
+            animation: exitDoor 1.5s forwards 0.5s;
+            opacity: 1;
+            transform: translateX(-50%) translateZ(0) scale(1);
+        }
+
+        @keyframes exitDoor {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateX(-50%) scale(0.8);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateX(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Logout Animation Overlay -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="door-container">
+            <div class="light-beam"></div>
+            <div class="door-frame"></div>
+            <div class="person"></div>
+            <div class="door">
+                <div class="door-knob"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="student-container">
+        <!-- Glass Sidebar -->
+        <aside class="sidebar glass" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/student/dashboard" class="nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/student/profile" class="nav-item active">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/exam" class="nav-item">
+                    <i>📝</i> Exam
+                </a>
+                <a href="/student/certificate" class="nav-item">
+                    <i>📜</i> Certificate
+                </a>
+                <a href="/student/messages" class="nav-item">
+                    <i>💬</i> Messages
+                </a>
+                <button onclick="triggerLogout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>My Profile</h1>
+                </div>
+                <div id="accountStatusField">
+                    <!-- Status Badge -->
+                </div>
+            </header>
+
+            <div class="profile-grid">
+
+                <!-- Left Column: Photo & Basic Info -->
+                <div style="display: flex; flex-direction: column; gap: 2rem;">
+                    <div class="profile-sidebar-card glass">
+                        <div class="profile-pic-container">
+                            <img id="profilePic" src="" alt="Profile" style="display:none">
+                            <div class="upload-overlay" onclick="document.getElementById('profilePicInput').click()">
+                                📷
+                            </div>
+                            <input type="file" id="profilePicInput" style="display:none" onchange="uploadProfilePic()">
+                        </div>
+                        <h2 id="displayName" style="font-size: 1.25rem; font-weight: 700; color:var(--text-main);">Hi,
+                            Student</h2>
+                        <a href="/student/certificate" class="btn btn-primary btn-sm" style="margin-top: 1rem;">View
+                            Certificate</a>
+                    </div>
+
+                    <div class="glass form-section">
+                        <h3 class="section-title">Resume</h3>
+                        <div id="resumeArea">
+                            <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 1rem;">No resume
+                                uploaded.</p>
+                        </div>
+                        <input type="file" id="resumeInput" style="display:none" accept=".pdf,.doc,.docx"
+                            onchange="uploadResume()">
+                        <button onclick="document.getElementById('resumeInput').click()"
+                            class="btn btn-secondary btn-sm" style="width: 100%;">📤 Upload Resume</button>
+                    </div>
+                </div>
+
+                <!-- Right Column: Details Forms -->
+                <div>
+                    <!-- Basic Info -->
+                    <div class="glass form-section">
+                        <h3 class="section-title">Personal Information</h3>
+                        <form id="profileForm" onsubmit="saveProfile(event)">
+                            <div class="form-group">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="full_name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="tel" id="phone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Address</label>
+                                <textarea id="address" class="form-control" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                        </form>
+                    </div>
+
+                    <!-- Education -->
+                    <div class="glass form-section">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                            <h3 style="font-size: 1.25rem; font-weight: 700;">Education</h3>
+                            <button onclick="addEducation()" class="btn btn-secondary btn-sm">➕ Add</button>
+                        </div>
+                        <div id="educationList"></div>
+                    </div>
+
+                    <!-- Skills -->
+                    <div class="glass form-section">
+                        <h3 class="section-title">Skills</h3>
+                        <input type="text" id="skillInput" class="form-control" placeholder="Type skill and press Enter"
+                            style="margin-bottom: 1rem;">
+                        <div id="skillsList" style="display: flex; flex-wrap: wrap; gap: 0.5rem;"></div>
+                    </div>
+
+                    <!-- Projects -->
+                    <div class="glass form-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <h3 class="section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Projects</h3>
+                            <button type="button" onclick="showProjectUploadModal()" class="btn btn-secondary btn-sm">➕ Add</button>
+                        </div>
+                        <div id="projectsGallery" class="project-gallery"></div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="glass form-section">
+                        <h3 class="section-title">🔒 Change Password</h3>
+
+                        <div id="pwdSuccessAlert" style="display:none; background:#dcfce7; color:#166534; padding:12px 16px; border-radius:10px; margin-bottom:1rem; font-weight:500;"></div>
+                        <div id="pwdErrorAlert" style="display:none; background:#ffe4e6; color:#e11d48; padding:12px 16px; border-radius:10px; margin-bottom:1rem; font-weight:500;"></div>
+
+                        <div class="form-group">
+                            <label class="form-label">Current Password <span style="color:#e11d48;">*</span></label>
+                            <input type="password" id="currentPassword" class="form-control" placeholder="Enter current password">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">New Password <span style="color:#e11d48;">*</span></label>
+                            <input type="password" id="newPassword" class="form-control" placeholder="Min 6 characters">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password <span style="color:#e11d48;">*</span></label>
+                            <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter new password">
+                        </div>
+                        <button class="btn btn-primary" id="changePwdBtn" onclick="changePassword()">🔑 Change Password</button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="projectUploadModal" class="project-modal" aria-hidden="true">
+        <div class="project-modal-content" role="dialog" aria-modal="true" aria-labelledby="projectUploadTitle">
+            <div class="project-modal-head">
+                <h3 id="projectUploadTitle">Add Project</h3>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="hideProjectUploadModal()">Close</button>
+            </div>
+            <form id="projectUploadForm" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" name="title" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" rows="4" placeholder="Describe your project, outcome, and tech stack."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Screenshot / Image</label>
+                    <input type="file" name="image" accept="image/*" class="form-control">
+                </div>
+                <div class="project-modal-actions">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideProjectUploadModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let educationData = [];
+        let skillsData = [];
+        let projectsData = [];
+
+        // UI Helpers
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // --- Data Loading ---
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/student/profile');
+                if (!res.ok) throw new Error();
+                const p = await res.json();
+
+                // Basic Info
+                document.getElementById('full_name').value = p.full_name || '';
+                document.getElementById('phone').value = p.phone || '';
+                document.getElementById('address').value = p.address || '';
+                document.getElementById('displayName').textContent = p.full_name || 'Student';
+
+                // Status
+                const statusMap = { 'active': '✅ Active', 'pending': '⏳ Pending', 'suspended': '⛔ Suspended' };
+                document.getElementById('accountStatusField').innerHTML =
+                    `<span class="status-badge">${statusMap[p.account_status] || p.account_status}</span>`;
+
+                // Profile Pic
+                if (p.profile_pic) {
+                    const pic = document.getElementById('profilePic');
+                    let picPath = p.profile_pic;
+                    if (picPath.startsWith('http')) {
+                        pic.src = picPath;
+                    } else {
+                        // Ensure correct /uploads/ prefix
+                        let filename = picPath.split('/').pop().split('\\').pop();
+                        pic.src = '/uploads/profile_pics/' + filename;
+                    }
+                    pic.style.display = 'block';
+                } else {
+                    // Show placeholder
+                    document.getElementById('profilePic').style.display = 'none';
+                }
+
+                // Resume
+                if (p.resume) {
+                    document.getElementById('resumeArea').innerHTML = `
+                        <a href="/uploads/${p.resume}" target="_blank" class="btn btn-primary btn-sm" style="display:block; text-align:center; margin-bottom:10px;">📄 View Current Resume</a>
+                    `;
+                }
+
+                // Arrays
+                educationData = p.education_details || [];
+                skillsData = p.skills || [];
+                projectsData = p.projects || [];
+
+                renderResult();
+            } catch (e) { console.error(e); }
+        }
+
+        function renderResult() {
+            renderEducation();
+            renderSkills();
+            renderProjects();
+        }
+
+        // --- Renderers ---
+        function renderEducation() {
+            const list = document.getElementById('educationList');
+            list.innerHTML = educationData.map((e, i) => `
+                <div class="list-item">
+                    <div class="list-item-content">
+                        <input class="form-control" placeholder="Degree" value="${e.degree || ''}" onchange="updateArr('education', ${i}, 'degree', this.value)">
+                        <input class="form-control" placeholder="Institution" value="${e.institution || ''}" onchange="updateArr('education', ${i}, 'institution', this.value)">
+                        <input class="form-control" placeholder="Year" value="${e.year || ''}" onchange="updateArr('education', ${i}, 'year', this.value)">
+                    </div>
+                    <button onclick="removeArr('education', ${i})" class="btn btn-danger btn-sm">×</button>
+                </div>
+            `).join('') || '<p style="color:#9ca3af; text-align:center;">No education added.</p>';
+        }
+
+        function renderSkills() {
+            const list = document.getElementById('skillsList');
+            list.innerHTML = skillsData.map((s, i) => `
+                <span style="background:var(--accent-color); color:white; padding:5px 12px; border-radius:20px; font-size:0.85rem; display:flex; align-items:center; gap:5px;">
+                    ${s} 
+                    <span onclick="removeArr('skills', ${i})" style="cursor:pointer; opacity:0.8;">×</span>
+                </span>
+            `).join('') || '<p style="color:#9ca3af;">No skills added.</p>';
+        }
+
+        function normalizeProjectImagePath(path) {
+            if (!path) return '';
+            const cleaned = String(path).replace(/^\.\//, '').replace(/\\/g, '/');
+            if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) return cleaned;
+            return cleaned.startsWith('/') ? cleaned : `/${cleaned}`;
+        }
+
+        async function renderProjects() {
+            try {
+                const res = await fetch('/api/student/projects');
+                if (!res.ok) throw new Error('Failed to load projects');
+                const data = await res.json();
+                projectsData = data.projects || [];
+            } catch (e) { projectsData = []; }
+            const gallery = document.getElementById('projectsGallery');
+            if (!projectsData.length) {
+                gallery.innerHTML = '<p style="color:#9ca3af; text-align:center;">No projects added.</p>';
+                return;
+            }
+            gallery.innerHTML = projectsData.map(p => `
+                                <div class="project-card">
+                                    ${p.image_path ? `<img src="${normalizeProjectImagePath(p.image_path)}" alt="Project Image">` : ''}
+                                    <button class="btn btn-danger btn-sm project-delete" type="button" onclick="deleteProject(${p.id})" aria-label="Delete project">×</button>
+                                    <h4>${p.title || ''}</h4>
+                                    <p>${p.description || 'No description provided.'}</p>
+                </div>
+            `).join('');
+        }
+
+        // --- Actions ---
+        function addEducation() { educationData.push({}); renderEducation(); }
+        function showProjectUploadModal() {
+            const modal = document.getElementById('projectUploadModal');
+            modal.classList.add('open');
+            modal.setAttribute('aria-hidden', 'false');
+        }
+        function hideProjectUploadModal() {
+            const modal = document.getElementById('projectUploadModal');
+            modal.classList.remove('open');
+            modal.setAttribute('aria-hidden', 'true');
+            const form = document.getElementById('projectUploadForm');
+            if (form) form.reset();
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const projectForm = document.getElementById('projectUploadForm');
+            if (projectForm) {
+                projectForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    const fd = new FormData(this);
+                    try {
+                        const res = await fetch('/api/student/projects', { method: 'POST', body: fd });
+                        const data = await res.json().catch(() => ({}));
+                        if (!res.ok) {
+                            alert('Upload failed: ' + (data.error || 'Unknown error'));
+                            return;
+                        }
+                        hideProjectUploadModal();
+                        await renderProjects();
+                        alert('Project uploaded!');
+                    } catch (err) {
+                        alert('Upload failed: ' + err.message);
+                    }
+                });
+            }
+        });
+        async function deleteProject(id) {
+            if (!confirm('Delete this project?')) return;
+            try {
+                const res = await fetch(`/api/student/projects/${id}`, { method: 'DELETE' });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok) {
+                    alert('Delete failed: ' + (data.error || 'Unknown error'));
+                    return;
+                }
+                await renderProjects();
+                alert('Project deleted!');
+            } catch (err) {
+                alert('Delete failed: ' + err.message);
+            }
+        }
+
+        document.getElementById('skillInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (e.target.value.trim()) {
+                    skillsData.push(e.target.value.trim());
+                    e.target.value = '';
+                    renderSkills();
+                    saveProfile(e); // Auto Save
+                }
+            }
+        });
+
+        function updateArr(type, i, field, val) {
+            if (type === 'education') educationData[i][field] = val;
+            if (type === 'projects') projectsData[i][field] = val;
+        }
+
+        function removeArr(type, i) {
+            if (type === 'education') educationData.splice(i, 1);
+            if (type === 'skills') skillsData.splice(i, 1);
+            renderResult();
+            saveProfile(); // Auto save on remove
+        }
+
+        async function saveProfile(e) {
+            if (e) e.preventDefault();
+            const payload = {
+                full_name: document.getElementById('full_name').value,
+                phone: document.getElementById('phone').value,
+                address: document.getElementById('address').value,
+                education_details: educationData,
+                skills: skillsData
+            };
+
+            await fetch('/api/student/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            alert('Profile Saved Successfully! ✨');
+        }
+
+        async function uploadProfilePic() {
+            const file = document.getElementById('profilePicInput').files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            try {
+                const res = await fetch('/api/student/upload-photo', { method: 'POST', body: fd });
+                const data = await res.json();
+                if (!res.ok) {
+                    alert('Upload failed: ' + (data.error || 'Unknown error'));
+                    return;
+                }
+                alert('Profile picture uploaded! ✨');
+                loadProfile();
+            } catch (e) {
+                alert('Upload failed: ' + e.message);
+            }
+        }
+
+        async function uploadResume() {
+            const file = document.getElementById('resumeInput').files[0];
+            if (!file) return;
+            const fd = new FormData();
+            fd.append('file', file);
+            await fetch('/api/student/upload-resume', { method: 'POST', body: fd });
+            loadProfile();
+        }
+
+        // --- LOGOUT ANIMATION ---
+        function triggerLogout() {
+            const overlay = document.getElementById('logoutOverlay');
+            overlay.classList.add('active');
+
+            // Start animation after a brief delay
+            setTimeout(() => {
+                overlay.classList.add('animate');
+            }, 100);
+
+            // Redirect after animation completes (approx 2s)
+            setTimeout(async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch { window.location.href = '/login'; }
+            }, 2000);
+        }
+
+        // --- PASSWORD CHANGE ---
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                showPwdError('All password fields are required');
+                return;
+            }
+            if (newPassword.length < 6) {
+                showPwdError('New password must be at least 6 characters');
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                showPwdError('New passwords do not match');
+                return;
+            }
+
+            const btn = document.getElementById('changePwdBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Changing...';
+
+            try {
+                const res = await fetch('/api/student/change-password', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showPwdSuccess(data.message || 'Password changed successfully!');
+                    document.getElementById('currentPassword').value = '';
+                    document.getElementById('newPassword').value = '';
+                    document.getElementById('confirmPassword').value = '';
+                } else {
+                    showPwdError(data.error || 'Failed to change password');
+                }
+            } catch (e) {
+                console.error(e);
+                showPwdError('An error occurred while changing password');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔑 Change Password';
+            }
+        }
+
+        function showPwdSuccess(msg) {
+            const el = document.getElementById('pwdSuccessAlert');
+            el.textContent = '✅ ' + msg;
+            el.style.display = 'block';
+            document.getElementById('pwdErrorAlert').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        function showPwdError(msg) {
+            const el = document.getElementById('pwdErrorAlert');
+            el.textContent = '❌ ' + msg;
+            el.style.display = 'block';
+            document.getElementById('pwdSuccessAlert').style.display = 'none';
+            setTimeout(() => el.style.display = 'none', 5000);
+        }
+
+        // Init
+        loadProfile();
+        renderProjects();
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+aws_region        = "us-east-1"
+ami_id            = "ami-replace-with-region-specific-ubuntu-ami"
+instance_type     = "t3.micro"
+key_name          = "replace-with-ec2-key-pair"
+name              = "wynara"
+allowed_ssh_cidrs = ["203.0.113.10/32"]

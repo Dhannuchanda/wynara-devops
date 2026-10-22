@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% if valid %}Certificate Details{% else %}Report Not Available{% endif %} - WAPL</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 520px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px 30px 25px;
+            color: white;
+        }
+        .card-header .logo {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            opacity: 0.9;
+        }
+        .card-header h2 {
+            font-size: 22px;
+            font-weight: 600;
+            color: white;
+        }
+        .card-body {
+            padding: 30px;
+        }
+        .icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+        h2 {
+            font-size: 22px;
+            color: #1e293b;
+            margin-bottom: 12px;
+        }
+        p {
+            font-size: 15px;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        .badge.verified { background: #dcfce7; color: #16a34a; }
+        .badge.expired { background: #fef2f2; color: #dc2626; }
+        .badge.pending { background: #fef9c3; color: #a16207; }
+
+        .student-info {
+            background: #f8fafc;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .info-row:last-child { border-bottom: none; }
+        .info-label {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .info-value {
+            font-size: 14px;
+            color: #1e293b;
+            font-weight: 600;
+            text-align: right;
+            max-width: 60%;
+            word-break: break-word;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+        }
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        .btn-outline:hover {
+            background: #f0f0ff;
+        }
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+        }
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+
+        .report-pending {
+            background: #fffbeb;
+            border: 1px dashed #f59e0b;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        .report-pending .icon-small { font-size: 32px; margin-bottom: 8px; }
+        .report-pending p {
+            color: #92400e;
+            font-size: 14px;
+            margin-bottom: 0;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e2e8f0;
+            margin: 24px 0;
+        }
+
+        .footer-text {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 16px;
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 12px; }
+            .card-body { padding: 20px; }
+            .info-row { flex-direction: column; align-items: flex-start; gap: 4px; }
+            .info-value { text-align: left; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        {% if valid %}
+        <div class="card-header">
+            <div class="logo">WAPL</div>
+            <h2>Certificate Verified ✓</h2>
+        </div>
+        <div class="card-body">
+            {% if is_expired %}
+            <span class="badge expired">⚠ Certificate Expired</span>
+            {% else %}
+            <span class="badge verified">✓ Valid Certificate</span>
+            {% endif %}
+
+            <div class="student-info">
+                {% if certificate.full_name %}
+                <div class="info-row">
+                    <span class="info-label">Student Name</span>
+                    <span class="info-value">{{ certificate.full_name }}</span>
+                </div>
+                {% endif %}
+                {% if certificate.wapl_id %}
+                <div class="info-row">
+                    <span class="info-label">WAPL ID</span>
+                    <span class="info-value">{{ certificate.wapl_id }}</span>
+                </div>
+                {% endif %}
+                {% if certificate.domain_names %}
+                <div class="info-row">
+                    <span class="info-label">Domain</span>
+                    <span class="info-value">{{ certificate.domain_names }}</span>
+                </div>
+                {% endif %}
+                {% if certificate.issue_date %}
+                <div class="info-row">
+                    <span class="info-label">Issued On</span>
+                    <span class="info-value">{{ certificate.issue_date.strftime('%d %b %Y') if certificate.issue_date is not string else certificate.issue_date[:10] }}</span>
+                </div>
+                {% endif %}
+                {% if certificate.expiry_date %}
+                <div class="info-row">
+                    <span class="info-label">Valid Until</span>
+                    <span class="info-value">{{ certificate.expiry_date.strftime('%d %b %Y') if certificate.expiry_date is not string else certificate.expiry_date[:10] }}</span>
+                </div>
+                {% endif %}
+                {% if certificate.certificate_unique_id %}
+                <div class="info-row">
+                    <span class="info-label">Certificate ID</span>
+                    <span class="info-value" style="font-size: 12px;">{{ certificate.certificate_unique_id }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if has_report %}
+            <div class="btn-group">
+                <a href="{{ report_url }}" target="_blank" class="btn btn-primary">
+                    👁️ View Report
+                </a>
+                <a href="/download-report/{{ cert_id }}/file" class="btn btn-success">
+                    📥 Download Report
+                </a>
+            </div>
+            {% else %}
+            <div class="report-pending">
+                <div class="icon-small">📋</div>
+                <p><strong>Report Pending</strong><br>The report file has not been uploaded yet. It will be available here once the administrator uploads it.</p>
+            </div>
+            {% endif %}
+
+            <div class="divider"></div>
+            <a href="/" class="btn btn-secondary" style="display: inline-flex;">🏠 Go to Homepage</a>
+            <p class="footer-text">Scanned via WAPL Certificate QR Code</p>
+        </div>
+
+        {% else %}
+        <div class="card-header" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <div class="logo">WAPL</div>
+            <h2>Verification Failed</h2>
+        </div>
+        <div class="card-body">
+            <div class="icon">❌</div>
+            <h2>Not Found</h2>
+            <p>{{ message }}</p>
+            <a href="/" class="btn btn-primary" style="display: inline-flex;">🏠 Go to Homepage</a>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

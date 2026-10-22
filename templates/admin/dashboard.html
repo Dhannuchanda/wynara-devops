@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Dashboard - WAPL</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        /* Header with Role Badge */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #fff;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card .number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card.pending { border-left-color: #ffc107; }
+        .stat-card.active { border-left-color: #28a745; }
+        .stat-card.suspended { border-left-color: #dc3545; }
+        .stat-card.info { border-left-color: #17a2b8; }
+        .stat-card.payment { border-left-color: #6f42c1; }
+        .stat-card.success { border-left-color: #20c997; }
+        
+        .payment-amount {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .payment-amount .currency {
+            font-size: 20px;
+            font-weight: bold;
+            color: #6f42c1;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .chart-card h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .chart-container {
+            height: 300px;
+            position: relative;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            margin-top: 30px;
+        }
+
+        .quick-actions h2 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card .number {
+                font-size: 28px;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .chart-container {
+                height: 250px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .stat-card h3 {
+                font-size: 11px;
+            }
+
+            .stat-card .number {
+                font-size: 24px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard" class="active">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Admin Header with Role Badge -->
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Admin Dashboard</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+                <div style="opacity: 0.95; font-size: 14px;">
+                    <span>Welcome back! 👋</span>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Students</h3>
+                    <div class="number" id="totalStudents">0</div>
+                </div>
+
+                <div class="stat-card pending">
+                    <h3>Pending Approval</h3>
+                    <div class="number" id="pendingStudents">0</div>
+                </div>
+
+                <div class="stat-card active">
+                    <h3>Active Students</h3>
+                    <div class="number" id="activeStudents">0</div>
+                </div>
+
+                <div class="stat-card suspended">
+                    <h3>Suspended Students</h3>
+                    <div class="number" id="suspendedStudents">0</div>
+                </div>
+
+                <div class="stat-card info">
+                    <h3>Total HRs</h3>
+                    <div class="number" id="totalHrs">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Active Domains</h3>
+                    <div class="number" id="totalDomains">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Certificates Issued</h3>
+                    <div class="number" id="totalCertificates">0</div>
+                </div>
+
+                <div class="stat-card">
+                    <h3>Assigned Students</h3>
+                    <div class="number" id="assignedStudents">0</div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h2>📊 Student Account Status</h2>
+                    <div class="chart-container">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>🏷️ Students per Domain</h2>
+                    <div class="chart-container">
+                        <canvas id="domainChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>👔 HR Assignments</h2>
+                    <div class="chart-container">
+                        <canvas id="hrChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruitment Statistics Cards -->
+            <div style="margin-top: 30px;">
+                <h2 style="color: #333; margin-bottom: 20px;">📋 Recruitment</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total in Pipeline</h3>
+                        <div class="number" id="recruitmentTotal">0</div>
+                    </div>
+
+                    <div class="stat-card pending">
+                        <h3>👁️ Viewed</h3>
+                        <div class="number" id="recruitmentViewed">0</div>
+                    </div>
+
+                    <div class="stat-card">
+                        <h3>⭐ Shortlisted</h3>
+                        <div class="number" id="recruitmentShortlisted">0</div>
+                    </div>
+
+                    <div class="stat-card active">
+                        <h3>📅 Interviews</h3>
+                        <div class="number" id="recruitmentInterviews">0</div>
+                    </div>
+
+                    <div class="stat-card info">
+                        <h3>✅ Selected</h3>
+                        <div class="number" id="recruitmentSelected">0</div>
+                    </div>
+
+                    <div class="stat-card suspended">
+                        <h3>❌ Rejected</h3>
+                        <div class="number" id="recruitmentRejected">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recruitment Charts -->
+            <div class="charts-grid" style="margin-top: 30px;">
+                <div class="chart-card">
+                    <h2>HR Performance</h2>
+                    <div class="chart-container">
+                        <canvas id="hrPerformanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Statistics Section -->
+            <div style="margin-top: 30px;" id="paymentSection">
+                <h2 style="color: #333; margin-bottom: 20px;">💰 Payment Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card payment">
+                        <h3>Total Transactions</h3>
+                        <div class="number" id="paymentTotal">0</div>
+                        <div class="payment-amount">Amount: <span class="currency" id="paymentTotalAmount">₹0</span></div>
+                    </div>
+
+                    <div class="stat-card success">
+                        <h3>✅ Completed</h3>
+                        <div class="number" id="paymentCompleted">0</div>
+                        <div class="payment-amount">Amount: <span class="currency" id="paymentCompletedAmount">₹0</span></div>
+                    </div>
+
+                    <div class="stat-card pending">
+                        <h3>⏳ Pending</h3>
+                        <div class="number" id="paymentPending">0</div>
+                        <div class="payment-amount">Amount: <span class="currency" id="paymentPendingAmount">₹0</span></div>
+                    </div>
+
+                    <div class="stat-card info">
+                        <h3>✓ Verified</h3>
+                        <div class="number" id="paymentVerified">0</div>
+                        <div class="payment-amount">Amount: <span class="currency" id="paymentVerifiedAmount">₹0</span></div>
+                    </div>
+
+                    <div class="stat-card suspended">
+                        <h3>❌ Failed</h3>
+                        <div class="number" id="paymentFailed">0</div>
+                        <div class="payment-amount">Amount: <span class="currency" id="paymentFailedAmount">₹0</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Payment Chart -->
+            <div class="charts-grid" style="margin-top: 30px;">
+                <div class="chart-card">
+                    <h2>💳 Payment Status Distribution</h2>
+                    <div class="chart-container">
+                        <canvas id="paymentChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <h2>📈 Revenue Overview</h2>
+                    <div class="chart-container">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h2>Quick Actions</h2>
+                <div class="action-buttons">
+                    <a href="/secure-admin-panel/wapl/students" class="btn btn-primary">
+                        👨‍🎓 Manage Students
+                    </a>
+                    <a href="/secure-admin-panel/wapl/hrs" class="btn btn-primary">
+                        👔 Manage HRs
+                    </a>
+                    <a href="/secure-admin-panel/wapl/recruitment" class="btn btn-primary">
+                        📋 Recruitment Tracking
+                    </a>
+                    <a href="/secure-admin-panel/wapl/certificates" class="btn btn-primary">
+                        📜 Issue Certificates
+                    </a>
+                    <a href="/secure-admin-panel/wapl/domains" id="manageDomainsBtn" class="btn btn-primary" style="display: none;">
+                        🏷️ Manage Domains
+                    </a>
+                    <a href="/secure-admin-panel/wapl/admins" id="manageAdminsBtn" class="btn btn-primary" style="display: none;">
+                        👤 Manage Admins
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let isSuperAdmin = false;
+
+        // Sidebar Toggle Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Close sidebar when clicking menu item on mobile
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        // Check if super admin and update UI
+        async function checkAdminRole() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                isSuperAdmin = data.is_super_admin;
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (isSuperAdmin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                    document.getElementById('manageDomainsBtn').style.display = 'inline-flex';
+                    document.getElementById('manageAdminsBtn').style.display = 'inline-flex';
+                    
+                    console.log('🔑 Logged in as Super Admin');
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                    
+                    console.log('👤 Logged in as Regular Admin');
+                }
+                
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+                const roleBadge = document.getElementById('roleBadge');
+                roleBadge.textContent = '❌ Error';
+            }
+        }
+
+        // Load dashboard statistics
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/admin/dashboard/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalStudents').textContent = data.total_students || 0;
+                document.getElementById('pendingStudents').textContent = data.pending_students || 0;
+                document.getElementById('activeStudents').textContent = data.active_students || 0;
+                document.getElementById('suspendedStudents').textContent = data.suspended_students || 0;
+                document.getElementById('totalHrs').textContent = data.total_hrs || 0;
+                document.getElementById('totalDomains').textContent = data.total_domains || 0;
+                document.getElementById('totalCertificates').textContent = data.total_certificates || 0;
+                document.getElementById('assignedStudents').textContent = data.assigned_students || 0;
+                
+                console.log('✅ Dashboard stats loaded:', data);
+                
+                if (typeof Chart === 'undefined') {
+                    console.warn('⚠️ Chart.js not loaded yet, retrying in 500ms...');
+                    setTimeout(() => {
+                        renderCharts(data);
+                    }, 500);
+                } else {
+                    renderCharts(data);
+                }
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        function renderCharts(statsData) {
+            console.log('📊 Rendering charts with data:', statsData);
+            try {
+                renderStatusChart(statsData);
+                renderDomainChart();
+                renderHrChart();
+                loadRecruitmentStats();
+                console.log('✅ All charts rendered successfully');
+            } catch (error) {
+                console.error('❌ Error rendering charts:', error);
+            }
+        }
+
+        let statusChartInstance = null;
+        async function renderStatusChart(statsData) {
+            try {
+                const ctx = document.getElementById('statusChart');
+                if (!ctx) return;
+
+                if (statusChartInstance) {
+                    statusChartInstance.destroy();
+                }
+
+                const pending = statsData.pending_students || 0;
+                const active = statsData.active_students || 0;
+                const suspended = statsData.suspended_students || 0;
+
+                statusChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pending', 'Active', 'Suspended'],
+                        datasets: [{
+                            data: [pending, active, suspended],
+                            backgroundColor: ['#FFC107', '#28A745', '#DC3545'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 15,
+                                    font: { size: 12 }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error creating status chart:', error);
+            }
+        }
+
+        let domainChartInstance = null;
+        async function renderDomainChart() {
+            try {
+                const ctx = document.getElementById('domainChart');
+                if (!ctx) return;
+
+                const response = await fetch('/api/admin/students');
+                const students = await response.json();
+
+                const domainCounts = {};
+                students.forEach(student => {
+                    if (student.domain_names) {
+                        const domains = student.domain_names.split(', ');
+                        domains.forEach(domain => {
+                            domain = domain.trim();
+                            domainCounts[domain] = (domainCounts[domain] || 0) + 1;
+                        });
+                    }
+                });
+
+                if (domainChartInstance) {
+                    domainChartInstance.destroy();
+                }
+
+                const labels = Object.keys(domainCounts);
+                const data = Object.values(domainCounts);
+                const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#fa709a', '#fee140', '#30cfd0', '#330867'];
+
+                domainChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { font: { size: 12 } }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error rendering domain chart:', error);
+            }
+        }
+
+        let hrChartInstance = null;
+        async function renderHrChart() {
+            try {
+                const ctx = document.getElementById('hrChart');
+                if (!ctx) return;
+
+                const response = await fetch('/api/admin/hrs');
+                const hrs = await response.json();
+
+                if (hrChartInstance) {
+                    hrChartInstance.destroy();
+                }
+
+                const labels = hrs.map(hr => hr.full_name || 'Unknown');
+                const data = hrs.map(hr => hr.assigned_count || 0);
+                const colors = ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#00f2fe', '#43e97b', '#fa709a', '#fee140', '#30cfd0', '#330867'];
+
+                hrChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Assigned Students',
+                            data: data,
+                            backgroundColor: colors.slice(0, labels.length),
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { font: { size: 12 } }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error rendering HR chart:', error);
+            }
+        }
+
+        let hrPerformanceChart = null;
+        async function loadRecruitmentStats() {
+            try {
+                const response = await fetch('/api/admin/recruitment/summary');
+                const data = await response.json();
+                
+                document.getElementById('recruitmentTotal').textContent = data.total_students_in_pipeline || 0;
+                document.getElementById('recruitmentViewed').textContent = data.viewed || 0;
+                document.getElementById('recruitmentShortlisted').textContent = data.shortlisted || 0;
+                document.getElementById('recruitmentInterviews').textContent = data.interviews_scheduled || 0;
+                document.getElementById('recruitmentSelected').textContent = data.selected || 0;
+                document.getElementById('recruitmentRejected').textContent = data.rejected || 0;
+                
+                renderHrPerformance(data);
+                
+            } catch (error) {
+                console.error('❌ Error loading recruitment stats:', error);
+            }
+        }
+
+        function renderHrPerformance(data) {
+            try {
+                const ctx = document.getElementById('hrPerformanceChart');
+                if (!ctx) return;
+
+                if (hrPerformanceChart) {
+                    hrPerformanceChart.destroy();
+                }
+
+                const byHr = data.by_hr || [];
+                const labels = byHr.map(hr => hr.full_name);
+                const shortlistedCounts = byHr.map(hr => hr.shortlisted_count || 0);
+                const interviewCounts = byHr.map(hr => hr.interview_count || 0);
+                const selectedCounts = byHr.map(hr => hr.selected_count || 0);
+
+                hrPerformanceChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: '⭐ Shortlisted',
+                                data: shortlistedCounts,
+                                backgroundColor: '#764ba2',
+                                borderRadius: 6
+                            },
+                            {
+                                label: '📅 Interviews',
+                                data: interviewCounts,
+                                backgroundColor: '#f093fb',
+                                borderRadius: 6
+                            },
+                            {
+                                label: '✅ Selected',
+                                data: selectedCounts,
+                                backgroundColor: '#43e97b',
+                                borderRadius: 6
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                labels: { font: { size: 11 } }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Error rendering HR performance chart:', error);
+            }
+        }
+
+        // Payment Statistics
+        let paymentChartInstance = null;
+        let revenueChartInstance = null;
+        
+        async function loadPaymentStats() {
+            try {
+                const response = await fetch('/api/admin/payments/stats');
+                const data = await response.json();
+                
+                // Update stat cards
+                document.getElementById('paymentTotal').textContent = data.total_payments || 0;
+                document.getElementById('paymentTotalAmount').textContent = '₹' + formatAmount(data.total_amount || 0);
+                
+                document.getElementById('paymentCompleted').textContent = data.completed_count || 0;
+                document.getElementById('paymentCompletedAmount').textContent = '₹' + formatAmount(data.completed_amount || 0);
+                
+                document.getElementById('paymentPending').textContent = data.pending_count || 0;
+                document.getElementById('paymentPendingAmount').textContent = '₹' + formatAmount(data.pending_amount || 0);
+                
+                document.getElementById('paymentVerified').textContent = data.verified_count || 0;
+                document.getElementById('paymentVerifiedAmount').textContent = '₹' + formatAmount(data.verified_amount || 0);
+                
+                document.getElementById('paymentFailed').textContent = data.failed_count || 0;
+                document.getElementById('paymentFailedAmount').textContent = '₹' + formatAmount(data.failed_amount || 0);
+                
+                renderPaymentCharts(data);
+                console.log('✅ Payment stats loaded:', data);
+                
+            } catch (error) {
+                console.error('❌ Error loading payment stats:', error);
+            }
+        }
+        
+        function formatAmount(amount) {
+            return Number(amount).toLocaleString('en-IN');
+        }
+        
+        function renderPaymentCharts(data) {
+            // Payment Status Pie Chart
+            const paymentCtx = document.getElementById('paymentChart');
+            if (paymentCtx) {
+                if (paymentChartInstance) {
+                    paymentChartInstance.destroy();
+                }
+                
+                paymentChartInstance = new Chart(paymentCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Completed', 'Pending', 'Verified', 'Failed'],
+                        datasets: [{
+                            data: [
+                                data.completed_count || 0,
+                                data.pending_count || 0,
+                                data.verified_count || 0,
+                                data.failed_count || 0
+                            ],
+                            backgroundColor: ['#20c997', '#ffc107', '#17a2b8', '#dc3545'],
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { font: { size: 12 } }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Revenue Bar Chart
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                if (revenueChartInstance) {
+                    revenueChartInstance.destroy();
+                }
+                
+                revenueChartInstance = new Chart(revenueCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Total', 'Completed', 'Pending', 'Verified', 'Failed'],
+                        datasets: [{
+                            label: 'Amount (₹)',
+                            data: [
+                                data.total_amount || 0,
+                                data.completed_amount || 0,
+                                data.pending_amount || 0,
+                                data.verified_amount || 0,
+                                data.failed_amount || 0
+                            ],
+                            backgroundColor: ['#6f42c1', '#20c997', '#ffc107', '#17a2b8', '#dc3545'],
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🚀 Dashboard loading...');
+            checkAdminRole();
+            loadStats();
+            loadPaymentStats();
+        });
+    </script>
+</body>
+</html>

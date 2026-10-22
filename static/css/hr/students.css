@@ -1,0 +1,6 @@
+/* HR Students */
+.students-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); padding: 2rem; }
+.student-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); padding: 1.2rem; }
+.student-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.12); transition: all .3s; }
+.student-card-actions .btn { background: var(--brand-gradient); color:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-colored); }
+.filters select, .filters input { border:2px solid #e2e8f0; border-radius: var(--radius-sm); padding: 13px 14px; }

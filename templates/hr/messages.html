@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Messages - WAPL HR</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; }
+        .hr-container { display: flex; min-height: 100vh; }
+
+        .hamburger-btn {
+            display: none; position: fixed; top: 15px; left: 15px; z-index: 1001;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+        }
+        .hamburger-btn span { display: block; width: 25px; height: 3px; background: white; margin: 5px 0; border-radius: 2px; }
+
+        .sidebar {
+            width: 250px; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 20px 0; position: fixed; height: 100vh;
+            overflow-y: auto; transition: transform 0.3s ease; z-index: 1000;
+        }
+        .logo { padding: 0 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .logo h2 { font-size: 24px; font-weight: bold; }
+        .logo p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 5px; }
+        .nav-menu { padding: 0 10px; }
+        .nav-menu a, .nav-menu button {
+            display: flex; align-items: center; padding: 12px 20px;
+            color: rgba(255,255,255,0.8); text-decoration: none;
+            border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;
+            background: none; border: none; cursor: pointer; font-size: 14px;
+            width: 100%; text-align: left; font-family: inherit;
+        }
+        .nav-menu a:hover, .nav-menu button:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-menu a.active { background: rgba(255,255,255,0.2); color: white; font-weight: bold; }
+        .nav-menu a i, .nav-menu button i { margin-right: 10px; font-size: 18px; }
+
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding: 20px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.25);
+        }
+        .header h1 { font-size: 26px; }
+
+        .layout {
+            display: grid; grid-template-columns: 360px 1fr; gap: 18px;
+            height: calc(100vh - 140px);
+        }
+
+        .card {
+            background: #fff; border-radius: 14px; border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.06);
+            overflow: hidden;
+        }
+        .card-header { padding: 14px 16px; border-bottom: 1px solid #e2e8f0; font-weight: 800; color: #0f172a; }
+
+        .search { padding: 12px 14px; border-bottom: 1px solid #e2e8f0; }
+        .search input {
+            width: 100%; padding: 12px 12px; border: 1px solid #e2e8f0; border-radius: 10px;
+            outline: none;
+        }
+        .search input:focus { border-color: #2a5298; box-shadow: 0 0 0 3px rgba(42,82,152,0.12); }
+
+        .list { overflow: auto; height: calc(100% - 108px); }
+        .student-item {
+            padding: 12px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer;
+            display: flex; gap: 10px; align-items: flex-start;
+        }
+        .student-item:hover { background: #f8fafc; }
+        .student-item.active { background: #eef2ff; }
+        .avatar {
+            width: 38px; height: 38px; border-radius: 10px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; display: grid; place-items: center; font-weight: 900;
+            flex: 0 0 auto;
+        }
+        .meta { flex: 1 1 auto; min-width: 0; }
+        .name { font-weight: 900; color: #0f172a; font-size: 14px; }
+        .sub { color: #64748b; font-size: 12px; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .pill {
+            flex: 0 0 auto;
+            min-width: 22px; height: 22px; border-radius: 999px; padding: 0 8px;
+            background: #ef4444; color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 900;
+        }
+
+        .chat { display: grid; grid-template-rows: auto 1fr auto; height: 100%; }
+        .chat-top {
+            padding: 14px 16px; border-bottom: 1px solid #e2e8f0;
+            display: flex; align-items: center; justify-content: space-between; gap: 10px;
+        }
+        .chat-title { font-weight: 900; color: #0f172a; }
+        .chat-hint { color: #64748b; font-size: 12px; }
+        .messages { padding: 14px; overflow: auto; background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%); }
+        .msg { max-width: 72%; padding: 10px 12px; border-radius: 12px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .msg.hr { margin-left: auto; background: #eef2ff; border-color: #c7d2fe; }
+        .msg.student { margin-right: auto; background: #fff; }
+        .msg .time { margin-top: 6px; font-size: 11px; color: #64748b; }
+        .composer { padding: 12px; border-top: 1px solid #e2e8f0; display: flex; gap: 10px; }
+        .composer textarea {
+            flex: 1; resize: none; height: 44px; max-height: 120px;
+            border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 12px;
+            outline: none; font-family: inherit;
+        }
+        .composer textarea:focus { border-color: #2a5298; box-shadow: 0 0 0 3px rgba(42,82,152,0.12); }
+        .btn {
+            border: none; border-radius: 12px; padding: 10px 14px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: #fff; font-weight: 900; cursor: pointer;
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .empty {
+            height: 100%; display: grid; place-items: center; padding: 30px;
+            color: #64748b; text-align: center;
+        }
+
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; }
+        @media (max-width: 980px) {
+            .layout { grid-template-columns: 1fr; height: auto; }
+        }
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; width: 100%; padding: 80px 15px 15px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="hr-container">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>HR Panel</h2>
+                <p>WAPL System</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/hr/dashboard"><i>📊</i> Dashboard</a>
+                <a href="/hr/students"><i>👨‍🎓</i> My Students</a>
+                <a href="/hr/messages" class="active"><i>💬</i> Messages</a>
+                <a href="/hr/profile"><i>👤</i> Profile</a>
+                <a href="/secure-admin-panel/wapl/logout"><i>🚪</i> Logout</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="header">
+                <h1>Messages</h1>
+                <div class="chat-hint">Chat works only with assigned students</div>
+            </div>
+
+            <div class="layout">
+                <section class="card">
+                    <div class="card-header">Students</div>
+                    <div class="search">
+                        <input id="search" type="text" placeholder="Search by name, WAPL ID, email">
+                    </div>
+                    <div id="studentList" class="list"></div>
+                </section>
+
+                <section class="card chat">
+                    <div class="chat-top">
+                        <div>
+                            <div id="chatTitle" class="chat-title">Select a student</div>
+                            <div id="chatSubtitle" class="chat-hint">Your conversation will appear here</div>
+                        </div>
+                        <button id="markReadBtn" class="btn" onclick="markRead()" disabled>Mark Read</button>
+                    </div>
+                    <div id="messages" class="messages">
+                        <div class="empty">Pick a student on the left to start chatting.</div>
+                    </div>
+                    <div class="composer">
+                        <textarea id="composer" placeholder="Type a message..." disabled></textarea>
+                        <button id="sendBtn" class="btn" onclick="sendMessage()" disabled>Send</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allStudents = [];
+        let filteredStudents = [];
+        let activeStudentId = null;
+        let pollTimer = null;
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        async function loadConversations() {
+            const res = await fetch('/api/hr/messages/conversations');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to load conversations');
+            allStudents = data || [];
+            applyFilter();
+        }
+
+        function applyFilter() {
+            const q = (document.getElementById('search').value || '').trim().toLowerCase();
+            filteredStudents = !q ? allStudents : allStudents.filter(s =>
+                (s.full_name || '').toLowerCase().includes(q) ||
+                (s.wapl_id || '').toLowerCase().includes(q) ||
+                (s.email || '').toLowerCase().includes(q)
+            );
+            renderStudentList();
+        }
+
+        function initials(name) {
+            const parts = (name || '').trim().split(/\s+/).filter(Boolean);
+            const a = (parts[0] || 'S')[0];
+            const b = (parts[1] || '')[0] || '';
+            return (a + b).toUpperCase();
+        }
+
+        function renderStudentList() {
+            const el = document.getElementById('studentList');
+            if (!filteredStudents.length) {
+                el.innerHTML = '<div class="empty">No assigned students yet.</div>';
+                return;
+            }
+            el.innerHTML = filteredStudents.map(s => {
+                const active = s.student_id === activeStudentId ? 'active' : '';
+                const pill = s.unread_count ? `<span class="pill">${s.unread_count}</span>` : '';
+                const last = s.last_message ? s.last_message : 'No messages yet';
+                return `
+                    <div class="student-item ${active}" onclick="selectStudent(${s.student_id})">
+                        <div class="avatar">${initials(s.full_name)}</div>
+                        <div class="meta">
+                            <div class="name">${escapeHtml(s.full_name || '')}</div>
+                            <div class="sub">${escapeHtml(s.wapl_id || '')}  Â·  ${escapeHtml(last)}</div>
+                        </div>
+                        ${pill}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '';
+            const d = new Date(ts);
+            if (Number.isNaN(d.getTime())) return String(ts);
+            return d.toLocaleString();
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        async function selectStudent(studentId) {
+            activeStudentId = studentId;
+            document.getElementById('composer').disabled = false;
+            document.getElementById('sendBtn').disabled = false;
+            document.getElementById('markReadBtn').disabled = false;
+
+            const s = allStudents.find(x => x.student_id === studentId);
+            document.getElementById('chatTitle').textContent = s ? (s.full_name || 'Student') : 'Student';
+            document.getElementById('chatSubtitle').textContent = s ? (s.wapl_id || '') : '';
+
+            await loadMessages();
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(loadMessages, 5000);
+        }
+
+        async function loadMessages() {
+            if (!activeStudentId) return;
+            const res = await fetch(`/api/hr/messages/${activeStudentId}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to load messages');
+
+            const box = document.getElementById('messages');
+            if (!data.length) {
+                box.innerHTML = '<div class="empty">No messages yet. Say hello.</div>';
+                return;
+            }
+            box.innerHTML = data.map(m => `
+                <div class="msg ${m.sender_role}">
+                    <div>${escapeHtml(m.message_text || '')}</div>
+                    <div class="time">${escapeHtml(formatTime(m.created_at))}</div>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendMessage() {
+            if (!activeStudentId) return;
+            const textarea = document.getElementById('composer');
+            const text = (textarea.value || '').trim();
+            if (!text) return;
+
+            textarea.value = '';
+            const res = await fetch(`/api/hr/messages/${activeStudentId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Failed to send');
+                return;
+            }
+            await loadConversations();
+            await loadMessages();
+        }
+
+        async function markRead() {
+            if (!activeStudentId) return;
+            const res = await fetch(`/api/hr/messages/${activeStudentId}/read`, { method: 'POST' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Failed to mark read');
+                return;
+            }
+            await loadConversations();
+        }
+
+        document.getElementById('search').addEventListener('input', applyFilter);
+
+        (async function init() {
+            try {
+                await loadConversations();
+            } catch (e) {
+                document.getElementById('studentList').innerHTML = `<div class="empty">${escapeHtml(e.message || 'Failed')}</div>`;
+            }
+        })();
+    </script>
+</body>
+</html>
+

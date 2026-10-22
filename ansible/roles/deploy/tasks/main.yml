@@ -1,0 +1,40 @@
+---
+- name: Create deployment directory
+  ansible.builtin.file:
+    path: "{{ deploy_dir }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0755"
+
+- name: Check out application
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.git:
+    repo: "{{ repository_url }}"
+    dest: "{{ deploy_dir }}"
+    version: "{{ repository_version }}"
+    update: true
+
+- name: Write production environment file from Ansible Vault
+  ansible.builtin.copy:
+    content: "{{ vault_wynara_env | trim }}\n"
+    dest: "{{ deploy_dir }}/.env"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: "0600"
+  no_log: true
+
+- name: Generate self-signed certificate when absent
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.command:
+    cmd: "./scripts/generate-self-signed-cert.sh {{ ansible_host }}"
+    chdir: "{{ deploy_dir }}"
+    creates: "{{ deploy_dir }}/nginx/certs/wynara.crt"
+
+- name: Start Compose stack
+  become_user: "{{ deploy_user }}"
+  ansible.builtin.command:
+    cmd: docker compose up -d --build
+    chdir: "{{ deploy_dir }}"
+  register: compose_up
+  changed_when: "'Started' in compose_up.stdout or 'Created' in compose_up.stdout or 'Recreated' in compose_up.stdout"

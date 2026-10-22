@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Student Detail - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-header h1 {
+            font-size: 28px;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-back {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+        .btn-back:hover {
+            background: #cbd5e1;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .content-card {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .student-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .student-name-section h2 {
+            font-size: 28px;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .wapl-id {
+            color: #64748b;
+            font-size: 14px;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .status-active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-suspended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 16px;
+            color: #1e293b;
+            word-break: break-word;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .profile-header-section {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .profile-picture-container {
+            flex-shrink: 0;
+        }
+
+        .profile-picture {
+            width: 150px;
+            height: 150px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 3px solid #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-picture.placeholder {
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .profile-info-section {
+            flex-grow: 1;
+            min-width: 250px;
+        }
+
+        .resume-section {
+            background: #f0f7ff;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .resume-section .section-title {
+            margin-bottom: 15px;
+            border: none;
+            padding: 0;
+        }
+
+        .resume-file {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+        }
+
+        .resume-file-icon {
+            font-size: 30px;
+        }
+
+        .resume-file-info {
+            flex-grow: 1;
+            min-width: 150px;
+        }
+
+        .resume-file-name {
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+            word-break: break-all;
+        }
+
+        .resume-file-size {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .resume-download-btn {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .resume-download-btn:hover {
+            background: #2563eb;
+        }
+
+        .no-resume {
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px dashed #cbd5e1;
+            color: #64748b;
+            text-align: center;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-header h1 {
+                font-size: 20px;
+            }
+
+            .btn-back {
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .student-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .student-name-section h2 {
+                font-size: 22px;
+            }
+
+            .profile-header-section {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .profile-picture-container {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
+            .profile-picture,
+            .profile-picture.placeholder {
+                width: 120px;
+                height: 120px;
+                font-size: 50px;
+            }
+
+            .profile-info-section {
+                width: 100%;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .resume-file {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .resume-download-btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px 15px;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-header h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .student-name-section h2 {
+                font-size: 20px;
+            }
+
+            .info-item {
+                padding: 12px;
+            }
+
+            .info-label {
+                font-size: 11px;
+            }
+
+            .info-value {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students" class="active">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <h1 id="pageTitle">Student Details</h1>
+                <button class="btn btn-back" onclick="goBack()">← Back to Students</button>
+            </div>
+
+            <div id="contentArea"></div>
+        </main>
+    </div>
+
+    <!-- HR Assignment Modal -->
+    <div id="hrModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Assign to HR</h2>
+                <button onclick="closeHRModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            <div id="hrList" style="max-height: 300px; overflow-y: auto;"></div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-back" onclick="closeHRModal()" style="width: 100%;">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Student Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">✏️ Edit Student</h2>
+                <button onclick="closeEditModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            <form id="editStudentForm">
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Full Name</label>
+                    <input type="text" id="editFullName" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Email</label>
+                    <input type="email" id="editEmail" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Phone</label>
+                    <input type="text" id="editPhone" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Address</label>
+                    <textarea id="editAddress" rows="2" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Skills</label>
+                    <textarea id="editSkills" rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Education Details</label>
+                    <textarea id="editEducation" rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold; color: #334155;">Projects</label>
+                    <textarea id="editProjects" rows="3" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px; resize: vertical;"></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">💾 Save Changes</button>
+                    <button type="button" class="btn btn-back" onclick="closeEditModal()" style="flex: 1;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Domain Management Modal -->
+    <div id="domainModal" class="modal">
+        <div class="modal-content">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">📚 Manage Domains</h2>
+                <button onclick="closeDomainModal()"
+                    style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">&times;</button>
+            </div>
+            
+            <!-- Current Domains -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; color: #334155;">Current Domains</h4>
+                <div id="currentDomainsList" style="max-height: 150px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;">
+                    Loading...
+                </div>
+            </div>
+
+            <!-- Add Domains -->
+            <div style="margin-bottom: 20px;">
+                <h4 style="margin-bottom: 10px; color: #334155;">Add Domains</h4>
+                <div id="availableDomainsList" style="max-height: 200px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;">
+                    Loading...
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="addSelectedDomains()" style="flex: 1;">➕ Add Selected</button>
+                <button class="btn btn-back" onclick="closeDomainModal()" style="flex: 1;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const studentId = window.location.pathname.split('/').pop();
+        let studentData = null;
+        let allHRs = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        // Check if super admin for settings link
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                if (data.is_super_admin && document.getElementById('settingsLink')) {
+                    document.getElementById('settingsLink').style.display = 'flex';
+                }
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+            }
+        }
+        checkSuperAdmin();
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function loadStudentDetail() {
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}`);
+                if (!response.ok) {
+                    document.getElementById('contentArea').innerHTML =
+                        '<div class="content-card"><div style="color: #dc2626; padding: 20px; text-align: center;">❌ Student not found</div></div>';
+                    return;
+                }
+
+                studentData = await response.json();
+                displayStudentDetail();
+                loadHRs();
+            } catch (error) {
+                console.error('Error loading student:', error);
+                document.getElementById('contentArea').innerHTML =
+                    '<div class="content-card"><div style="color: #dc2626; padding: 20px; text-align: center;">❌ Error loading student details</div></div>';
+            }
+        }
+
+        async function loadHRs() {
+            try {
+                const response = await fetch('/api/admin/hrs');
+                allHRs = await response.json();
+            } catch (error) {
+                console.error('Error loading HRs:', error);
+            }
+        }
+
+        function displayStudentDetail() {
+            const statusClass = `status-${studentData.account_status || 'pending'}`;
+            const hrInfo = studentData.assigned_hr_name ?
+                `<div class="info-item">
+                    <div class="info-label">Assigned HR</div>
+                    <div class="info-value">${studentData.assigned_hr_name}</div>
+                </div>` :
+                '<div class="info-item"><div class="info-label">Assigned HR</div><div class="info-value">Not Assigned</div></div>';
+
+            let profilePic = null;
+            if (studentData.profile_pic) {
+                if (studentData.profile_pic.startsWith('http')) {
+                    profilePic = studentData.profile_pic;
+                } else {
+                    let profileName = studentData.profile_pic.split('/').pop().split('\\').pop();
+                    profilePic = `/uploads/profile_pics/${profileName}`;
+                }
+            }
+
+            let resumeHTML = '';
+            if (studentData.resume) {
+                let resumePath;
+                let resumeName;
+
+                if (studentData.resume.startsWith('http')) {
+                    resumePath = studentData.resume;
+                    // Extract filename from URL (decoding it to look nice)
+                    try {
+                        resumeName = decodeURIComponent(studentData.resume.split('/').pop().split('?')[0]);
+                    } catch (e) {
+                        resumeName = "Resume";
+                    }
+                } else {
+                    let resumeFile = studentData.resume.split('/').pop().split('\\').pop();
+                    resumePath = `/download/resumes/${resumeFile}`;
+                    resumeName = resumeFile.split('_').pop();
+                }
+
+                resumeHTML = `
+                    <div class="resume-section">
+                        <div class="section-title">📄 Resume</div>
+                        <div class="resume-file">
+                            <div class="resume-file-icon">📑</div>
+                            <div class="resume-file-info">
+                                <div class="resume-file-name">${resumeName}</div>
+                                <div class="resume-file-size">Click to view/download</div>
+                            </div>
+                            <a href="${resumePath}" class="resume-download-btn" target="_blank">⬇️ View/Download</a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                resumeHTML = `
+                    <div class="resume-section">
+                        <div class="section-title">📄 Resume</div>
+                        <div class="no-resume">❌ No resume uploaded</div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="content-card">
+                    <div class="student-header">
+                        <div class="student-name-section">
+                            <h2>${studentData.full_name || 'N/A'}</h2>
+                            <div class="wapl-id">WAPL ID: ${studentData.wapl_id || 'N/A'}</div>
+                        </div>
+                        <span class="status-badge ${statusClass}">
+                            ${studentData.account_status || 'pending'}
+                        </span>
+                    </div>
+
+                    <div class="profile-header-section">
+                        <div class="profile-picture-container">
+                            ${profilePic ?
+                    `<img src="${profilePic}" alt="${studentData.full_name}" class="profile-picture" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 150 150%22%3E%3Crect fill=%22%23e2e8f0%22 width=%22150%22 height=%22150%22/%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2250%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E👤%3C/text%3E%3C/svg%3E'">` :
+                    `<div class="profile-picture placeholder">👤</div>`
+                }
+                        </div>
+                        <div class="profile-info-section">
+                            ${resumeHTML}
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">📋 Basic Information</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Full Name</div>
+                                <div class="info-value">${studentData.full_name || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Email</div>
+                                <div class="info-value">${studentData.email || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Phone</div>
+                                <div class="info-value">${studentData.phone || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Address</div>
+                                <div class="info-value">${studentData.address || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Domains</div>
+                                <div class="info-value">${studentData.domain_names || 'N/A'}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Registration Date</div>
+                                <div class="info-value">${formatDate(studentData.registration_date) || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section">
+                        <div class="section-title">🏢 HR Assignment</div>
+                        <div class="info-grid">
+                            ${hrInfo}
+                            ${studentData.assigned_hr_name ?
+                    `<div class="info-item">
+                                    <div class="info-label">Company</div>
+                                    <div class="info-value">${studentData.hr_company || 'N/A'}</div>
+                                </div>` : ''
+                }
+                        </div>
+                    </div>
+
+                    ${studentData.education_details ?
+                    `<div class="section">
+                            <div class="section-title">🎓 Education Details</div>
+                            <div class="info-item">
+                                <div class="info-value">${studentData.education_details}</div>
+                            </div>
+                        </div>` : ''
+                }
+
+                    ${studentData.skills ?
+                    `<div class="section">
+                            <div class="section-title">💼 Skills</div>
+                            <div class="info-item">
+                                <div class="info-value">${studentData.skills}</div>
+                            </div>
+                        </div>` : ''
+                }
+
+                    ${studentData.projects ?
+                    `<div class="section">
+                            <div class="section-title">🚀 Projects</div>
+                            <div class="info-item">
+                                <div class="info-value">${studentData.projects}</div>
+                            </div>
+                        </div>` : ''
+                }
+
+                    <div class="section">
+                        <div class="section-title">⚙️ Actions</div>
+                        <div class="action-buttons">
+                            <button class="btn btn-primary" onclick="openEditModal()">✏️ Edit Student</button>
+                            <button class="btn btn-primary" onclick="openDomainModal()">📚 Manage Domains</button>
+                            <button class="btn btn-primary" onclick="openHRModal()">👥 Assign to HR</button>
+                            ${studentData.account_status === 'pending' ?
+                    `<button class="btn btn-success" onclick="approveStudent()">✓ Approve Student</button>` : ''
+                }
+                            ${studentData.account_status === 'active' ?
+                    `<button class="btn btn-warning" onclick="suspendStudent()">⏸ Suspend Account</button>` : ''
+                }
+                            ${studentData.account_status !== 'active' ?
+                    `<button class="btn btn-success" onclick="activateStudent()">▶ Activate Account</button>` : ''
+                }
+                            <button class="btn btn-danger" onclick="deleteStudent()">🗑 Delete Student</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('contentArea').innerHTML = html;
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            } catch {
+                return dateString;
+            }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        async function approveStudent() {
+            if (!confirm('Approve this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/approve`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudentDetail();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        async function suspendStudent() {
+            if (!confirm('Suspend this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/suspend`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudentDetail();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        async function activateStudent() {
+            if (!confirm('Activate this student?')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/activate`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    loadStudentDetail();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        async function deleteStudent() {
+            if (!confirm('⚠️ Are you sure? This action cannot be undone!')) return;
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}`, { method: 'DELETE' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    window.location.href = '/secure-admin-panel/wapl/students';
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        function openHRModal() {
+            if (!allHRs || allHRs.length === 0) {
+                alert('❌ No HRs available');
+                return;
+            }
+
+            const hrListHTML = allHRs.map(hr => `
+                <div style="padding: 12px; border-bottom: 1px solid #e2e8f0; cursor: pointer; transition: background 0.2s;" 
+                     onclick="assignHR(${hr.id}, '${hr.full_name}')"
+                     onmouseover="this.style.background='#f8fafc'"
+                     onmouseout="this.style.background='white'">
+                    <strong style="display: block; margin-bottom: 5px;">${hr.full_name}</strong>
+                    <small style="color: #64748b;">${hr.company_name} - ${hr.email}</small>
+                </div>
+            `).join('');
+
+            document.getElementById('hrList').innerHTML = hrListHTML;
+            document.getElementById('hrModal').style.display = 'flex';
+            document.getElementById('hrModal').style.alignItems = 'center';
+            document.getElementById('hrModal').style.justifyContent = 'center';
+        }
+
+        function closeHRModal() {
+            document.getElementById('hrModal').style.display = 'none';
+        }
+
+        async function assignHR(hrId, hrName) {
+            if (!confirm(`Assign this student to ${hrName}?`)) return;
+            try {
+                const response = await fetch('/api/admin/assign-students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentIds: [studentId], hrId: hrId })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    closeHRModal();
+                    loadStudentDetail();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        window.addEventListener('click', (event) => {
+            const hrModal = document.getElementById('hrModal');
+            const editModal = document.getElementById('editModal');
+            const domainModal = document.getElementById('domainModal');
+            if (event.target === hrModal) closeHRModal();
+            if (event.target === editModal) closeEditModal();
+            if (event.target === domainModal) closeDomainModal();
+        });
+
+        // Edit Student Functions
+        let allDomains = [];
+        let studentDomains = [];
+
+        function openEditModal() {
+            document.getElementById('editFullName').value = studentData.full_name || '';
+            document.getElementById('editEmail').value = studentData.email || '';
+            document.getElementById('editPhone').value = studentData.phone || '';
+            document.getElementById('editAddress').value = studentData.address || '';
+            document.getElementById('editSkills').value = studentData.skills || '';
+            document.getElementById('editEducation').value = studentData.education_details || '';
+            document.getElementById('editProjects').value = studentData.projects || '';
+            
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editModal').style.alignItems = 'center';
+            document.getElementById('editModal').style.justifyContent = 'center';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        document.getElementById('editStudentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const updateData = {
+                fullName: document.getElementById('editFullName').value,
+                email: document.getElementById('editEmail').value,
+                phone: document.getElementById('editPhone').value,
+                address: document.getElementById('editAddress').value,
+                skills: document.getElementById('editSkills').value,
+                education_details: document.getElementById('editEducation').value,
+                projects: document.getElementById('editProjects').value
+            };
+
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updateData)
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    closeEditModal();
+                    loadStudentDetail();
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        });
+
+        // Domain Management Functions
+        async function loadAllDomains() {
+            try {
+                const response = await fetch('/api/admin/domains');
+                allDomains = await response.json();
+            } catch (error) {
+                console.error('Error loading domains:', error);
+                allDomains = [];
+            }
+        }
+
+        async function loadStudentDomains() {
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/domains`);
+                studentDomains = await response.json();
+            } catch (error) {
+                console.error('Error loading student domains:', error);
+                studentDomains = [];
+            }
+        }
+
+        async function openDomainModal() {
+            document.getElementById('domainModal').style.display = 'flex';
+            document.getElementById('domainModal').style.alignItems = 'center';
+            document.getElementById('domainModal').style.justifyContent = 'center';
+            
+            await Promise.all([loadAllDomains(), loadStudentDomains()]);
+            renderDomainLists();
+        }
+
+        function closeDomainModal() {
+            document.getElementById('domainModal').style.display = 'none';
+        }
+
+        function renderDomainLists() {
+            // Render current domains
+            const currentDomainsHTML = studentDomains.length > 0 
+                ? studentDomains.map(d => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 5px;">
+                        <span>${d.domain_name}</span>
+                        <button onclick="removeDomain(${d.id})" style="background: #fee2e2; color: #dc2626; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">✕ Remove</button>
+                    </div>
+                `).join('')
+                : '<div style="color: #64748b; text-align: center; padding: 15px;">No domains assigned</div>';
+            
+            document.getElementById('currentDomainsList').innerHTML = currentDomainsHTML;
+
+            // Render available domains (exclude already assigned)
+            const assignedIds = studentDomains.map(d => d.id);
+            const availableDomains = allDomains.filter(d => !assignedIds.includes(d.id));
+            
+            const availableDomainsHTML = availableDomains.length > 0
+                ? availableDomains.map(d => `
+                    <label style="display: flex; align-items: center; padding: 8px 12px; background: #f8fafc; border-radius: 6px; margin-bottom: 5px; cursor: pointer;">
+                        <input type="checkbox" value="${d.id}" style="margin-right: 10px; width: 18px; height: 18px;">
+                        <span>${d.domain_name}</span>
+                    </label>
+                `).join('')
+                : '<div style="color: #64748b; text-align: center; padding: 15px;">All domains already assigned</div>';
+            
+            document.getElementById('availableDomainsList').innerHTML = availableDomainsHTML;
+        }
+
+        async function removeDomain(domainId) {
+            if (!confirm('Remove this domain from the student?')) return;
+            
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/domain/${domainId}`, {
+                    method: 'DELETE'
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    await loadStudentDomains();
+                    renderDomainLists();
+                    loadStudentDetail(); // Refresh main page
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        async function addSelectedDomains() {
+            const checkboxes = document.querySelectorAll('#availableDomainsList input[type="checkbox"]:checked');
+            const domainIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+            
+            if (domainIds.length === 0) {
+                alert('Please select at least one domain to add');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/student/${studentId}/domains`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domainIds })
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + data.message);
+                    await loadStudentDomains();
+                    renderDomainLists();
+                    loadStudentDetail(); // Refresh main page
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ An error occurred');
+            }
+        }
+
+        loadStudentDetail();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Payments - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        /* Header */
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            border-left: 4px solid #667eea;
+        }
+
+        .stat-card.success {
+            border-left-color: #22c55e;
+        }
+
+        .stat-card.warning {
+            border-left-color: #f59e0b;
+        }
+
+        .stat-card.info {
+            border-left-color: #3b82f6;
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .stat-card .amount {
+            font-size: 14px;
+            color: #22c55e;
+            margin-top: 5px;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        /* Filters */
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            min-width: 180px;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        td {
+            color: #475569;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.completed {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-badge.verified {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .status-badge.pending {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-badge.failed {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        /* Mobile Cards */
+        .payment-cards {
+            display: none;
+        }
+
+        .payment-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .payment-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .payment-card-amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+
+        .payment-card-info {
+            display: grid;
+            gap: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .info-value {
+            color: #1e293b;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 20px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group select,
+            .filter-group input {
+                width: 100%;
+            }
+
+            .table-container {
+                display: none;
+            }
+
+            .payment-cards {
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments" class="active">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>💳 Payments</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Payments</h3>
+                    <div class="number" id="totalPayments">0</div>
+                    <div class="amount" id="totalAmount">₹0</div>
+                </div>
+                <div class="stat-card success">
+                    <h3>Completed</h3>
+                    <div class="number" id="completedPayments">0</div>
+                    <div class="amount" id="completedAmount">₹0</div>
+                </div>
+                <div class="stat-card info">
+                    <h3>Verified</h3>
+                    <div class="number" id="verifiedPayments">0</div>
+                    <div class="amount" id="verifiedAmount">₹0</div>
+                </div>
+                <div class="stat-card warning">
+                    <h3>Pending</h3>
+                    <div class="number" id="pendingPayments">0</div>
+                    <div class="amount" id="pendingAmount">₹0</div>
+                </div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="content-card">
+                <!-- Filters -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Filter by Status:</label>
+                        <select id="statusFilter" onchange="filterPayments()">
+                            <option value="">All Payments</option>
+                            <option value="completed">Completed</option>
+                            <option value="verified">Verified</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Search:</label>
+                        <input type="text" id="searchInput" placeholder="Search by email, order ID..." oninput="filterPayments()">
+                    </div>
+                </div>
+
+                <h2 style="margin-bottom: 20px;">Payment History</h2>
+
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Domains</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Payment ID</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paymentsTableBody">
+                            <tr>
+                                <td colspan="8">
+                                    <div class="empty-state">
+                                        <h3>Loading payments...</h3>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="payment-cards" id="paymentCards">
+                    <!-- Cards will be populated by JS -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allPayments = [];
+
+        // Sidebar Toggle Functions
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        }
+
+        // Check admin role
+        async function checkAdminRole() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking admin role:', error);
+            }
+        }
+
+        // Load payment stats
+        async function loadPaymentStats() {
+            try {
+                const response = await fetch('/api/admin/payments/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalPayments').textContent = data.total_payments || 0;
+                document.getElementById('totalAmount').textContent = `₹${data.total_amount || 0}`;
+                document.getElementById('completedPayments').textContent = data.completed_count || 0;
+                document.getElementById('completedAmount').textContent = `₹${data.completed_amount || 0}`;
+                document.getElementById('verifiedPayments').textContent = data.verified_count || 0;
+                document.getElementById('verifiedAmount').textContent = `₹${data.verified_amount || 0}`;
+                document.getElementById('pendingPayments').textContent = data.pending_count || 0;
+                document.getElementById('pendingAmount').textContent = `₹${data.pending_amount || 0}`;
+            } catch (error) {
+                console.error('Error loading payment stats:', error);
+            }
+        }
+
+        // Load all payments
+        async function loadPayments() {
+            try {
+                const response = await fetch('/api/admin/payments');
+                allPayments = await response.json();
+                
+                renderPayments(allPayments);
+            } catch (error) {
+                console.error('Error loading payments:', error);
+                document.getElementById('paymentsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>Error loading payments</h3>
+                                <p>${error.message}</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Render payments to table and cards
+        function renderPayments(payments) {
+            const tableBody = document.getElementById('paymentsTableBody');
+            const cardsContainer = document.getElementById('paymentCards');
+
+            if (!payments || payments.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <h3>No payments found</h3>
+                                <p>Payment records will appear here once students register.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                cardsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No payments found</h3>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render table
+            tableBody.innerHTML = payments.map(payment => {
+                const statusClass = getStatusClass(payment.status);
+                const formattedDate = formatDate(payment.created_at);
+                const studentName = payment.student_name || 'Not registered';
+                const orderId = payment.razorpay_order_id || '-';
+                const paymentId = payment.razorpay_payment_id || '-';
+                
+                return `
+                    <tr>
+                        <td><code style="font-size: 12px;">${orderId.substring(0, 20)}...</code></td>
+                        <td>
+                            <strong>${studentName}</strong>
+                            ${payment.wapl_id ? `<br><small style="color: #667eea;">${payment.wapl_id}</small>` : ''}
+                        </td>
+                        <td>${payment.email || payment.student_email || '-'}</td>
+                        <td>${payment.domain_count}</td>
+                        <td><strong style="color: #22c55e;">₹${payment.amount}</strong></td>
+                        <td><span class="status-badge ${statusClass}">${payment.status}</span></td>
+                        <td><code style="font-size: 11px;">${paymentId !== '-' ? paymentId.substring(0, 15) + '...' : '-'}</code></td>
+                        <td>${formattedDate}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // Render cards for mobile
+            cardsContainer.innerHTML = payments.map(payment => {
+                const statusClass = getStatusClass(payment.status);
+                const formattedDate = formatDate(payment.created_at);
+                const studentName = payment.student_name || 'Not registered';
+                
+                return `
+                    <div class="payment-card">
+                        <div class="payment-card-header">
+                            <div class="payment-card-amount">₹${payment.amount}</div>
+                            <span class="status-badge ${statusClass}">${payment.status}</span>
+                        </div>
+                        <div class="payment-card-info">
+                            <div class="info-row">
+                                <span class="info-label">Student:</span>
+                                <span class="info-value">${studentName}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Email:</span>
+                                <span class="info-value">${payment.email || '-'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Domains:</span>
+                                <span class="info-value">${payment.domain_count}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Date:</span>
+                                <span class="info-value">${formattedDate}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Order ID:</span>
+                                <span class="info-value" style="font-size: 11px; word-break: break-all;">${payment.razorpay_order_id || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Get status badge class
+        function getStatusClass(status) {
+            switch (status) {
+                case 'completed': return 'completed';
+                case 'verified': return 'verified';
+                case 'pending': return 'pending';
+                default: return 'pending';
+            }
+        }
+
+        // Format date
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Filter payments
+        function filterPayments() {
+            const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+            const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+
+            const filtered = allPayments.filter(payment => {
+                const matchesStatus = !statusFilter || payment.status === statusFilter;
+                const matchesSearch = !searchQuery || 
+                    (payment.email && payment.email.toLowerCase().includes(searchQuery)) ||
+                    (payment.razorpay_order_id && payment.razorpay_order_id.toLowerCase().includes(searchQuery)) ||
+                    (payment.razorpay_payment_id && payment.razorpay_payment_id.toLowerCase().includes(searchQuery)) ||
+                    (payment.student_name && payment.student_name.toLowerCase().includes(searchQuery)) ||
+                    (payment.wapl_id && payment.wapl_id.toLowerCase().includes(searchQuery));
+
+                return matchesStatus && matchesSearch;
+            });
+
+            renderPayments(filtered);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAdminRole();
+            loadPaymentStats();
+            loadPayments();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+/* Student Profile */
+.profile-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); padding: 2rem 1rem; }
+.profile-section { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); margin-bottom: 1.5rem; padding: 2rem; }
+.profile-section::before { content:''; display:block; height:6px; background: var(--brand-gradient); border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); margin:-2rem -2rem 1rem -2rem; }
+.form-group input, .form-group textarea { background:#fff; border:2px solid #e2e8f0; border-radius: var(--radius-sm); padding: 13px 14px; transition: border-color .2s, box-shadow .2s; }
+.form-group input:focus, .form-group textarea:focus { outline:none; border-color: var(--brand-start); box-shadow: 0 0 0 4px rgba(102,126,234,0.12); }
+.btn-primary, .btn-secondary { background: var(--brand-gradient); color:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-colored); }

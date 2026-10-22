@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>My Certificate - WAPL Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-image:
+                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
+                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 1) 0, transparent 50%),
+                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 1) 0, transparent 50%);
+            background-image:
+                radial-gradient(at 40% 20%, hsla(260, 100%, 93%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(340, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(356, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, hsla(22, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 80% 100%, hsla(242, 100%, 96%, 1) 0px, transparent 50%),
+                radial-gradient(at 0% 0%, hsla(343, 100%, 96%, 1) 0px, transparent 50%);
+            background-attachment: fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        /* Glass Utility */
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 20px;
+        }
+
+        .student-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+
+        .logo {
+            margin-bottom: 3rem;
+            padding-left: 0.5rem;
+        }
+
+        .logo h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            font-size: 0.95rem;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--accent-color);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: white;
+            color: var(--accent-color);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            font-weight: 600;
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+            width: 1.5rem;
+            text-align: center;
+            font-style: normal;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 2rem 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-header {
+            width: 100%;
+            margin-bottom: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Certificate Styles */
+        .certificate-container {
+            width: 100%;
+            max-width: 800px;
+            padding: 3rem;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 8px solid white;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .certificate-border {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #e0e7ff;
+            pointer-events: none;
+        }
+
+        .cert-header {
+            margin-bottom: 2rem;
+        }
+
+        .cert-header h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .cert-body {
+            position: relative;
+            z-index: 10;
+        }
+
+        .cert-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            margin: 1rem 0;
+        }
+
+        .cert-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+        }
+
+        .status-pill {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .cert-footer {
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .btn-download {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Error States */
+        .no-cert {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 20px;
+        }
+
+        .no-cert-icon {
+            font-size: 4rem;
+            opacity: 0.5;
+            margin-bottom: 1rem;
+        }
+
+        /* Mobile Sidebar Overlay */
+        .hamburger-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                background: rgba(255, 255, 255, 0.95);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1.5rem;
+            }
+
+            .hamburger-btn {
+                display: block;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .certificate-container {
+                padding: 1.5rem;
+            }
+
+            .cert-header h2 {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* ========================
+           LOGOUT ANIMATION STYLES
+           ======================== */
+        .logout-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #111827;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .door-container {
+            position: relative;
+            width: 120px;
+            height: 200px;
+            transform-style: preserve-3d;
+        }
+
+        .door-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid #4b5563;
+            border-bottom: none;
+            background: #1f2937;
+        }
+
+        .door {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #374151;
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #6b7280;
+            display: flex;
+            align-items: center;
+        }
+
+        .door-knob {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #fbbf24;
+            margin-left: auto;
+            margin-right: 15px;
+            box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .light-beam {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.8), transparent);
+            transform: rotateY(90deg);
+            transform-origin: left;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .person {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 40px;
+            height: 100px;
+            background: #fff;
+            transform: translateX(-50%) translateZ(20px) scale(0);
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            transition: all 1s ease-in-out;
+        }
+
+        .logout-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .logout-overlay.animate .door {
+            transform: rotateY(-110deg);
+        }
+
+        .logout-overlay.animate .light-beam {
+            transform: rotateY(0deg);
+            opacity: 0.5;
+        }
+
+        .logout-overlay.animate .person {
+            animation: exitDoor 1.5s forwards 0.5s;
+            opacity: 1;
+            transform: translateX(-50%) translateZ(0) scale(1);
+        }
+
+        @keyframes exitDoor {
+            0% {
+                transform: translateX(-50%) scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: translateX(-50%) scale(0.8);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: translateX(-100px) scale(0);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Logout Animation Overlay -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="door-container">
+            <div class="light-beam"></div>
+            <div class="door-frame"></div>
+            <div class="person"></div>
+            <div class="door">
+                <div class="door-knob"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="student-container">
+        <!-- Glass Sidebar -->
+        <aside class="sidebar glass" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/student/dashboard" class="nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/student/profile" class="nav-item">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/exam" class="nav-item">
+                    <i>📝</i> Exam
+                </a>
+                <a href="/student/certificate" class="nav-item active">
+                    <i>📜</i> Certificate
+                </a>
+                <button onclick="triggerLogout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <button class="hamburger-btn" onclick="toggleSidebar()">☰</button>
+                    <h1>My Certificate</h1>
+                </div>
+            </header>
+
+            <div id="certificateTarget" style="width: 100%; display: flex; justify-content: center;">
+                <p>Loading certificate...</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // UI Helpers
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // --- Data Loading ---
+        async function loadCertificate() {
+            try {
+                const res = await fetch('/api/student/certificate');
+                if (!res.ok) throw new Error();
+                const cert = await res.json();
+
+                const isExpired = new Date(cert.expiry_date) < new Date();
+                const statusClass = isExpired ? 'status-expired' : 'status-active';
+                const statusText = isExpired ? 'Expired' : 'Active';
+
+                document.getElementById('certificateTarget').innerHTML = `
+                    <div class="certificate-container">
+                        <div class="certificate-border"></div>
+                        <div class="cert-header">
+                            <h2>Certificate of Completion</h2>
+                        </div>
+                        
+                        <div class="cert-body">
+                            <div class="cert-label">This certifies that</div>
+                            <div class="cert-value" style="font-size: 1.5rem;">${cert.student_name || 'Student Name'}</div>
+                            
+                            <div class="cert-label">Has successfully completed the placement program</div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin: 2rem 0; text-align: left;">
+                                <div>
+                                    <div class="cert-label" style="margin: 0;">Certificate ID</div>
+                                    <div style="font-weight: 600;">${cert.certificate_unique_id}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div class="cert-label" style="margin: 0;">Issue Date</div>
+                                    <div style="font-weight: 600;">${new Date(cert.issue_date).toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="status-pill ${statusClass}">${statusText}</div>
+                            
+                            ${!isExpired ? `
+                                <div>
+                                    <a href="/api/student/certificate/download" class="btn-download">
+                                        📥 Download PDF
+                                    </a>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+
+            } catch (e) {
+                document.getElementById('certificateTarget').innerHTML = `
+                    <div class="no-cert glass">
+                        <div class="no-cert-icon">📭</div>
+                        <h3>No Certificate Found</h3>
+                        <p style="color:var(--text-muted); margin-top:0.5rem;">You haven't been issued a certificate yet.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // --- LOGOUT ANIMATION ---
+        function triggerLogout() {
+            const overlay = document.getElementById('logoutOverlay');
+            overlay.classList.add('active');
+            setTimeout(() => overlay.classList.add('animate'), 100);
+            setTimeout(async () => {
+                try {
+                    await fetch('/api/auth/logout', { method: 'POST' });
+                    window.location.href = '/login';
+                } catch { window.location.href = '/login'; }
+            }, 2000); // Wait for animation
+        }
+
+        // Init
+        loadCertificate();
+
+    </script>
+</body>
+
+</html>

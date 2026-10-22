@@ -1,0 +1,5 @@
+/* Student Certificate */
+.certificate-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); padding: 2rem; }
+.certificate-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); padding: 2rem; }
+.certificate-card::before { content:''; display:block; height:6px; background: var(--brand-gradient); border-top-left-radius: var(--radius-md); border-top-right-radius: var(--radius-md); margin:-2rem -2rem 1rem -2rem; }
+.btn-primary { background: var(--brand-gradient); color:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-colored); }

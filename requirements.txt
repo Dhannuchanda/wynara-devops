@@ -1,0 +1,32 @@
+# Flask Core
+Flask==3.0.0
+Flask-Session==0.5.0
+Flask-Limiter==3.5.0
+Flask-WTF==1.2.1
+prometheus-flask-exporter==0.23.1
+Werkzeug==3.0.1
+
+# Database
+psycopg2-binary==2.9.9
+
+# Google Cloud
+google-cloud-storage==2.14.0
+
+# Utilities
+python-dotenv==1.0.0
+requests==2.31.0
+qrcode[pil]==7.4.2
+Pillow==10.2.0
+reportlab==4.0.9
+
+# Email
+resend==0.7.2
+
+# Payment Gateway
+razorpay==1.4.1
+
+# Excel Export
+openpyxl==3.1.5
+
+# Production Server
+gunicorn==21.2.0

@@ -1,0 +1,105 @@
+/* Register page styles per Dhannu Template */
+
+/* Auth Background with Video */
+.auth-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.auth-video-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.15;
+}
+
+.auth-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--brand-gradient);
+  opacity: 0.85;
+}
+
+.auth-container {
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+.auth-container::before, .auth-container::after {
+  content: '';
+  position: absolute;
+  width: 520px; height: 520px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.25;
+  animation: float 24s ease-in-out infinite;
+}
+.auth-container::before { background: rgba(102,126,234,0.35); top: -140px; left: -140px; }
+.auth-container::after { background: rgba(118,75,162,0.25); bottom: -160px; right: -160px; animation-delay: 5s; }
+
+.auth-card {
+  width: 100%; max-width: 560px; margin: 0 auto;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-soft);
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  animation: slideInUp 0.6s ease both;
+}
+.auth-card h2 { color: var(--text-primary); font-weight: 700; }
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  background: #fff;
+  border: 2px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  padding: 13px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--brand-start);
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.12);
+}
+
+.btn-primary, .btn-secondary {
+  background: var(--brand-gradient);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-colored);
+  position: relative;
+  overflow: hidden;
+}
+.btn-primary:hover, .btn-secondary:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(102,126,234,0.45); }
+.btn-primary::after, .btn-secondary::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -150%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0) 100%);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+}
+.btn-primary:hover::after, .btn-secondary:hover::after { left: 150%; }
+
+/* OTP modal */
+.modal .modal-content { border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }

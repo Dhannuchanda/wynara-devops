@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Assign Students - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #fff;
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .assignment-form {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.3s;
+        }
+
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .students-selection {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f9fa;
+        }
+
+        .student-checkbox {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: white;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .student-checkbox:hover {
+            background: #f0f4ff;
+            border-color: #667eea;
+        }
+
+        .student-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .student-info {
+            flex: 1;
+        }
+
+        .student-name {
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+
+        .student-details {
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f0f4ff;
+            border-radius: 8px;
+            border: 1px solid #d6e0ff;
+            align-items: flex-end;
+        }
+
+        .filter-bar .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            flex: 1;
+            min-width: 180px;
+        }
+
+        .filter-bar .filter-group label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            margin: 0;
+        }
+
+        .filter-bar .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .filter-bar .filter-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .filter-bar .filter-group input[type="text"] {
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 13px;
+            background: white;
+            transition: border-color 0.2s;
+            width: 100%;
+        }
+
+        .filter-bar .filter-group input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .filter-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background: #edf2f7;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+
+        .filter-stats .count-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        .select-all-container input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196f3;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #0c5460;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .students-selection {
+                max-height: 300px;
+                padding: 10px;
+            }
+
+            .student-checkbox {
+                padding: 10px;
+                flex-wrap: wrap;
+            }
+
+            .student-info {
+                min-width: 100%;
+                margin-top: 5px;
+            }
+
+            .filter-bar {
+                flex-direction: column;
+            }
+
+            .filter-bar .filter-group {
+                min-width: 100%;
+            }
+
+            .btn-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-group select {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .student-name {
+                font-size: 14px;
+            }
+
+            .student-details {
+                font-size: 11px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students" class="active">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Assign Students to HRs</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+            </div>
+
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <div class="info-box">
+                <p>💡 <strong>Tip:</strong> Select an HR and choose students to assign. Students can be assigned to only one HR at a time.</p>
+            </div>
+
+            <div class="content-card">
+                <h2 style="margin-bottom: 20px;">👔 Select HR</h2>
+                
+                <form id="assignmentForm" class="assignment-form">
+                    <div class="form-group">
+                        <label>Select HR to Assign Students *</label>
+                        <select id="hrSelect" required onchange="loadStudentsForAssignment()">
+                            <option value="">-- Choose an HR --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" id="studentsSection" style="display: none;">
+                        <label>Select Students to Assign</label>
+
+                        <!-- Filter Bar -->
+                        <div class="filter-bar" id="filterBar">
+                            <div class="filter-group">
+                                <label>🔍 Search</label>
+                                <input type="text" id="assignSearchFilter" placeholder="Name, WAPL ID, or email..." oninput="applyFilters()">
+                            </div>
+                            <div class="filter-group">
+                                <label>📋 Assignment Status</label>
+                                <select id="assignStatusFilter" onchange="applyFilters()">
+                                    <option value="">All Students</option>
+                                    <option value="assigned">✓ Assigned to this HR</option>
+                                    <option value="unassigned">○ Not Assigned</option>
+                                    <option value="other">⇄ Assigned to Other HR</option>
+                                </select>
+                            </div>
+                            <div class="filter-group">
+                                <label>🏷️ Domain</label>
+                                <select id="domainFilter" onchange="applyFilters()">
+                                    <option value="">All Domains</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Filter Stats -->
+                        <div class="filter-stats" id="filterStats">
+                            <span>Showing <span class="count-badge" id="filteredCount">0</span> of <span id="totalCount">0</span> students</span>
+                            <button type="button" onclick="clearFilters()" style="background: none; border: 1px solid #a0aec0; padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #4a5568;">Clear Filters</button>
+                        </div>
+                        
+                        <div class="select-all-container" onclick="toggleSelectAll()">
+                            <input type="checkbox" id="selectAll">
+                            <label for="selectAll" style="margin: 0; cursor: pointer; font-weight: bold;">Select All Visible Students</label>
+                        </div>
+
+                        <div class="students-selection" id="studentsList">
+                            <div class="empty-state">
+                                <p>Select an HR to view available students</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group" id="actionButtons" style="display: none;">
+                        <button type="submit" class="btn btn-primary">✓ Assign Selected Students</button>
+                        <button type="button" onclick="unassignSelected()" class="btn btn-warning">✗ Unassign Selected Students</button>
+                        <button type="button" onclick="resetForm()" class="btn btn-secondary">↺ Reset</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allHRs = [];
+        let allStudents = [];
+        let allDomains = [];
+        let filteredStudentsList = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking super admin:', error);
+            }
+        }
+
+        async function loadHRs() {
+            try {
+                const response = await fetch('/api/admin/hrs');
+                allHRs = await response.json();
+                
+                const hrSelect = document.getElementById('hrSelect');
+                hrSelect.innerHTML = '<option value="">-- Choose an HR --</option>' +
+                    allHRs.map(hr => `<option value="${hr.id}">${hr.full_name} (${hr.company_name})</option>`).join('');
+            } catch (error) {
+                console.error('Error loading HRs:', error);
+                showError('Failed to load HRs');
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch('/api/admin/students');
+                allStudents = await response.json();
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        async function loadDomains() {
+            try {
+                const response = await fetch('/api/admin/domains');
+                allDomains = await response.json();
+                populateDomainFilter();
+            } catch (error) {
+                console.error('Error loading domains:', error);
+            }
+        }
+
+        function populateDomainFilter() {
+            const domainSelect = document.getElementById('domainFilter');
+            if (!domainSelect) return;
+            domainSelect.innerHTML = '<option value="">All Domains</option>' +
+                allDomains.map(d => `<option value="${d.domain_name}">${d.domain_name}</option>`).join('');
+        }
+
+        async function loadStudentsForAssignment() {
+            const hrId = document.getElementById('hrSelect').value;
+            
+            if (!hrId) {
+                document.getElementById('studentsSection').style.display = 'none';
+                document.getElementById('actionButtons').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('studentsSection').style.display = 'block';
+            document.getElementById('actionButtons').style.display = 'flex';
+
+            const studentsList = document.getElementById('studentsList');
+            
+            if (allStudents.length === 0) {
+                studentsList.innerHTML = '<div class="empty-state"><p>No students available</p></div>';
+                return;
+            }
+
+            const selectedHrId = parseInt(hrId);
+
+            // Reset filters when HR changes
+            clearFilters();
+            
+            // Apply filters and render
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const hrId = document.getElementById('hrSelect').value;
+            if (!hrId) return;
+
+            const selectedHrId = parseInt(hrId);
+            const statusFilter = document.getElementById('assignStatusFilter').value;
+            const domainFilter = document.getElementById('domainFilter').value;
+            const searchFilter = (document.getElementById('assignSearchFilter').value || '').toLowerCase().trim();
+
+            filteredStudentsList = allStudents.filter(student => {
+                const isAssignedToThisHR = student.assigned_hr_id === selectedHrId;
+                const isAssignedToOther = student.assigned_hr_id && student.assigned_hr_id !== selectedHrId;
+                const isUnassigned = !student.assigned_hr_id;
+
+                // Assignment status filter
+                if (statusFilter === 'assigned' && !isAssignedToThisHR) return false;
+                if (statusFilter === 'unassigned' && !isUnassigned) return false;
+                if (statusFilter === 'other' && !isAssignedToOther) return false;
+
+                // Domain filter
+                if (domainFilter) {
+                    const studentDomains = (student.domain_names || '').toLowerCase();
+                    if (!studentDomains.includes(domainFilter.toLowerCase())) return false;
+                }
+
+                // Search filter
+                if (searchFilter) {
+                    const matchName = (student.full_name || '').toLowerCase().includes(searchFilter);
+                    const matchEmail = (student.email || '').toLowerCase().includes(searchFilter);
+                    const matchWapl = (student.wapl_id || '').toLowerCase().includes(searchFilter);
+                    if (!matchName && !matchEmail && !matchWapl) return false;
+                }
+
+                return true;
+            });
+
+            renderFilteredStudents(selectedHrId);
+            updateFilterStats();
+        }
+
+        function renderFilteredStudents(selectedHrId) {
+            const studentsList = document.getElementById('studentsList');
+
+            if (filteredStudentsList.length === 0) {
+                studentsList.innerHTML = '<div class="empty-state"><p>No students match the current filters</p></div>';
+                updateSelectAll();
+                return;
+            }
+
+            studentsList.innerHTML = filteredStudentsList.map(student => {
+                const isAssignedToThisHR = student.assigned_hr_id === selectedHrId;
+                const isAssignedToOther = student.assigned_hr_id && student.assigned_hr_id !== selectedHrId;
+                const domains = student.domain_names || 'No domain';
+                
+                return `
+                    <label class="student-checkbox" ${isAssignedToOther ? 'style="opacity: 0.6;"' : ''}>
+                        <input type="checkbox" name="studentIds" value="${student.id}" 
+                               ${isAssignedToThisHR ? 'checked' : ''} 
+                               ${isAssignedToOther ? 'disabled' : ''}
+                               onchange="updateSelectAll()">
+                        <div class="student-info">
+                            <div class="student-name">
+                                ${isAssignedToThisHR ? '✓ ' : ''}${student.full_name}
+                            </div>
+                            <div class="student-details">
+                                ${student.wapl_id} • ${student.email} • 🏷️ ${domains}
+                                ${isAssignedToThisHR ? ' • <strong style="color:#28a745;">Currently Assigned</strong>' : ''}
+                                ${isAssignedToOther ? ` • <span style="color:#dc3545;">Assigned to ${student.assigned_hr_name}</span>` : ''}
+                            </div>
+                        </div>
+                    </label>
+                `;
+            }).join('');
+
+            updateSelectAll();
+        }
+
+        function updateFilterStats() {
+            document.getElementById('filteredCount').textContent = filteredStudentsList.length;
+            document.getElementById('totalCount').textContent = allStudents.length;
+        }
+
+        function clearFilters() {
+            const searchEl = document.getElementById('assignSearchFilter');
+            const statusEl = document.getElementById('assignStatusFilter');
+            const domainEl = document.getElementById('domainFilter');
+            if (searchEl) searchEl.value = '';
+            if (statusEl) statusEl.value = '';
+            if (domainEl) domainEl.value = '';
+            
+            const hrId = document.getElementById('hrSelect').value;
+            if (hrId) applyFilters();
+        }
+
+        function toggleSelectAll() {
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const studentCheckboxes = document.querySelectorAll('input[name="studentIds"]:not(:disabled)');
+            
+            // Toggle: select/deselect only the visible (filtered) students
+            studentCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        function updateSelectAll() {
+            const studentCheckboxes = document.querySelectorAll('input[name="studentIds"]:not(:disabled)');
+            const checkedCheckboxes = document.querySelectorAll('input[name="studentIds"]:checked:not(:disabled)');
+            const selectAllCheckbox = document.getElementById('selectAll');
+            
+            if (studentCheckboxes.length === 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCheckboxes.length === studentCheckboxes.length) {
+                selectAllCheckbox.checked = true;
+                selectAllCheckbox.indeterminate = false;
+            } else if (checkedCheckboxes.length > 0) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = true;
+            } else {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+        }
+
+        document.getElementById('assignmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const hrId = document.getElementById('hrSelect').value;
+            const selectedStudents = Array.from(document.querySelectorAll('input[name="studentIds"]:checked'))
+                .map(cb => parseInt(cb.value));
+            
+            if (!hrId) {
+                showError('Please select an HR');
+                return;
+            }
+            
+            if (selectedStudents.length === 0) {
+                showError('Please select at least one student');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/assign-students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        hrId: parseInt(hrId),
+                        studentIds: selectedStudents
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ ${data.message}`);
+                    await loadStudents();
+                    loadStudentsForAssignment();
+                } else {
+                    showError(data.error || 'Failed to assign students');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while assigning students');
+            }
+        });
+
+        async function unassignSelected() {
+            const selectedStudents = Array.from(document.querySelectorAll('input[name="studentIds"]:checked'))
+                .map(cb => parseInt(cb.value));
+            
+            if (selectedStudents.length === 0) {
+                showError('Please select at least one student to unassign');
+                return;
+            }
+            
+            if (!confirm(`Unassign ${selectedStudents.length} student(s)?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/unassign-students', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ studentIds: selectedStudents })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ ${data.message}`);
+                    await loadStudents();
+                    loadStudentsForAssignment();
+                } else {
+                    showError(data.error || 'Failed to unassign students');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while unassigning students');
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('assignmentForm').reset();
+            document.getElementById('studentsSection').style.display = 'none';
+            document.getElementById('actionButtons').style.display = 'none';
+            document.getElementById('selectAll').checked = false;
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = '❌ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            checkSuperAdmin();
+            await Promise.all([loadStudents(), loadHRs(), loadDomains()]);
+        });
+    </script>
+</body>
+</html>

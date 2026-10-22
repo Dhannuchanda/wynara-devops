@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR Management - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .role-badge.super-admin {
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .role-badge.admin {
+            background: #fff;
+            color: #667eea;
+            border: 2px solid #fff;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .content-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-success {
+            background-color: #16a34a;
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: #f59e0b;
+            color: white;
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-section label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .filter-section input[type="text"] {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            width: 350px;
+            max-width: 100%;
+            transition: border-color 0.3s;
+        }
+
+        .filter-section input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Table for Desktop */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile Card View */
+        .hr-cards {
+            display: none;
+        }
+
+        .hr-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .hr-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+        }
+
+        .hr-card-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+
+        .hr-card-company {
+            font-size: 14px;
+            color: #667eea;
+        }
+
+        .hr-card-info {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: start;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 80px;
+        }
+
+        .info-value {
+            color: #1e293b;
+            word-break: break-word;
+        }
+
+        .hr-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 20px;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .header-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-section h2 {
+                font-size: 18px;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .filter-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-section input[type="text"] {
+                width: 100%;
+            }
+
+            /* Hide table, show cards */
+            .table-container {
+                display: none;
+            }
+
+            .hr-cards {
+                display: block;
+            }
+
+            .modal-content {
+                margin: 10% auto;
+                padding: 20px 15px;
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .hr-card {
+                padding: 15px;
+            }
+
+            .hr-card-name {
+                font-size: 16px;
+            }
+
+            .form-group input {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs" class="active">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>HR Management</h1>
+                    <span class="role-badge" id="roleBadge">Loading...</span>
+                </div>
+            </div>
+
+            <!-- Content Card -->
+            <div class="content-card">
+                <div class="header-section">
+                    <h2 style="margin: 0;">All HRs</h2>
+                    <button onclick="openCreateHRModal()" class="btn btn-primary">➕ Create New HR</button>
+                </div>
+
+                <!-- Filter Section -->
+                <div class="filter-section">
+                    <label>Search:</label>
+                    <input type="text" id="searchInput" placeholder="Search by name, email, company..." onkeyup="filterHRs()">
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Company</th>
+                                <th>Years Exp</th>
+                                <th>Phone</th>
+                                <th>Designation</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="hrsTableBody">
+                            <tr>
+                                <td colspan="9">
+                                    <div class="empty-state">
+                                        <h3>📋 Loading HRs...</h3>
+                                        <p>Please wait while we fetch the data</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="hr-cards" id="hrCards">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Create HR Modal -->
+    <div id="createHRModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateHRModal()">&times;</span>
+            <h2 style="margin-bottom: 20px;">Create New HR</h2>
+            <form id="createHRForm">
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    <input type="text" id="hrFullName" required>
+                </div>
+                <div class="form-group">
+                    <label>Email *</label>
+                    <input type="email" id="hrEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" id="hrPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Company Name *</label>
+                    <input type="text" id="hrCompany" required>
+                </div>
+                <div class="form-group">
+                    <label>Years of Experience *</label>
+                    <input type="number" id="hrYearsExperience" min="0" max="60" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone *</label>
+                    <input type="tel" id="hrPhone" required>
+                </div>
+                <div class="form-group">
+                    <label>Designation *</label>
+                    <input type="text" id="hrDesignation" placeholder="e.g., Recruitment Manager" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Create HR Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let allHRs = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                
+                const roleBadge = document.getElementById('roleBadge');
+                if (data.is_super_admin) {
+                    roleBadge.textContent = '⭐ SUPER ADMIN';
+                    roleBadge.className = 'role-badge super-admin';
+                    document.getElementById('domainsLink').style.display = 'flex';
+                    document.getElementById('adminsLink').style.display = 'flex';
+                    document.getElementById('settingsLink').style.display = 'flex';
+                } else {
+                    roleBadge.textContent = '🔒 ADMIN';
+                    roleBadge.className = 'role-badge admin';
+                }
+            } catch (error) {
+                console.error('Error checking super admin:', error);
+            }
+        }
+
+        async function loadHRs() {
+            try {
+                const response = await fetch('/api/admin/hrs');
+                allHRs = await response.json();
+                displayHRs(allHRs);
+            } catch (error) {
+                console.error('Error loading HRs:', error);
+                document.getElementById('hrsTableBody').innerHTML = 
+                    '<tr><td colspan="9"><div class="empty-state"><h3>❌ Error loading HRs</h3><p>Please refresh the page</p></div></td></tr>';
+            }
+        }
+
+        function displayHRs(hrs) {
+            displayTableView(hrs);
+            displayCardView(hrs);
+        }
+
+        function escapeHtml(value) {
+            return String(value || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function getStatusClass(status) {
+            const normalized = (status || 'pending').toLowerCase();
+            return `status-badge status-${normalized}`;
+        }
+
+        function renderStatusBadge(status) {
+            const normalized = (status || 'pending').toLowerCase();
+            const label = normalized.charAt(0).toUpperCase() + normalized.slice(1);
+            return `<span class="${getStatusClass(normalized)}">${label}</span>`;
+        }
+
+        function displayTableView(hrs) {
+            const tbody = document.getElementById('hrsTableBody');
+            
+            if (hrs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><h3>📭 No HRs found</h3><p>Create a new HR account to get started</p></div></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = hrs.map(hr => `
+                <tr>
+                    <td><strong>${hr.full_name || 'N/A'}</strong></td>
+                    <td>${hr.email || 'N/A'}</td>
+                    <td>${hr.company_name || 'N/A'}</td>
+                    <td>${hr.phone || 'N/A'}</td>
+                    <td>${hr.designation || 'N/A'}</td>
+                    <td>${formatDate(hr.created_at)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewHR(${hr.id})" class="btn btn-sm btn-secondary">👁️ View</button>
+                            <button onclick="deleteHR(${hr.id}, '${hr.full_name}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayCardView(hrs) {
+            const cardsContainer = document.getElementById('hrCards');
+            
+            if (hrs.length === 0) {
+                cardsContainer.innerHTML = '<div class="empty-state"><h3>📭 No HRs found</h3><p>Create a new HR account to get started</p></div>';
+                return;
+            }
+
+            cardsContainer.innerHTML = hrs.map(hr => `
+                <div class="hr-card">
+                    <div class="hr-card-header">
+                        <div>
+                            <div class="hr-card-name">${hr.full_name || 'N/A'}</div>
+                            <div class="hr-card-company">${hr.company_name || 'N/A'}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="hr-card-info">
+                        <div class="info-row">
+                            <span class="info-label">📧 Email:</span>
+                            <span class="info-value">${hr.email || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📱 Phone:</span>
+                            <span class="info-value">${hr.phone || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💼 Designation:</span>
+                            <span class="info-value">${hr.designation || 'N/A'}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📅 Created:</span>
+                            <span class="info-value">${formatDate(hr.created_at)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="hr-card-actions">
+                        <button onclick="viewHR(${hr.id})" class="btn btn-secondary" style="flex: 1;">👁️ View</button>
+                        <button onclick="deleteHR(${hr.id}, '${hr.full_name}')" class="btn btn-danger" style="flex: 1;">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterHRs() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchInput) {
+                displayHRs(allHRs);
+                return;
+            }
+            
+            const filtered = allHRs.filter(hr => 
+                (hr.full_name && hr.full_name.toLowerCase().includes(searchInput)) ||
+                (hr.email && hr.email.toLowerCase().includes(searchInput)) ||
+                (hr.company_name && hr.company_name.toLowerCase().includes(searchInput)) ||
+                (hr.designation && hr.designation.toLowerCase().includes(searchInput)) ||
+                (hr.phone && hr.phone.includes(searchInput))
+            );
+            
+            displayHRs(filtered);
+        }
+
+        function viewHR(hrId) {
+            window.location.href = `/secure-admin-panel/wapl/hr/${hrId}`;
+        }
+
+        async function deleteHR(hrId, hrName) {
+            if (!confirm(`🗑️ Are you sure you want to delete HR "${hrName}"?\n\nThis action cannot be undone.`)) return;
+            
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ HR deleted successfully');
+                    loadHRs();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while deleting HR');
+            }
+        }
+
+        function openCreateHRModal() {
+            document.getElementById('createHRModal').style.display = 'block';
+        }
+
+        function closeCreateHRModal() {
+            document.getElementById('createHRModal').style.display = 'none';
+            document.getElementById('createHRForm').reset();
+        }
+
+        document.getElementById('createHRForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const fullName = document.getElementById('hrFullName').value;
+            const email = document.getElementById('hrEmail').value;
+            const password = document.getElementById('hrPassword').value;
+            const company = document.getElementById('hrCompany').value;
+            const yearsExperience = document.getElementById('hrYearsExperience').value;
+            const phone = document.getElementById('hrPhone').value;
+            const designation = document.getElementById('hrDesignation').value;
+            
+            try {
+                const response = await fetch('/api/admin/hr/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        fullName: fullName,
+                        email: email,
+                        password: password,
+                        companyName: company,
+                        yearsOfExperience: yearsExperience,
+                        phone: phone,
+                        designation: designation
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    alert('✅ ' + data.message + '\n\nHR account created successfully!');
+                    closeCreateHRModal();
+                    loadHRs();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while creating HR account');
+            }
+        });
+
+        function displayTableView(hrs) {
+            const tbody = document.getElementById('hrsTableBody');
+
+            if (hrs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><h3>📭 No HRs found</h3><p>Create a new HR account to get started</p></div></td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = hrs.map(hr => {
+                const hrName = escapeHtml(hr.full_name || 'N/A');
+                const canApprove = !!hr.admin_verification_proof_path && (hr.status || 'pending') !== 'approved';
+                const canReject = (hr.status || 'pending') !== 'rejected';
+                return `
+                <tr>
+                    <td><strong>${hrName}</strong></td>
+                    <td>${escapeHtml(hr.email || 'N/A')}</td>
+                    <td>${escapeHtml(hr.company_name || 'N/A')}</td>
+                    <td>${hr.years_of_experience ?? 'N/A'}</td>
+                    <td>${escapeHtml(hr.phone || 'N/A')}</td>
+                    <td>${escapeHtml(hr.designation || 'N/A')}</td>
+                    <td>${renderStatusBadge(hr.status)}</td>
+                    <td>${formatDate(hr.created_at)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <button onclick="viewHR(${hr.id})" class="btn btn-sm btn-secondary">👁️ View</button>
+                            <button onclick="viewProof(${hr.id})" class="btn btn-sm btn-secondary">📄 Proof</button>
+                            ${hr.admin_verification_proof_path ? '' : '<span class="status-badge status-pending">Admin proof required</span>'}
+                            ${canApprove ? `<button onclick="approveHR(${hr.id})" class="btn btn-sm btn-success">✅ Approve</button>` : ''}
+                            ${canReject ? `<button onclick="rejectHR(${hr.id})" class="btn btn-sm btn-warning">⛔ Reject</button>` : ''}
+                            <button onclick="deleteHR(${hr.id})" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `;}).join('');
+        }
+
+        function displayCardView(hrs) {
+            const cardsContainer = document.getElementById('hrCards');
+
+            if (hrs.length === 0) {
+                cardsContainer.innerHTML = '<div class="empty-state"><h3>📭 No HRs found</h3><p>Create a new HR account to get started</p></div>';
+                return;
+            }
+
+            cardsContainer.innerHTML = hrs.map(hr => {
+                const hrName = escapeHtml(hr.full_name || 'N/A');
+                const canApprove = !!hr.admin_verification_proof_path && (hr.status || 'pending') !== 'approved';
+                const canReject = (hr.status || 'pending') !== 'rejected';
+                return `
+                <div class="hr-card">
+                    <div class="hr-card-header">
+                        <div>
+                            <div class="hr-card-name">${hrName}</div>
+                            <div class="hr-card-company">${escapeHtml(hr.company_name || 'N/A')}</div>
+                        </div>
+                        ${renderStatusBadge(hr.status)}
+                    </div>
+                    <div class="hr-card-info">
+                        <div class="info-row">
+                            <span class="info-label">📧 Email:</span>
+                            <span class="info-value">${escapeHtml(hr.email || 'N/A')}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💼 Designation:</span>
+                            <span class="info-value">${escapeHtml(hr.designation || 'N/A')}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">⏱️ Experience:</span>
+                            <span class="info-value">${hr.years_of_experience ?? 'N/A'} years</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📱 Phone:</span>
+                            <span class="info-value">${escapeHtml(hr.phone || 'N/A')}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📅 Created:</span>
+                            <span class="info-value">${formatDate(hr.created_at)}</span>
+                        </div>
+                    </div>
+                    <div class="hr-card-actions">
+                        <button onclick="viewHR(${hr.id})" class="btn btn-secondary" style="flex: 1;">👁️ View</button>
+                        <button onclick="viewProof(${hr.id})" class="btn btn-secondary" style="flex: 1;">📄 Proof</button>
+                    </div>
+                    <div class="hr-card-actions">
+                        ${hr.admin_verification_proof_path ? '' : '<span class="status-badge status-pending">Admin proof required</span>'}
+                        ${canApprove ? `<button onclick="approveHR(${hr.id})" class="btn btn-success" style="flex: 1;">✅ Approve</button>` : ''}
+                        ${canReject ? `<button onclick="rejectHR(${hr.id})" class="btn btn-warning" style="flex: 1;">⛔ Reject</button>` : ''}
+                        <button onclick="deleteHR(${hr.id})" class="btn btn-danger" style="flex: 1;">🗑️ Delete</button>
+                    </div>
+                </div>
+            `;}).join('');
+        }
+
+        function filterHRs() {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            if (!searchInput) {
+                displayHRs(allHRs);
+                return;
+            }
+
+            const filtered = allHRs.filter(hr =>
+                (hr.full_name && hr.full_name.toLowerCase().includes(searchInput)) ||
+                (hr.email && hr.email.toLowerCase().includes(searchInput)) ||
+                (hr.company_name && hr.company_name.toLowerCase().includes(searchInput)) ||
+                (hr.designation && hr.designation.toLowerCase().includes(searchInput)) ||
+                (hr.phone && hr.phone.includes(searchInput)) ||
+                (hr.status && hr.status.toLowerCase().includes(searchInput))
+            );
+
+            displayHRs(filtered);
+        }
+
+        function viewHR(hrId) {
+            window.location.href = `/secure-admin-panel/wapl/hr/${hrId}`;
+        }
+
+        async function deleteHR(hrId) {
+            if (!confirm('Delete this HR account? This action cannot be undone.')) return;
+
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ HR deleted successfully');
+                    loadHRs();
+                } else {
+                    alert('❌ Error: ' + data.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while deleting HR');
+            }
+        }
+
+        function viewProof(hrId) {
+            window.open(`/api/admin/hr/${hrId}/verification-document`, '_blank', 'noopener,noreferrer');
+        }
+
+        async function approveHR(hrId) {
+            if (!confirm('Approve this HR account?')) return;
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/approve`, { method: 'POST' });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || 'HR approved successfully');
+                    loadHRs();
+                } else {
+                    alert('Error: ' + (data.error || 'Unable to approve HR'));
+                }
+            } catch (error) {
+                console.error('Error approving HR:', error);
+                alert('An error occurred while approving HR');
+            }
+        }
+
+        async function rejectHR(hrId) {
+            const reason = prompt('Reject this HR account? Optional reason:', '');
+            if (reason === null) return;
+            try {
+                const response = await fetch(`/api/admin/hr/${hrId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    alert(data.message || 'HR rejected successfully');
+                    loadHRs();
+                } else {
+                    alert('Error: ' + (data.error || 'Unable to reject HR'));
+                }
+            } catch (error) {
+                console.error('Error rejecting HR:', error);
+                alert('An error occurred while rejecting HR');
+            }
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('createHRModal');
+            if (event.target == modal) {
+                closeCreateHRModal();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSuperAdmin();
+            loadHRs();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reports & Export - WAPL Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; }
+        .admin-container { display: flex; min-height: 100vh; }
+
+        /* Hamburger */
+        .hamburger-btn {
+            display: none; position: fixed; top: 15px; left: 15px; z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .hamburger-btn span { display: block; width: 25px; height: 3px; background: white; margin: 5px 0; border-radius: 2px; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto;
+            transition: transform 0.3s ease; z-index: 1000;
+        }
+        .logo { padding: 0 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .logo h2 { font-size: 24px; font-weight: bold; }
+        .nav-menu { padding: 0 10px; }
+        .nav-menu a {
+            display: flex; align-items: center; padding: 12px 20px; color: rgba(255,255,255,0.8);
+            text-decoration: none; border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;
+        }
+        .nav-menu a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-menu a.active { background: rgba(255,255,255,0.2); color: white; font-weight: bold; }
+        .nav-menu a i { margin-right: 10px; font-size: 18px; }
+
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5); z-index: 999; }
+
+        /* Main */
+        .main-content { margin-left: 250px; padding: 30px; width: calc(100% - 250px); }
+
+        /* Header */
+        .page-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px; padding: 24px 30px; margin-bottom: 30px; color: white;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+        }
+        .page-header h1 { font-size: 24px; }
+        .page-header p { opacity: 0.9; margin-top: 4px; font-size: 14px; }
+
+        /* Global Filter Bar */
+        .filter-bar {
+            background: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); display: flex; align-items: flex-end;
+            gap: 16px; flex-wrap: wrap;
+        }
+        .filter-group { display: flex; flex-direction: column; gap: 6px; }
+        .filter-group label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-group input, .filter-group select {
+            padding: 10px 14px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 14px;
+            background: #f8fafc; transition: border 0.2s; min-width: 160px;
+        }
+        .filter-group input:focus, .filter-group select:focus { border-color: #667eea; outline: none; background: white; }
+        .filter-actions { display: flex; gap: 8px; }
+        .btn-apply {
+            padding: 10px 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-apply:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-reset {
+            padding: 10px 20px; background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0;
+            border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: background 0.2s;
+        }
+        .btn-reset:hover { background: #e2e8f0; }
+
+        /* Overview Stats */
+        .overview-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px; margin-bottom: 28px;
+        }
+        .overview-card {
+            background: white; border-radius: 12px; padding: 18px 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06); text-align: center; transition: transform 0.2s;
+        }
+        .overview-card:hover { transform: translateY(-2px); }
+        .overview-card .count { font-size: 28px; font-weight: 700; color: #1e293b; margin-bottom: 4px; }
+        .overview-card .label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .overview-card .icon { font-size: 24px; margin-bottom: 8px; }
+
+        /* Export Cards Grid */
+        .export-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .export-card {
+            background: white; border-radius: 14px; padding: 24px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06); border: 1px solid #e2e8f0;
+            transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden;
+        }
+        .export-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .export-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+        }
+        .export-card.students::before { background: linear-gradient(90deg, #667eea, #764ba2); }
+        .export-card.payments::before { background: linear-gradient(90deg, #f093fb, #f5576c); }
+        .export-card.domains::before { background: linear-gradient(90deg, #4facfe, #00f2fe); }
+        .export-card.recruitment::before { background: linear-gradient(90deg, #43e97b, #38f9d7); }
+        .export-card.certificates::before { background: linear-gradient(90deg, #fa709a, #fee140); }
+        .export-card.hr-changes::before { background: linear-gradient(90deg, #a18cd1, #fbc2eb); }
+
+        .export-card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .export-card-header h3 { font-size: 17px; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .export-card-header .badge {
+            font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 600;
+            background: #f0f4ff; color: #667eea;
+        }
+        .export-card p.desc { font-size: 13px; color: #64748b; margin-bottom: 16px; line-height: 1.5; }
+
+        .export-card-filters { display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+        .export-card-filters select {
+            padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px;
+            background: #f8fafc; flex: 1; min-width: 120px;
+        }
+        .export-card-filters select:focus { border-color: #667eea; outline: none; }
+
+        .export-card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+        .record-count { font-size: 13px; color: #94a3b8; }
+        .record-count strong { color: #475569; }
+        .btn-download {
+            display: flex; align-items: center; gap: 6px; padding: 9px 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;
+            font-size: 13px; transition: all 0.2s;
+        }
+        .btn-download:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.4); }
+        .btn-download:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn-download.downloading { background: #94a3b8; }
+
+        .last-export { font-size: 11px; color: #94a3b8; margin-top: 10px; font-style: italic; }
+
+        /* Export All Banner */
+        .export-all-banner {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border-radius: 14px; padding: 24px 30px; margin-top: 24px; color: white;
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;
+        }
+        .export-all-banner h3 { font-size: 18px; }
+        .export-all-banner p { opacity: 0.85; font-size: 13px; margin-top: 4px; }
+        .btn-export-all {
+            padding: 12px 28px; background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.2s;
+        }
+        .btn-export-all:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.5); }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 10px;
+            color: white; font-weight: 600; z-index: 9999; transform: translateY(100px); opacity: 0;
+            transition: all 0.3s ease; box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: linear-gradient(135deg, #43e97b, #38f9d7); color: #064e3b; }
+        .toast.error { background: linear-gradient(135deg, #f5576c, #ff6a88); }
+        .toast.info { background: linear-gradient(135deg, #667eea, #764ba2); }
+
+        /* Loading Spinner */
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Format Toggle */
+        .format-toggle {
+            display: flex; border: 2px solid #e2e8f0; border-radius: 8px; overflow: hidden;
+        }
+        .format-toggle label {
+            padding: 9px 18px; cursor: pointer; font-size: 13px; font-weight: 600;
+            color: #64748b; transition: all 0.2s; display: flex; align-items: center; gap: 5px;
+            user-select: none;
+        }
+        .format-toggle input[type="radio"] { display: none; }
+        .format-toggle input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;
+        }
+        .format-toggle label:not(:last-child) { border-right: 1px solid #e2e8f0; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; width: 100%; padding: 20px 15px; padding-top: 60px; }
+            .page-header { flex-direction: column; padding: 20px; }
+            .page-header h1 { font-size: 20px; }
+            .filter-bar { flex-direction: column; align-items: stretch; }
+            .filter-group input, .filter-group select { min-width: 100%; }
+            .export-grid { grid-template-columns: 1fr; }
+            .overview-grid { grid-template-columns: repeat(2, 1fr); }
+            .export-all-banner { flex-direction: column; text-align: center; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+    </button>
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard"><i>📊</i> Dashboard</a>
+                <a href="/secure-admin-panel/wapl/students"><i>👨‍🎓</i> Students</a>
+                <a href="/secure-admin-panel/wapl/exams"><i>📝</i> Exams</a>
+                <a href="/secure-admin-panel/wapl/hrs"><i>👔</i> HRs</a>
+                <a href="/secure-admin-panel/wapl/assign-students"><i>🔗</i> Assign Students</a>
+                <a href="/secure-admin-panel/wapl/recruitment"><i>📋</i> Recruitment</a>
+                <a href="/secure-admin-panel/wapl/payments"><i>💳</i> Payments</a>
+                <a href="/secure-admin-panel/wapl/hr-approvals"><i>✅</i> HR Approvals</a>
+                <a href="/secure-admin-panel/wapl/reports" class="active"><i>📈</i> Reports</a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;"><i>🏷️</i> Domains</a>
+                <a href="/secure-admin-panel/wapl/certificates"><i>📜</i> Certificates</a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;"><i>👤</i> Admins</a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;"><i>⚙️</i> Settings</a>
+                <a href="/secure-admin-panel/wapl/logout"><i>🚪</i> Logout</a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div>
+                    <h1>📈 Reports & Export</h1>
+                    <p>Export your data for analytics, audits, and offline analysis</p>
+                </div>
+                <span class="role-badge" id="roleBadge" style="background: rgba(255,255,255,0.2); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;">Loading...</span>
+            </div>
+
+            <!-- Global Date Filter -->
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label>From Date</label>
+                    <input type="date" id="globalDateFrom">
+                </div>
+                <div class="filter-group">
+                    <label>To Date</label>
+                    <input type="date" id="globalDateTo">
+                </div>
+                <div class="filter-group">
+                    <label>Export Format</label>
+                    <div class="format-toggle">
+                        <input type="radio" name="exportFormat" id="fmtCsv" value="csv" checked>
+                        <label for="fmtCsv">📄 CSV</label>
+                        <input type="radio" name="exportFormat" id="fmtXlsx" value="xlsx">
+                        <label for="fmtXlsx">📊 Excel</label>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button class="btn-apply" onclick="applyGlobalFilter()">🔍 Apply Filter</button>
+                    <button class="btn-reset" onclick="resetGlobalFilter()">↺ Reset</button>
+                </div>
+            </div>
+
+            <!-- Overview Stats -->
+            <div class="overview-grid" id="overviewGrid">
+                <div class="overview-card">
+                    <div class="icon">👨‍🎓</div>
+                    <div class="count" id="countStudents">—</div>
+                    <div class="label">Students</div>
+                </div>
+                <div class="overview-card">
+                    <div class="icon">💳</div>
+                    <div class="count" id="countPayments">—</div>
+                    <div class="label">Payments</div>
+                </div>
+                <div class="overview-card">
+                    <div class="icon">🏷️</div>
+                    <div class="count" id="countDomains">—</div>
+                    <div class="label">Domains</div>
+                </div>
+                <div class="overview-card">
+                    <div class="icon">📋</div>
+                    <div class="count" id="countRecruitment">—</div>
+                    <div class="label">Recruitment</div>
+                </div>
+                <div class="overview-card">
+                    <div class="icon">📜</div>
+                    <div class="count" id="countCertificates">—</div>
+                    <div class="label">Certificates</div>
+                </div>
+                <div class="overview-card">
+                    <div class="icon">✅</div>
+                    <div class="count" id="countHrChanges">—</div>
+                    <div class="label">HR Changes</div>
+                </div>
+            </div>
+
+            <!-- Export Cards -->
+            <div class="export-grid">
+                <!-- Students Export -->
+                <div class="export-card students">
+                    <div class="export-card-header">
+                        <h3>👨‍🎓 Students</h3>
+                        <span class="badge" id="badgeStudents">—</span>
+                    </div>
+                    <p class="desc">Complete student data including WAPL IDs, domains, status, HR assignments, contact info, and registration timestamps.</p>
+                    <div class="export-card-filters">
+                        <select id="filterStudentStatus">
+                            <option value="">All Statuses</option>
+                            <option value="active">Active</option>
+                            <option value="pending">Pending</option>
+                            <option value="suspended">Suspended</option>
+                        </select>
+                    </div>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcStudents">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('students')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportStudents"></div>
+                </div>
+
+                <!-- Payments Export -->
+                <div class="export-card payments">
+                    <div class="export-card-header">
+                        <h3>💳 Payments</h3>
+                        <span class="badge" id="badgePayments">—</span>
+                    </div>
+                    <p class="desc">All payment transactions with Razorpay order/payment IDs, amounts in paise and rupees, student details, and verification timestamps.</p>
+                    <div class="export-card-filters">
+                        <select id="filterPaymentStatus">
+                            <option value="">All Statuses</option>
+                            <option value="verified">Verified</option>
+                            <option value="pending">Pending</option>
+                            <option value="failed">Failed</option>
+                        </select>
+                    </div>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcPayments">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('payments')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportPayments"></div>
+                </div>
+
+                <!-- Domains Export -->
+                <div class="export-card domains">
+                    <div class="export-card-header">
+                        <h3>🏷️ Domains</h3>
+                        <span class="badge" id="badgeDomains">—</span>
+                    </div>
+                    <p class="desc">All domains with short codes, pricing, active status, student enrollment counts, and estimated revenue breakdown.</p>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcDomains">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('domains')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportDomains"></div>
+                </div>
+
+                <!-- Recruitment Export -->
+                <div class="export-card recruitment">
+                    <div class="export-card-header">
+                        <h3>📋 Recruitment</h3>
+                        <span class="badge" id="badgeRecruitment">—</span>
+                    </div>
+                    <p class="desc">Recruitment pipeline data — student-HR interactions with status tracking (viewed, shortlisted, interviewed, selected, rejected).</p>
+                    <div class="export-card-filters">
+                        <select id="filterRecruitmentStatus">
+                            <option value="">All Statuses</option>
+                            <option value="viewed">Viewed</option>
+                            <option value="shortlisted">Shortlisted</option>
+                            <option value="interviewed">Interviewed</option>
+                            <option value="selected">Selected</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcRecruitment">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('recruitment')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportRecruitment"></div>
+                </div>
+
+                <!-- Certificates Export -->
+                <div class="export-card certificates">
+                    <div class="export-card-header">
+                        <h3>📜 Certificates</h3>
+                        <span class="badge" id="badgeCertificates">—</span>
+                    </div>
+                    <p class="desc">Certificate records with unique IDs, display names, issue/expiry dates, issuing HR, and report attachment status.</p>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcCertificates">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('certificates')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportCertificates"></div>
+                </div>
+
+                <!-- HR Approvals Export -->
+                <div class="export-card hr-changes">
+                    <div class="export-card-header">
+                        <h3>✅ HR Approvals</h3>
+                        <span class="badge" id="badgeHrChanges">—</span>
+                    </div>
+                    <p class="desc">HR profile change requests with submitted changes, review status, admin notes, and audit timestamps.</p>
+                    <div class="export-card-filters">
+                        <select id="filterHrChangeStatus">
+                            <option value="">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="approved">Approved</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="export-card-footer">
+                        <span class="record-count"><strong id="rcHrChanges">—</strong> records</span>
+                        <button class="btn-download" onclick="downloadExport('hr-approvals')">⬇ Download</button>
+                    </div>
+                    <div class="last-export" id="lastExportHrChanges"></div>
+                </div>
+            </div>
+
+            <!-- Export All Banner -->
+            <div class="export-all-banner">
+                <div>
+                    <h3>📦 Bulk Export</h3>
+                    <p>Download all 6 datasets at once as separate files (respects your date filter and format choice)</p>
+                </div>
+                <button class="btn-export-all" onclick="downloadAll()">⬇ Export All</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== SIDEBAR ====================
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        // ==================== ROLE CHECK ====================
+        async function checkSuperAdmin() {
+            try {
+                const res = await fetch('/api/admin/check-super-admin');
+                const data = await res.json();
+                if (data.is_super_admin) {
+                    document.getElementById('domainsLink').style.display = '';
+                    document.getElementById('adminsLink').style.display = '';
+                    document.getElementById('settingsLink').style.display = '';
+                    document.getElementById('roleBadge').textContent = '👑 Super Admin';
+                } else {
+                    document.getElementById('roleBadge').textContent = '🔧 Admin';
+                }
+            } catch (e) { console.error(e); }
+        }
+
+        // ==================== TOAST ====================
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => { toast.classList.remove('show'); }, 3500);
+        }
+
+        // ==================== DATE & FORMAT HELPERS ====================
+        function getSelectedFormat() {
+            return document.querySelector('input[name="exportFormat"]:checked').value;
+        }
+
+        function getDateParams() {
+            const from = document.getElementById('globalDateFrom').value;
+            const to = document.getElementById('globalDateTo').value;
+            let params = '';
+            if (from) params += `&from=${from}`;
+            if (to) params += `&to=${to}`;
+            return params;
+        }
+
+        function getFormatParam() {
+            return `&format=${getSelectedFormat()}`;
+        }
+
+        function getFormatLabel() {
+            return getSelectedFormat() === 'xlsx' ? 'Excel' : 'CSV';
+        }
+
+        // ==================== LOAD COUNTS ====================
+        async function loadCounts() {
+            try {
+                const dateParams = getDateParams();
+                const res = await fetch(`/api/admin/export/counts?_=1${dateParams}`);
+                const data = await res.json();
+
+                // Overview cards
+                animateCount('countStudents', data.students);
+                animateCount('countPayments', data.payments);
+                animateCount('countDomains', data.domains);
+                animateCount('countRecruitment', data.recruitment);
+                animateCount('countCertificates', data.certificates);
+                animateCount('countHrChanges', data.hr_changes);
+
+                // Badges + record counts
+                setBadgeAndCount('Students', data.students);
+                setBadgeAndCount('Payments', data.payments);
+                setBadgeAndCount('Domains', data.domains);
+                setBadgeAndCount('Recruitment', data.recruitment);
+                setBadgeAndCount('Certificates', data.certificates);
+                setBadgeAndCount('HrChanges', data.hr_changes);
+            } catch (e) {
+                console.error('Error loading counts:', e);
+            }
+        }
+
+        function setBadgeAndCount(key, count) {
+            const badge = document.getElementById(`badge${key}`);
+            const rc = document.getElementById(`rc${key}`);
+            if (badge) badge.textContent = `${count} records`;
+            if (rc) rc.textContent = count;
+        }
+
+        function animateCount(elementId, target) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            const duration = 600;
+            const start = performance.now();
+            const from = 0;
+            function update(now) {
+                const elapsed = now - start;
+                const progress = Math.min(elapsed / duration, 1);
+                const eased = 1 - Math.pow(1 - progress, 3);
+                el.textContent = Math.round(from + (target - from) * eased).toLocaleString();
+                if (progress < 1) requestAnimationFrame(update);
+            }
+            requestAnimationFrame(update);
+        }
+
+        // ==================== GLOBAL FILTER ====================
+        function applyGlobalFilter() {
+            loadCounts();
+            showToast('Filter applied — counts updated', 'info');
+        }
+
+        function resetGlobalFilter() {
+            document.getElementById('globalDateFrom').value = '';
+            document.getElementById('globalDateTo').value = '';
+            document.getElementById('fmtCsv').checked = true;
+            document.querySelectorAll('.export-card-filters select').forEach(s => s.value = '');
+            loadCounts();
+            showToast('Filters reset', 'info');
+        }
+
+        // ==================== DOWNLOAD EXPORT ====================
+        async function downloadExport(type) {
+            const btn = event.target.closest('.btn-download');
+            if (btn.disabled) return;
+
+            const fmt = getSelectedFormat();
+            const fmtLabel = getFormatLabel();
+            const origHtml = btn.innerHTML;
+            btn.innerHTML = '<span class="spinner"></span> Exporting...';
+            btn.disabled = true;
+            btn.classList.add('downloading');
+
+            try {
+                let params = getDateParams() + getFormatParam();
+
+                // Per-card status filters
+                if (type === 'students') {
+                    const s = document.getElementById('filterStudentStatus').value;
+                    if (s) params += `&status=${s}`;
+                } else if (type === 'payments') {
+                    const s = document.getElementById('filterPaymentStatus').value;
+                    if (s) params += `&status=${s}`;
+                } else if (type === 'recruitment') {
+                    const s = document.getElementById('filterRecruitmentStatus').value;
+                    if (s) params += `&status=${s}`;
+                } else if (type === 'hr-approvals') {
+                    const s = document.getElementById('filterHrChangeStatus').value;
+                    if (s) params += `&status=${s}`;
+                }
+
+                const res = await fetch(`/api/admin/export/${type}?_=1${params}`);
+                if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.error || 'Export failed');
+                }
+
+                // Get filename from Content-Disposition header
+                const disposition = res.headers.get('Content-Disposition');
+                let filename = `${type}_export.${fmt}`;
+                if (disposition) {
+                    const match = disposition.match(/filename=(.+)/);
+                    if (match) filename = match[1];
+                }
+
+                const blob = await res.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                // Store last export time
+                const storageKey = `lastExport_${type.replace('-', '_')}`;
+                const now = new Date().toLocaleString();
+                localStorage.setItem(storageKey, now);
+                updateLastExport(type);
+
+                showToast(`${type.replace('-', ' ')} exported as ${fmtLabel}!`, 'success');
+            } catch (e) {
+                console.error('Export error:', e);
+                showToast(e.message || 'Export failed', 'error');
+            } finally {
+                btn.innerHTML = origHtml;
+                btn.disabled = false;
+                btn.classList.remove('downloading');
+            }
+        }
+
+        // ==================== DOWNLOAD ALL ====================
+        async function downloadAll() {
+            const btn = event.target;
+            const fmt = getSelectedFormat();
+            const fmtLabel = getFormatLabel();
+            const origText = btn.textContent;
+            btn.textContent = '⏳ Exporting...';
+            btn.disabled = true;
+
+            // Excel: single workbook with all sheets
+            if (fmt === 'xlsx') {
+                try {
+                    let params = getDateParams();
+                    const res = await fetch(`/api/admin/export/all?_=1${params}`);
+                    if (!res.ok) throw new Error('Export failed');
+
+                    const disposition = res.headers.get('Content-Disposition');
+                    let filename = 'wapl_complete_report.xlsx';
+                    if (disposition) {
+                        const match = disposition.match(/filename=(.+)/);
+                        if (match) filename = match[1];
+                    }
+
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    const now = new Date().toLocaleString();
+                    ['students', 'payments', 'domains', 'recruitment', 'certificates', 'hr_approvals'].forEach(t => {
+                        localStorage.setItem(`lastExport_${t}`, now);
+                    });
+                    updateAllLastExports();
+                    showToast('Complete Excel workbook exported (6 sheets)', 'success');
+                } catch (e) {
+                    console.error('Error exporting workbook:', e);
+                    showToast('Error exporting workbook', 'error');
+                } finally {
+                    btn.textContent = origText;
+                    btn.disabled = false;
+                }
+                return;
+            }
+
+            // CSV: download each file separately
+            const types = ['students', 'payments', 'domains', 'recruitment', 'certificates', 'hr-approvals'];
+            let successes = 0;
+
+            for (const type of types) {
+                try {
+                    let params = getDateParams() + getFormatParam();
+                    const res = await fetch(`/api/admin/export/${type}?_=1${params}`);
+                    if (!res.ok) continue;
+
+                    const disposition = res.headers.get('Content-Disposition');
+                    let filename = `${type}_export.${fmt}`;
+                    if (disposition) {
+                        const match = disposition.match(/filename=(.+)/);
+                        if (match) filename = match[1];
+                    }
+
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    const storageKey = `lastExport_${type.replace('-', '_')}`;
+                    localStorage.setItem(storageKey, new Date().toLocaleString());
+                    successes++;
+
+                    // Small delay so browser doesn't block multiple downloads
+                    await new Promise(r => setTimeout(r, 400));
+                } catch (e) {
+                    console.error(`Error exporting ${type}:`, e);
+                }
+            }
+
+            updateAllLastExports();
+            btn.textContent = origText;
+            btn.disabled = false;
+            showToast(`Bulk ${fmtLabel} export — ${successes}/${types.length} files downloaded`, successes === types.length ? 'success' : 'info');
+        }
+
+        // ==================== LAST EXPORT TIMESTAMPS ====================
+        function updateLastExport(type) {
+            const keyMap = {
+                'students': 'Students',
+                'payments': 'Payments',
+                'domains': 'Domains',
+                'recruitment': 'Recruitment',
+                'certificates': 'Certificates',
+                'hr-approvals': 'HrChanges'
+            };
+            const elId = `lastExport${keyMap[type]}`;
+            const storageKey = `lastExport_${type.replace('-', '_')}`;
+            const el = document.getElementById(elId);
+            const val = localStorage.getItem(storageKey);
+            if (el && val) {
+                el.textContent = `Last exported: ${val}`;
+            }
+        }
+
+        function updateAllLastExports() {
+            ['students', 'payments', 'domains', 'recruitment', 'certificates', 'hr-approvals'].forEach(updateLastExport);
+        }
+
+        // ==================== INIT ====================
+        document.addEventListener('DOMContentLoaded', () => {
+            checkSuperAdmin();
+            loadCounts();
+            updateAllLastExports();
+        });
+    </script>
+</body>
+</html>

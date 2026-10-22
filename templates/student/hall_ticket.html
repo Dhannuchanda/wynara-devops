@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hall Ticket - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: var(--text-main);
+            min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 2rem;
+            background-image:
+                radial-gradient(at 40% 20%, hsla(260,100%,93%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189,100%,96%,1) 0px, transparent 50%);
+        }
+
+        .ticket-container { max-width: 650px; width: 100%; }
+
+        .back-link {
+            display: inline-flex; align-items: center; gap: 6px; color: var(--text-muted);
+            text-decoration: none; font-size: 0.9rem; font-weight: 500; margin-bottom: 1.5rem;
+        }
+        .back-link:hover { color: #667eea; }
+
+        .hall-ticket {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;
+        }
+
+        .ticket-header {
+            background: var(--primary-gradient); padding: 24px 30px; color: white; text-align: center;
+        }
+        .ticket-header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; }
+        .ticket-header p { font-size: 0.85rem; opacity: 0.9; margin-top: 4px; }
+
+        .ticket-body { padding: 30px; }
+
+        .ticket-section { margin-bottom: 24px; }
+        .ticket-section-title {
+            font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            color: #667eea; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #f3f4f6;
+        }
+
+        .ticket-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+        .ticket-field label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .ticket-field p { font-size: 1rem; font-weight: 600; color: var(--text-main); margin-top: 2px; }
+        .ticket-field.full { grid-column: span 2; }
+
+        .seat-number {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: linear-gradient(135deg, #dbeafe, #ede9fe); border-radius: 14px;
+            padding: 16px; margin: 20px 0;
+        }
+        .seat-number .label { font-size: 0.85rem; color: #4b5563; font-weight: 600; }
+        .seat-number .number { font-size: 2rem; font-weight: 800; color: #1e3c72; }
+
+        .instructions-box {
+            background: #fef3c7; border-radius: 12px; padding: 16px; border-left: 4px solid #f59e0b;
+        }
+        .instructions-box h4 { font-size: 0.85rem; color: #92400e; margin-bottom: 6px; }
+        .instructions-box p { font-size: 0.85rem; color: #78350f; line-height: 1.5; }
+
+        .ticket-footer {
+            border-top: 2px dashed #e5e7eb; padding: 16px 30px; text-align: center;
+            font-size: 0.8rem; color: var(--text-muted);
+        }
+
+        .btn-print {
+            display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
+            background: var(--primary-gradient); color: white; border: none; border-radius: 12px;
+            font-size: 0.95rem; font-weight: 600; cursor: pointer; margin-top: 20px;
+            transition: all 0.2s;
+        }
+        .btn-print:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+
+        .loading { text-align: center; padding: 60px; color: var(--text-muted); }
+
+        @media print {
+            body { padding: 0; background: white; }
+            .back-link, .btn-print { display: none !important; }
+            .hall-ticket { box-shadow: none; border: 1px solid #ccc; }
+        }
+
+        @media (max-width: 600px) {
+            .ticket-row { grid-template-columns: 1fr; }
+            .ticket-field.full { grid-column: span 1; }
+            body { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="ticket-container">
+        <a href="/exam" class="back-link">← Back to Exam Dashboard</a>
+
+        <div id="ticketContent" class="loading">
+            <p>Loading hall ticket...</p>
+        </div>
+    </div>
+
+    <script>
+        const registrationId = {{ registration_id }};
+
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch(`/api/exam/hall-ticket/${registrationId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('ticketContent').innerHTML =
+                            `<p style="color:#ef4444;">Error: ${data.error}</p>`;
+                        return;
+                    }
+                    renderTicket(data);
+                })
+                .catch(() => {
+                    document.getElementById('ticketContent').innerHTML =
+                        '<p style="color:#ef4444;">Failed to load hall ticket</p>';
+                });
+        });
+
+        function renderTicket(data) {
+            const s = data.student;
+            const t = data.ticket;
+
+            document.getElementById('ticketContent').innerHTML = `
+                <div class="hall-ticket">
+                    <div class="ticket-header">
+                        <h1>🎫 EXAM HALL TICKET</h1>
+                        <p>WAPL Assessment System</p>
+                    </div>
+                    <div class="ticket-body">
+                        <div class="ticket-section">
+                            <div class="ticket-section-title">Student Information</div>
+                            <div class="ticket-row">
+                                <div class="ticket-field">
+                                    <label>Full Name</label>
+                                    <p>${s.full_name}</p>
+                                </div>
+                                <div class="ticket-field">
+                                    <label>WAPL ID</label>
+                                    <p>${s.wapl_id || 'Pending'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="ticket-section">
+                            <div class="ticket-section-title">Exam Details</div>
+                            <div class="ticket-row">
+                                <div class="ticket-field">
+                                    <label>Exam</label>
+                                    <p>${t.title}</p>
+                                </div>
+                                <div class="ticket-field">
+                                    <label>Domain</label>
+                                    <p>${t.domain_name}</p>
+                                </div>
+                            </div>
+                            <div class="ticket-row">
+                                <div class="ticket-field">
+                                    <label>Date</label>
+                                    <p>${formatDate(t.exam_date)}</p>
+                                </div>
+                                <div class="ticket-field">
+                                    <label>Time</label>
+                                    <p>${t.start_time} – ${t.end_time}</p>
+                                </div>
+                            </div>
+                            <div class="ticket-row">
+                                <div class="ticket-field">
+                                    <label>Venue</label>
+                                    <p>${t.venue}</p>
+                                </div>
+                                <div class="ticket-field">
+                                    <label>Address</label>
+                                    <p>${t.venue_address || '-'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="seat-number">
+                            <span class="label">SEAT NUMBER</span>
+                            <span class="number">${t.seat_number}</span>
+                        </div>
+
+                        ${t.instructions ? `
+                        <div class="instructions-box">
+                            <h4>📋 Important Instructions</h4>
+                            <p>${t.instructions}</p>
+                        </div>` : ''}
+
+                        <div style="text-align:center;">
+                            <button class="btn-print" onclick="window.print()">🖨️ Print Hall Ticket</button>
+                        </div>
+                    </div>
+                    <div class="ticket-footer">
+                        This is a system-generated hall ticket. Please carry a valid photo ID to the exam venue.
+                    </div>
+                </div>`;
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            try {
+                const d = new Date(dateStr + 'T00:00:00');
+                return d.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            } catch {
+                return dateStr;
+            }
+        }
+    </script>
+</body>
+</html>

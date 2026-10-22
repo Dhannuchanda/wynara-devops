@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Domain Management - WAPL Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .admin-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .admin-info h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .role-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: #ffd700;
+            color: #000;
+            border: 2px solid #ffed4e;
+            box-shadow: 0 2px 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .content-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .content-card h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .form-inline {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group input.error {
+            border-color: #dc3545;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* Table for Desktop */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+            color: #333;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-inactive {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* Mobile Card View */
+        .domain-cards {
+            display: none;
+        }
+
+        .domain-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .domain-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .domain-card-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .domain-card-info {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+            min-width: 100px;
+        }
+
+        .info-value {
+            color: #1e293b;
+        }
+
+        .domain-card-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px 20px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #856404;
+            font-size: 14px;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .admin-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 22px;
+            }
+
+            .content-card {
+                padding: 20px 15px;
+            }
+
+            .form-inline {
+                flex-direction: column;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Hide table, show cards */
+            .table-container {
+                display: none;
+            }
+
+            .domain-cards {
+                display: block;
+            }
+
+            .domain-card-actions {
+                flex-direction: column;
+            }
+
+            .domain-card-actions .btn {
+                width: 100%;
+            }
+
+            .form-group input {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .admin-info h1 {
+                font-size: 18px;
+            }
+
+            .content-card {
+                padding: 15px 10px;
+            }
+
+            .domain-card {
+                padding: 15px;
+            }
+
+            .domain-card-name {
+                font-size: 16px;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" class="active" id="domainsLink">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="admin-header">
+                <div class="admin-info">
+                    <h1>Domain Management</h1>
+                    <span class="role-badge">⭐ SUPER ADMIN</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <p>⚠️ <strong>Super Admin Only:</strong> Manage skill domains for student registration. Inactive domains won't appear in registration.</p>
+            </div>
+
+            <div id="successAlert" class="alert alert-success"></div>
+            <div id="errorAlert" class="alert alert-error"></div>
+
+            <div class="content-card">
+                <h2>➕ Add New Domain</h2>
+                <form id="addDomainForm" class="form-inline">
+                    <div class="form-group">
+                        <label>Domain Name *</label>
+                        <input type="text" id="domainName" placeholder="e.g., Artificial Intelligence, Blockchain" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Short Code *</label>
+                        <input type="text" id="domainShortCode" placeholder="e.g., AI, WD, CS" required style="width: 100px; text-transform: uppercase;" maxlength="6">
+                        <small style="color: #888; display: block; margin-top: 2px;">Used in WAPL ID (e.g., WAPL-2026-CS-0001)</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Price (₹) *</label>
+                        <input type="number" id="domainPrice" placeholder="166" value="166" min="0" required style="width: 100px;">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Domain</button>
+                </form>
+            </div>
+
+            <div class="content-card">
+                <h2>📋 All Domains</h2>
+                
+                <!-- Desktop Table View -->
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Domain Name</th>
+                                <th>Short Code</th>
+                                <th>Price (₹)</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="domainsTableBody">
+                            <tr>
+                                <td colspan="4">
+                                    <div class="empty-state">
+                                        <h3>📋 Loading domains...</h3>
+                                        <p>Please wait</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Mobile Card View -->
+                <div class="domain-cards" id="domainCards">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allDomains = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function loadDomains() {
+            try {
+                const response = await fetch('/api/admin/domains');
+                allDomains = await response.json();
+                displayDomains(allDomains);
+            } catch (error) {
+                console.error('Error loading domains:', error);
+                showError('Failed to load domains');
+            }
+        }
+
+        function displayDomains(domains) {
+            displayTableView(domains);
+            displayCardView(domains);
+        }
+
+        function displayTableView(domains) {
+            const tbody = document.getElementById('domainsTableBody');
+            
+            if (domains.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5">
+                            <div class="empty-state">
+                                <h3>📭 No domains found</h3>
+                                <p>Add a new domain to get started</p>
+                            </div>
+                        </td>
+                    </tr>`;
+                return;
+            }
+            
+            tbody.innerHTML = domains.map(domain => `
+                <tr>
+                    <td><strong>${domain.domain_name}</strong></td>
+                    <td>
+                        <input type="text" 
+                               id="code_${domain.id}" 
+                               value="${domain.short_code || ''}" 
+                               maxlength="6" 
+                               style="width: 70px; padding: 5px; border: 1px solid #ddd; border-radius: 4px; text-transform: uppercase; font-weight: bold;"
+                               onchange="updateShortCode(${domain.id})">
+                    </td>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <input type="number" 
+                                   id="price_${domain.id}" 
+                                   value="${domain.price || 0}" 
+                                   min="0" 
+                                   style="width: 80px; padding: 5px; border: 1px solid #ddd; border-radius: 4px;"
+                                   onchange="updateDomainPrice(${domain.id})">
+                            <span style="color: #666;">₹</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${domain.is_active ? 'status-active' : 'status-inactive'}">
+                            ${domain.is_active ? '✅ Active' : '❌ Inactive'}
+                        </span>
+                    </td>
+                    <td>${formatDate(domain.created_at)}</td>
+                    <td>
+                        <div class="action-buttons">
+                            ${domain.is_active ? 
+                                `<button onclick="toggleDomainStatus(${domain.id}, 0)" class="btn btn-sm btn-warning">⏸️ Deactivate</button>` :
+                                `<button onclick="toggleDomainStatus(${domain.id}, 1)" class="btn btn-sm btn-success">✅ Activate</button>`
+                            }
+                            <button onclick="deleteDomain(${domain.id}, '${domain.domain_name}')" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function displayCardView(domains) {
+            const cardsContainer = document.getElementById('domainCards');
+            
+            if (domains.length === 0) {
+                cardsContainer.innerHTML = '<div class="empty-state"><h3>📭 No domains found</h3><p>Add a new domain to get started</p></div>';
+                return;
+            }
+
+            cardsContainer.innerHTML = domains.map(domain => `
+                <div class="domain-card">
+                    <div class="domain-card-header">
+                        <div class="domain-card-name">${domain.domain_name}</div>
+                        <span class="status-badge ${domain.is_active ? 'status-active' : 'status-inactive'}">
+                            ${domain.is_active ? '✅ Active' : '❌ Inactive'}
+                        </span>
+                    </div>
+                    
+                    <div class="domain-card-info">
+                        <div class="info-row">
+                            <span class="info-label">🏷️ Code:</span>
+                            <span class="info-value">
+                                <input type="text" 
+                                       id="code_card_${domain.id}" 
+                                       value="${domain.short_code || ''}" 
+                                       maxlength="6" 
+                                       style="width: 60px; padding: 4px; border: 1px solid #ddd; border-radius: 4px; text-transform: uppercase; font-weight: bold;"
+                                       onchange="updateShortCode(${domain.id}, true)">
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">💰 Price:</span>
+                            <span class="info-value">
+                                <input type="number" 
+                                       id="price_card_${domain.id}" 
+                                       value="${domain.price || 0}" 
+                                       min="0" 
+                                       style="width: 70px; padding: 4px; border: 1px solid #ddd; border-radius: 4px;"
+                                       onchange="updateDomainPrice(${domain.id}, true)"> ₹
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">📅 Created:</span>
+                            <span class="info-value">${formatDate(domain.created_at)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="domain-card-actions">
+                        ${domain.is_active ? 
+                            `<button onclick="toggleDomainStatus(${domain.id}, 0)" class="btn btn-warning">⏸️ Deactivate</button>` :
+                            `<button onclick="toggleDomainStatus(${domain.id}, 1)" class="btn btn-success">✅ Activate</button>`
+                        }
+                        <button onclick="deleteDomain(${domain.id}, '${domain.domain_name}')" class="btn btn-danger">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function updateDomainPrice(domainId, isCard = false) {
+            const inputId = isCard ? `price_card_${domainId}` : `price_${domainId}`;
+            const priceInput = document.getElementById(inputId);
+            const price = parseInt(priceInput.value) || 0;
+            
+            try {
+                const response = await fetch(`/api/admin/domain/${domainId}/price`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ price })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`Price updated to ₹${price}`);
+                    // Sync both views
+                    const tableInput = document.getElementById(`price_${domainId}`);
+                    const cardInput = document.getElementById(`price_card_${domainId}`);
+                    if (tableInput) tableInput.value = price;
+                    if (cardInput) cardInput.value = price;
+                } else {
+                    showError(data.error || 'Failed to update price');
+                }
+            } catch (error) {
+                showError('Network error updating price');
+            }
+        }
+
+        document.getElementById('addDomainForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const domainName = document.getElementById('domainName').value.trim();
+            const shortCode = document.getElementById('domainShortCode').value.trim().toUpperCase();
+            const price = parseInt(document.getElementById('domainPrice').value) || 166;
+            
+            if (!domainName) {
+                showError('Domain name is required');
+                document.getElementById('domainName').classList.add('error');
+                return;
+            }
+
+            if (!shortCode) {
+                showError('Short code is required (e.g., AI, WD, CS)');
+                return;
+            }
+
+            if (allDomains.some(d => d.domain_name.toLowerCase() === domainName.toLowerCase())) {
+                showError('This domain already exists');
+                return;
+            }
+
+            if (allDomains.some(d => (d.short_code || '').toUpperCase() === shortCode)) {
+                showError('This short code is already in use by another domain');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/admin/domain/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ domainName: domainName, shortCode: shortCode, price: price })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ Domain "${domainName}" added successfully!`);
+                    document.getElementById('addDomainForm').reset();
+                    document.getElementById('domainName').classList.remove('error');
+                    loadDomains();
+                } else {
+                    showError(data.error || 'Failed to add domain');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while adding domain');
+            }
+        });
+
+        async function toggleDomainStatus(domainId, newStatus) {
+            const domain = allDomains.find(d => d.id === domainId);
+            const action = newStatus ? 'activate' : 'deactivate';
+            
+            if (!confirm(`${action === 'activate' ? '✅ Activate' : '⏸️ Deactivate'} domain "${domain.domain_name}"?\n\n${newStatus ? 'Students will be able to select this domain during registration.' : 'This domain will be hidden from registration.'}`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/domain/${domainId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ isActive: newStatus })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ Domain ${action}d successfully!`);
+                    loadDomains();
+                } else {
+                    showError(data.error || `Failed to ${action} domain`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred');
+            }
+        }
+
+        async function deleteDomain(domainId, domainName) {
+            if (!confirm(`🗑️ Are you sure you want to delete domain "${domainName}"?\n\n⚠️ This action cannot be undone!\n\nStudents assigned to this domain will need to be reassigned.`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/admin/domain/${domainId}`, {
+                    method: 'DELETE'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showSuccess(`✅ Domain "${domainName}" deleted successfully!`);
+                    loadDomains();
+                } else {
+                    showError(data.error || 'Failed to delete domain');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred while deleting domain');
+            }
+        }
+
+        function showSuccess(message) {
+            const alert = document.getElementById('successAlert');
+            alert.textContent = message;
+            alert.style.display = 'block';
+            document.getElementById('errorAlert').style.display = 'none';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showError(message) {
+            const alert = document.getElementById('errorAlert');
+            alert.textContent = '❌ ' + message;
+            alert.style.display = 'block';
+            document.getElementById('successAlert').style.display = 'none';
+            
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        async function updateShortCode(domainId, isCard = false) {
+            const inputId = isCard ? `code_card_${domainId}` : `code_${domainId}`;
+            const codeInput = document.getElementById(inputId);
+            const code = codeInput.value.trim().toUpperCase();
+
+            if (!code) {
+                showError('Short code cannot be empty');
+                return;
+            }
+
+            // Check uniqueness among other domains
+            if (allDomains.some(d => d.id !== domainId && (d.short_code || '').toUpperCase() === code)) {
+                showError('This short code is already in use by another domain');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/admin/domain/${domainId}/short-code`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ shortCode: code })
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    showSuccess(`Short code updated to "${code}"`);
+                    // Sync both views
+                    const tableInput = document.getElementById(`code_${domainId}`);
+                    const cardInput = document.getElementById(`code_card_${domainId}`);
+                    if (tableInput) tableInput.value = code;
+                    if (cardInput) cardInput.value = code;
+                    loadDomains();
+                } else {
+                    showError(data.error || 'Failed to update short code');
+                }
+            } catch (error) {
+                showError('Network error updating short code');
+            }
+        }
+
+        document.getElementById('domainName').addEventListener('input', function() {
+            this.classList.remove('error');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDomains();
+        });
+    </script>
+</body>
+</html>

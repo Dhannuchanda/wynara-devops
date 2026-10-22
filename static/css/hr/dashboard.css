@@ -1,0 +1,4 @@
+/* HR Dashboard */
+.dashboard-container { background: linear-gradient(135deg, #f0f4ff 0%, #e9ecff 100%); padding: 2rem; }
+.stat-card { background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); border:1px solid rgba(255,255,255,0.2); border-radius: var(--radius-md); box-shadow: var(--shadow-soft); }
+.dashboard-actions .btn { background: var(--brand-gradient); color:#fff; border-radius: var(--radius-sm); box-shadow: var(--shadow-colored); }

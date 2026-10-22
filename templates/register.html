@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Registration - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            /* Fallback */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        /* Video Background */
+        .video-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: fill;
+            z-index: -2;
+            /* Below overlay */
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            /* 70% dark = 30% visibility */
+            z-index: -1;
+            backdrop-filter: blur(3px);
+            /* Subtle blur for depth */
+        }
+
+        .registration-container {
+            background: rgba(30, 41, 59, 0.4);
+            /* Dark glass */
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            max-width: 550px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            z-index: 10;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: #fff;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: #94a3b8;
+            font-size: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        label .required {
+            color: #f87171;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            font-size: 15px;
+            color: white;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus,
+        textarea:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.4);
+            border-color: #818cf8;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Domain Section Styling */
+        .domains-section {
+            margin-bottom: 25px;
+        }
+
+        #domainContainer {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: rgba(0, 0, 0, 0.2);
+        }
+
+        .domain-checkbox label {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+            margin-bottom: 0;
+            color: #cbd5e1;
+            font-weight: 400;
+        }
+
+        .domain-checkbox label:hover {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .domain-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin-right: 12px;
+            accent-color: #6366f1;
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.5);
+            background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+        }
+
+        .btn-primary:disabled {
+            background: #475569;
+            cursor: not-allowed;
+            color: #94a3b8;
+            box-shadow: none;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 25px;
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+
+        .login-link a {
+            color: #818cf8;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .login-link a:hover {
+            color: #a5b4fc;
+            text-decoration: none;
+        }
+
+        /* Messages */
+        .error-message,
+        .success-message {
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+
+        .error-message {
+            background-color: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+        }
+
+        .success-message {
+            background-color: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #86efac;
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-top: 8px;
+            margin-left: 5px;
+        }
+
+        /* Payment Summary Styles */
+        .payment-summary {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payment-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #86efac;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-icon {
+            font-size: 20px;
+        }
+
+        .payment-details {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .payment-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        .payment-total {
+            margin-top: 8px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-weight: 700;
+            font-size: 18px;
+            color: #22c55e;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Success Animation Overlay */
+        .success-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .success-modal {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .success-overlay.active .success-modal {
+            transform: scale(1);
+        }
+
+        .checkmark-circle {
+            width: 80px;
+            height: 80px;
+            position: relative;
+            display: inline-block;
+            vertical-align: top;
+            margin-bottom: 20px;
+        }
+
+        .checkmark-circle .background {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #22c55e;
+            position: absolute;
+        }
+
+        .checkmark-circle .checkmark {
+            border-radius: 5px;
+        }
+
+        .checkmark-circle .checkmark.draw:after {
+            animation-delay: 100ms;
+            animation-duration: 1s;
+            animation-timing-function: ease;
+            animation-name: checkmark;
+            transform: scaleX(-1) rotate(135deg);
+            animation-fill-mode: forwards;
+        }
+
+        .checkmark-circle .checkmark:after {
+            opacity: 1;
+            height: 40px;
+            width: 20px;
+            transform-origin: left top;
+            border-right: 4px solid white;
+            border-top: 4px solid white;
+            content: '';
+            left: 20px;
+            top: 40px;
+            position: absolute;
+        }
+
+        @keyframes checkmark {
+            0% {
+                height: 0;
+                width: 0;
+                opacity: 1;
+            }
+
+            20% {
+                height: 0;
+                width: 20px;
+                opacity: 1;
+            }
+
+            40% {
+                height: 40px;
+                width: 20px;
+                opacity: 1;
+            }
+
+            100% {
+                height: 40px;
+                width: 20px;
+                opacity: 1;
+            }
+        }
+
+        .success-text h2 {
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .success-text p {
+            color: #cbd5e1;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Video Background -->
+    <video autoplay muted loop playsinline class="video-bg">
+        <source src="/static/logo/logo.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+
+    <!-- Success Overlay -->
+    <div id="successOverlay" class="success-overlay">
+        <div class="success-modal">
+            <div class="checkmark-circle">
+                <div class="background"></div>
+                <div class="checkmark draw"></div>
+            </div>
+            <div class="success-text">
+                <h2>Registration Successful!</h2>
+                <p>Redirecting to verification...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="registration-container">
+        <div class="logo-section">
+            <h1>Create Account</h1>
+            <p class="subtitle">Join the WAPL Student Community</p>
+        </div>
+
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <form id="registrationForm">
+            <div class="form-group">
+                <label for="fullName">Full Name <span class="required">*</span></label>
+                <input type="text" id="fullName" placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email <span class="required">*</span></label>
+                <input type="email" id="email" placeholder="Enter your email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Phone Number <span class="required">*</span></label>
+                <input type="tel" id="phone" placeholder="Enter your phone number" required>
+            </div>
+
+            <div class="form-group">
+                <label for="address">Address</label>
+                <textarea id="address" placeholder="Enter your address (optional)"></textarea>
+            </div>
+
+            <div class="form-group domains-section">
+                <label>Select Domain(s) <span class="required">*</span></label>
+                <div id="domainContainer">
+                    <p style="text-align: center; color: #999;">Loading domains...</p>
+                </div>
+                <p style="font-size: 12px; color: #666; margin-top: 5px;">Choose one or more technology domains you're
+                    interested in</p>
+            </div>
+
+            <!-- Payment Summary Section -->
+            <div id="paymentSummary" class="payment-summary" style="display: none;">
+                <div class="payment-header">
+                    <span class="payment-icon">💳</span>
+                    <span>Annual Registration Fee</span>
+                </div>
+                <div class="payment-details">
+                    <div class="payment-row">
+                        <span>Domains selected:</span>
+                        <span id="domainCountDisplay">0</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Price per domain:</span>
+                        <span id="pricePerDomain">₹166</span>
+                    </div>
+                    <div class="payment-row">
+                        <span>Access period:</span>
+                        <span>1 year from payment</span>
+                    </div>
+                    <div class="payment-row payment-total">
+                        <span>Total Amount:</span>
+                        <span id="totalAmount">₹0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password <span class="required">*</span></label>
+                <input type="password" id="password" placeholder="Enter password" required>
+                <p class="password-requirements">Must be at least 6 characters</p>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password <span class="required">*</span></label>
+                <input type="password" id="confirmPassword" placeholder="Confirm password" required>
+            </div>
+
+            <button type="submit" id="submitBtn" class="btn btn-primary">Register</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="/login">Login here</a>
+        </div>
+    </div>
+
+    <!-- Razorpay SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    
+    <script>
+        // Payment configuration
+        let paymentConfig = {
+            enabled: false,
+            key_id: null,
+            price_per_domain: 166,
+            currency: 'INR'
+        };
+
+        // Load payment configuration
+        async function loadPaymentConfig() {
+            try {
+                const response = await fetch('/api/payment/config');
+                const config = await response.json();
+                paymentConfig = config;
+                
+                if (paymentConfig.enabled) {
+                    // No longer showing single price - using individual prices
+                    document.getElementById('pricePerDomain').textContent = 'varies by domain';
+                }
+            } catch (error) {
+                console.error('Error loading payment config:', error);
+            }
+        }
+
+        // Update payment summary based on selected domains
+        function updatePaymentSummary() {
+            const selectedCheckboxes = document.querySelectorAll('input[name="domain"]:checked');
+            const paymentSummary = document.getElementById('paymentSummary');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            // Calculate total from individual domain prices
+            let totalAmount = 0;
+            selectedCheckboxes.forEach(cb => {
+                const domainId = parseInt(cb.value);
+                const price = paymentConfig.domain_prices?.[domainId] || 0;
+                totalAmount += price;
+            });
+            
+            const selectedCount = selectedCheckboxes.length;
+            
+            if (selectedCount > 0 && paymentConfig.enabled && totalAmount > 0) {
+                paymentSummary.style.display = 'block';
+                document.getElementById('domainCountDisplay').textContent = selectedCount;
+                document.getElementById('totalAmount').textContent = `₹${totalAmount}`;
+                submitBtn.textContent = `Pay ₹${totalAmount} & Register`;
+            } else if (selectedCount > 0) {
+                paymentSummary.style.display = 'none';
+                submitBtn.textContent = 'Register';
+            } else {
+                paymentSummary.style.display = 'none';
+                submitBtn.textContent = 'Register';
+            }
+        }
+
+        // Load domains on page load
+        async function loadDomains() {
+            try {
+                const response = await fetch('/api/admin/domains');
+                const domains = await response.json();
+
+                const domainContainer = document.getElementById('domainContainer');
+                domainContainer.innerHTML = '';
+
+                if (!domains || domains.length === 0) {
+                    domainContainer.innerHTML = '<p style="text-align: center; color: #999;">No domains available</p>';
+                    return;
+                }
+
+                // Filter only active domains
+                const activeDomains = domains.filter(d => d.is_active);
+
+                if (activeDomains.length === 0) {
+                    domainContainer.innerHTML = '<p style="text-align: center; color: #999;">No active domains available</p>';
+                    return;
+                }
+
+                activeDomains.forEach(domain => {
+                    const checkbox = document.createElement('div');
+                    checkbox.className = 'domain-checkbox';
+                    const price = domain.price || 0;
+                    const priceDisplay = paymentConfig.enabled && price > 0 ? `<span style="color: #667eea; font-weight: bold; margin-left: 8px;">₹${price}</span>` : 
+                                        (price === 0 ? '<span style="color: #22c55e; font-size: 12px; margin-left: 8px;">Free</span>' : '');
+                    checkbox.innerHTML = `
+                        <label style="display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" name="domain" value="${domain.id}" onchange="updatePaymentSummary()">
+                            ${domain.domain_name}${priceDisplay}
+                        </label>
+                    `;
+                    domainContainer.appendChild(checkbox);
+                });
+            } catch (error) {
+                console.error('Error loading domains:', error);
+                const domainContainer = document.getElementById('domainContainer');
+                domainContainer.innerHTML = '<p style="text-align: center; color: #c33;">Failed to load domains. Please refresh the page.</p>';
+            }
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+
+            // Hide after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+        }
+
+        // Create Razorpay order and open checkout
+        async function initiatePayment(email, fullName, phone, selectedDomains) {
+            try {
+                // Create order with domain IDs for individual pricing
+                const domainIds = selectedDomains.map(d => parseInt(d));
+                
+                const orderResponse = await fetch('/api/payment/create-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        domain_ids: domainIds,
+                        email: email
+                    })
+                });
+
+                const orderData = await orderResponse.json();
+
+                if (!orderResponse.ok) {
+                    throw new Error(orderData.error || 'Failed to create payment order');
+                }
+                
+                // If payment not required (all domains are free)
+                if (orderData.payment_required === false) {
+                    return 'FREE_REGISTRATION';
+                }
+
+                // Open Razorpay checkout
+                return new Promise((resolve, reject) => {
+                    const orderId = orderData.order_id;
+                    
+                    // Helper function to mark payment as failed
+                    async function markPaymentFailed(reason) {
+                        try {
+                            await fetch('/api/payment/mark-failed', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    razorpay_order_id: orderId,
+                                    reason: reason
+                                })
+                            });
+                        } catch (e) {
+                            console.error('Failed to mark payment as failed:', e);
+                        }
+                    }
+                    
+                    const options = {
+                        key: orderData.key_id,
+                        amount: orderData.amount_paise,
+                        currency: orderData.currency,
+                        name: 'WAPL Registration',
+                        description: `Registration for ${selectedDomains.length} domain(s)`,
+                        order_id: orderId,
+                        prefill: {
+                            name: fullName,
+                            email: email,
+                            contact: phone
+                        },
+                        theme: {
+                            color: '#6366f1'
+                        },
+                        handler: async function(response) {
+                            // Verify payment
+                            try {
+                                const verifyResponse = await fetch('/api/payment/verify', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature
+                                    })
+                                });
+
+                                const verifyData = await verifyResponse.json();
+
+                                if (verifyResponse.ok) {
+                                    resolve(response.razorpay_payment_id);
+                                } else {
+                                    reject(new Error(verifyData.error || 'Payment verification failed'));
+                                }
+                            } catch (error) {
+                                await markPaymentFailed('Payment verification error: ' + error.message);
+                                reject(error);
+                            }
+                        },
+                        modal: {
+                            ondismiss: async function() {
+                                await markPaymentFailed('Payment cancelled by user');
+                                reject(new Error('Payment cancelled by user'));
+                            }
+                        }
+                    };
+
+                    const rzp = new Razorpay(options);
+                    rzp.on('payment.failed', async function(response) {
+                        await markPaymentFailed(response.error.description || 'Payment failed');
+                        reject(new Error(response.error.description || 'Payment failed'));
+                    });
+                    rzp.open();
+                });
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        // Handle registration form submission
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Hide any previous messages
+            document.getElementById('errorMessage').style.display = 'none';
+            document.getElementById('successMessage').style.display = 'none';
+
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const address = document.getElementById('address').value.trim();
+
+            // Get selected domains
+            const selectedDomains = [];
+            document.querySelectorAll('input[name="domain"]:checked').forEach(checkbox => {
+                selectedDomains.push(parseInt(checkbox.value));
+            });
+
+            // Validation
+            if (!email || !password || !fullName || !phone) {
+                showError('Please fill all required fields');
+                return;
+            }
+
+            if (selectedDomains.length === 0) {
+                showError('Please select at least one domain');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (password.length < 6) {
+                showError('Password must be at least 6 characters');
+                return;
+            }
+
+            // Email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showError('Please enter a valid email address');
+                return;
+            }
+
+            // Disable submit button
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            const originalBtnText = submitBtn.textContent;
+            submitBtn.textContent = 'Processing...';
+
+            try {
+                // Calculate total amount for selected domains 
+                let totalAmount = 0;
+                selectedDomains.forEach(domainId => {
+                    const price = paymentConfig.domain_prices?.[parseInt(domainId)] || 0;
+                    totalAmount += price;
+                });
+                
+                // If payment is enabled AND total amount > 0, process payment first
+                if (paymentConfig.enabled && totalAmount > 0) {
+                    submitBtn.textContent = 'Opening Payment...';
+                    
+                    try {
+                        const paymentId = await initiatePayment(email, fullName, phone, selectedDomains);
+                        submitBtn.textContent = 'Payment Successful! Registering...';
+                    } catch (paymentError) {
+                        showError(paymentError.message || 'Payment failed. Please try again.');
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalBtnText;
+                        return;
+                    }
+                }
+
+                // Proceed with registration
+                submitBtn.textContent = 'Registering...';
+                
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        full_name: fullName,
+                        phone: phone,
+                        address: address,
+                        domain_ids: selectedDomains
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show animation instead of simple message
+                    const overlay = document.getElementById('successOverlay');
+                    overlay.classList.add('active');
+
+                    // Store user_id for OTP verification
+                    sessionStorage.setItem('registration_user_id', data.user_id);
+
+                    // Redirect to OTP page after 2.5 seconds
+                    setTimeout(() => {
+                        window.location.href = '/verify-otp';
+                    }, 2500);
+                } else {
+                    showError(data.error || 'Registration failed. Please try again.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalBtnText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('An error occurred during registration. Please try again.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalBtnText;
+            }
+        });
+
+        // Load domains and payment config when page loads
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPaymentConfig();
+            await loadDomains();
+        });
+    </script>
+</body>
+
+</html>

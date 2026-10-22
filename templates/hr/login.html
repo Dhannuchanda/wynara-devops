@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Login - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background:
+                radial-gradient(circle at top left, rgba(251, 191, 36, 0.22), transparent 30%),
+                radial-gradient(circle at bottom right, rgba(30, 64, 175, 0.28), transparent 28%),
+                linear-gradient(135deg, #081120 0%, #0f172a 48%, #111827 100%);
+            color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .shell {
+            width: min(980px, 100%);
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 24px;
+            align-items: stretch;
+        }
+        .hero, .card {
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 28px;
+            backdrop-filter: blur(18px);
+            box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+        }
+        .hero {
+            padding: 36px;
+            background: linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 560px;
+        }
+        .eyebrow {
+            display: inline-flex;
+            width: fit-content;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(251, 191, 36, 0.14);
+            color: #fde68a;
+            font-weight: 700;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: clamp(2.2rem, 4vw, 4.1rem);
+            line-height: 0.95;
+            color: #fff;
+            letter-spacing: -0.04em;
+        }
+        .hero p {
+            margin-top: 18px;
+            max-width: 560px;
+            font-size: 1rem;
+            line-height: 1.7;
+            color: #cbd5e1;
+        }
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-top: 28px;
+        }
+        .pill {
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(15, 23, 42, 0.52);
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .pill strong { display: block; color: #fff; margin-bottom: 6px; }
+        .pill span { color: #94a3b8; font-size: 13px; line-height: 1.5; }
+        .card {
+            padding: 34px;
+            background: rgba(15, 23, 42, 0.84);
+        }
+        .card h2 {
+            font-size: 1.7rem;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+        .card .sub {
+            color: #94a3b8;
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .alert {
+            display: none;
+            margin-bottom: 18px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .alert.error { display: none; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.28); color: #fca5a5; }
+        .alert.success { display: none; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); color: #6ee7b7; }
+        .field { margin-bottom: 16px; }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 14px 15px;
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            outline: none;
+            font-size: 15px;
+            transition: 0.2s ease;
+        }
+        input:focus {
+            border-color: rgba(251, 191, 36, 0.8);
+            box-shadow: 0 0 0 4px rgba(251, 191, 36, 0.12);
+        }
+        .btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 14px 16px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f59e0b, #f97316);
+            color: #111827;
+            font-size: 15px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.28);
+        }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .links {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+            font-size: 14px;
+        }
+        .links a { color: #fbbf24; text-decoration: none; }
+        .links a:hover { text-decoration: underline; }
+        .footnote {
+            margin-top: 18px;
+            color: #94a3b8;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        @media (max-width: 900px) {
+            .shell { grid-template-columns: 1fr; }
+            .hero { min-height: auto; }
+            .hero-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="hero">
+            <div>
+                <span class="eyebrow">HR Access Portal</span>
+                <h1>Login to your HR dashboard and start managing candidates.</h1>
+                <p>
+                    HR accounts are reviewed by admin before access is granted. If your registration is still pending, you’ll see a status message here instead of a login redirect.
+                </p>
+                <div class="hero-grid">
+                    <div class="pill">
+                        <strong>Pending review</strong>
+                        <span>New registrations wait for admin approval before HR access is enabled.</span>
+                    </div>
+                    <div class="pill">
+                        <strong>Rejected access</strong>
+                        <span>Rejected accounts are blocked until the admin revisits the request.</span>
+                    </div>
+                    <div class="pill">
+                        <strong>Approved login</strong>
+                        <span>Approved HRs are redirected directly to the dashboard after sign-in.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footnote">
+                Secure flow: password is hashed, and verification proof stays outside the public uploads directory.
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>HR Login</h2>
+            <p class="sub">Use your work email and password to continue.</p>
+            <div id="errorBox" class="alert error"></div>
+            <div id="successBox" class="alert success"></div>
+            <form id="hrLoginForm">
+                <div class="field">
+                    <label for="email">Work Email</label>
+                    <input type="email" id="email" name="email" placeholder="hr@company.com" required>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="btn" id="loginBtn">Login to Dashboard</button>
+            </form>
+            <div class="links">
+                <a href="/hr/signup">New HR registration</a>
+                <a href="/login">General portal login</a>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        const form = document.getElementById('hrLoginForm');
+        const errorBox = document.getElementById('errorBox');
+        const successBox = document.getElementById('successBox');
+        const loginBtn = document.getElementById('loginBtn');
+
+        function showMessage(type, message) {
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+            const box = type === 'error' ? errorBox : successBox;
+            box.textContent = message;
+            box.style.display = 'block';
+        }
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Signing in...';
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/hr/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('email').value,
+                        password: document.getElementById('password').value
+                    })
+                });
+                const data = await response.json();
+
+                if (!response.ok) {
+                    showMessage('error', data.error || 'Login failed');
+                    loginBtn.disabled = false;
+                    loginBtn.textContent = 'Login to Dashboard';
+                    return;
+                }
+
+                showMessage('success', data.message || 'Login successful');
+                window.location.href = data.redirect || '/hr/dashboard';
+            } catch (error) {
+                showMessage('error', 'Network error. Please try again.');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login to Dashboard';
+            }
+        });
+    </script>
+</body>
+</html>

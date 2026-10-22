@@ -1,0 +1,16 @@
+---
+- name: Provision and deploy Wynara
+  hosts: wynara
+  become: true
+  vars:
+    deploy_user: wynara
+    deploy_dir: /opt/wynara
+    repository_url: https://github.com/Dhannuchanda/WAPL_Dhannu_3-2-26.git
+    repository_version: main
+    container_image: ghcr.io/dhannuchanda/wapl_dhannu_3-2-26
+    container_tag: latest
+  roles:
+    - common
+    - docker
+    - firewall
+    - deploy

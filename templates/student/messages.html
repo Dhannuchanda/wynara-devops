@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Messages - WAPL Student</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+        }
+        .student-container { display: flex; min-height: 100vh; }
+        .sidebar {
+            width: 280px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+            padding: 2rem 1.5rem; display: flex; flex-direction: column;
+            transition: transform 0.3s ease;
+        }
+        .logo { margin-bottom: 2rem; padding-left: 0.5rem; }
+        .logo h2 {
+            font-size: 1.5rem; font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .logo p { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 0.25rem; }
+        .nav-menu { display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item, .logout-btn {
+            display: flex; align-items: center; gap: 1rem; padding: 1rem; border-radius: 12px;
+            color: var(--text-muted); text-decoration: none; transition: all 0.2s ease;
+            font-weight: 600; font-size: 0.95rem; border: none; background: none;
+            width: 100%; cursor: pointer; text-align: left;
+        }
+        .nav-item:hover, .logout-btn:hover { background: rgba(102,126,234,0.12); color: var(--text-main); }
+        .nav-item.active { background: rgba(102,126,234,0.16); color: var(--text-main); }
+        .spacer { flex: 1; }
+        .main-content { flex: 1; margin-left: 280px; padding: 2.5rem 2rem; }
+
+        .topbar {
+            padding: 1.25rem 1.5rem; border-radius: 18px; margin-bottom: 1.25rem;
+            display: flex; justify-content: space-between; align-items: center; gap: 12px;
+        }
+        .topbar h1 { font-size: 1.35rem; font-weight: 900; }
+        .hint { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+
+        .card {
+            border-radius: 18px; overflow: hidden;
+        }
+        .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid rgba(148,163,184,0.35); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .hr-name { font-weight: 900; }
+        .hr-sub { color: var(--text-muted); font-size: 0.9rem; font-weight: 600; }
+        .messages { height: calc(100vh - 280px); overflow: auto; padding: 1rem 1.25rem; background: rgba(255,255,255,0.55); }
+        .msg { max-width: 72%; padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(148,163,184,0.35); margin-bottom: 10px; }
+        .msg.student { margin-left: auto; background: rgba(102,126,234,0.12); border-color: rgba(102,126,234,0.25); }
+        .msg.hr { margin-right: auto; background: rgba(255,255,255,0.9); }
+        .time { margin-top: 6px; font-size: 11px; color: var(--text-muted); font-weight: 600; }
+        .composer { display: flex; gap: 10px; padding: 0.9rem 1.1rem; border-top: 1px solid rgba(148,163,184,0.35); background: rgba(255,255,255,0.7); }
+        .composer textarea {
+            flex: 1; resize: none; height: 44px; max-height: 120px;
+            border: 1px solid rgba(148,163,184,0.5); border-radius: 14px;
+            padding: 10px 12px; outline: none; font-family: inherit;
+        }
+        .composer textarea:focus { border-color: rgba(102,126,234,0.7); box-shadow: 0 0 0 3px rgba(102,126,234,0.18); }
+        .btn {
+            border: none; border-radius: 14px; padding: 10px 14px;
+            background: var(--primary-gradient); color: #fff; font-weight: 900; cursor: pointer;
+        }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .empty { padding: 2.5rem 1.25rem; text-align: center; color: var(--text-muted); font-weight: 700; }
+
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 90; }
+        .hamburger-btn {
+            display: none; position: fixed; top: 16px; left: 16px; z-index: 101;
+            border: none; border-radius: 12px; padding: 10px 12px; cursor: pointer;
+            background: var(--primary-gradient); color: white;
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+        }
+        @media (max-width: 900px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; padding: 5.25rem 1rem 1rem; }
+            .messages { height: calc(100vh - 320px); }
+        }
+    </style>
+</head>
+<body>
+    <button class="hamburger-btn" onclick="toggleSidebar()">Menu</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="student-container">
+        <aside class="sidebar glass" id="sidebar">
+            <div class="logo">
+                <h2>WAPL</h2>
+                <p>Student Portal</p>
+            </div>
+
+            <nav class="nav-menu">
+                <a class="nav-item" href="/student/dashboard">Dashboard</a>
+                <a class="nav-item" href="/student/profile">Profile</a>
+                <a class="nav-item" href="/student/messages" style="font-weight:800;" class="active">Messages</a>
+                <a class="nav-item" href="/student/certificate">Certificate</a>
+            </nav>
+
+            <div class="spacer"></div>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </aside>
+
+        <main class="main-content">
+            <div class="topbar glass">
+                <div>
+                    <h1>Messages</h1>
+                    <div class="hint">Chat with your assigned HR</div>
+                </div>
+                <button class="btn" id="markReadBtn" onclick="markRead()" disabled>Mark Read</button>
+            </div>
+
+            <section class="card glass">
+                <div class="card-header">
+                    <div>
+                        <div class="hr-name" id="hrName">Assigned HR</div>
+                        <div class="hr-sub" id="hrSub">Loading...</div>
+                    </div>
+                </div>
+                <div class="messages" id="messages">
+                    <div class="empty">Loading...</div>
+                </div>
+                <div class="composer">
+                    <textarea id="composer" placeholder="Type a message..." disabled></textarea>
+                    <button class="btn" id="sendBtn" onclick="sendMessage()" disabled>Send</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let assigned = false;
+        let pollTimer = null;
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/[&<>"']/g, (m) => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[m]));
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '';
+            const d = new Date(ts);
+            if (Number.isNaN(d.getTime())) return String(ts);
+            return d.toLocaleString();
+        }
+
+        async function load() {
+            const res = await fetch('/api/student/messages/hr');
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Failed to load');
+
+            assigned = !!data.assigned;
+            const composer = document.getElementById('composer');
+            const sendBtn = document.getElementById('sendBtn');
+            const markReadBtn = document.getElementById('markReadBtn');
+
+            if (!assigned) {
+                document.getElementById('hrName').textContent = 'No HR assigned';
+                document.getElementById('hrSub').textContent = 'Messages will be available after an admin assigns an HR to you.';
+                document.getElementById('messages').innerHTML = '<div class="empty">No HR assigned yet.</div>';
+                composer.disabled = true;
+                sendBtn.disabled = true;
+                markReadBtn.disabled = true;
+                return;
+            }
+
+            document.getElementById('hrName').textContent = data.hr.full_name || 'HR';
+            document.getElementById('hrSub').textContent = `${data.hr.company_name || ''} Â· ${data.hr.email || ''}`.trim();
+            composer.disabled = false;
+            sendBtn.disabled = false;
+            markReadBtn.disabled = false;
+
+            renderMessages(data.messages || []);
+        }
+
+        function renderMessages(msgs) {
+            const box = document.getElementById('messages');
+            if (!msgs.length) {
+                box.innerHTML = '<div class="empty">No messages yet. Say hello.</div>';
+                return;
+            }
+            box.innerHTML = msgs.map(m => `
+                <div class="msg ${m.sender_role}">
+                    <div>${escapeHtml(m.message_text || '')}</div>
+                    <div class="time">${escapeHtml(formatTime(m.created_at))}</div>
+                </div>
+            `).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function sendMessage() {
+            if (!assigned) return;
+            const textarea = document.getElementById('composer');
+            const text = (textarea.value || '').trim();
+            if (!text) return;
+            textarea.value = '';
+            const res = await fetch('/api/student/messages/hr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Failed to send');
+                return;
+            }
+            await load();
+        }
+
+        async function markRead() {
+            if (!assigned) return;
+            const res = await fetch('/api/student/messages/hr/read', { method: 'POST' });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                alert(data.error || 'Failed');
+                return;
+            }
+            await load();
+        }
+
+        async function logout() {
+            try { await fetch('/api/auth/logout', { method: 'POST' }); } catch {}
+            window.location.href = '/login';
+        }
+
+        (async function init() {
+            try {
+                await load();
+                pollTimer = setInterval(load, 5000);
+            } catch (e) {
+                document.getElementById('messages').innerHTML = `<div class="empty">${escapeHtml(e.message || 'Failed')}</div>`;
+                document.getElementById('composer').disabled = true;
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('markReadBtn').disabled = true;
+            }
+        })();
+    </script>
+</body>
+</html>
+

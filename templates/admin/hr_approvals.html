@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>HR Profile Approvals - WAPL Admin</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f5f7fa; }
+        .admin-container { display: flex; min-height: 100vh; }
+
+        .hamburger-btn {
+            display: none; position: fixed; top: 15px; left: 15px; z-index: 1001;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none; border-radius: 8px; padding: 10px 12px; cursor: pointer;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        .hamburger-btn span { display: block; width: 25px; height: 3px; background: white; margin: 5px 0; border-radius: 2px; }
+
+        .sidebar {
+            width: 250px; background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white; padding: 20px 0; position: fixed; height: 100vh;
+            overflow-y: auto; transition: transform 0.3s ease; z-index: 1000;
+        }
+        .logo { padding: 0 20px 30px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .logo h2 { font-size: 24px; font-weight: bold; }
+        .logo p { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 5px; }
+        .nav-menu { padding: 0 10px; }
+        .nav-menu a {
+            display: flex; align-items: center; padding: 12px 20px;
+            color: rgba(255,255,255,0.8); text-decoration: none;
+            border-radius: 8px; margin-bottom: 5px; transition: all 0.3s;
+        }
+        .nav-menu a:hover { background: rgba(255,255,255,0.1); color: white; }
+        .nav-menu a.active { background: rgba(255,255,255,0.2); color: white; font-weight: bold; }
+        .nav-menu a i { margin-right: 10px; font-size: 18px; }
+
+        .main-content {
+            margin-left: 250px; padding: 30px; width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .admin-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; padding: 20px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+        }
+        .admin-header h1 { margin: 0; font-size: 28px; }
+
+        .content-card {
+            background: white; padding: 25px; border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08); margin-bottom: 20px;
+        }
+
+        .tabs {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 8px;
+            background: white; cursor: pointer; font-weight: 600;
+            font-size: 14px; transition: all 0.3s; font-family: inherit;
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; border-color: #667eea;
+        }
+        .tab-btn .count {
+            display: inline-block; padding: 2px 8px; border-radius: 10px;
+            font-size: 12px; margin-left: 5px;
+            background: rgba(0,0,0,0.1);
+        }
+        .tab-btn.active .count { background: rgba(255,255,255,0.3); }
+
+        .change-card {
+            border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px;
+            margin-bottom: 15px; transition: all 0.3s;
+        }
+        .change-card:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .change-card.pending { border-left: 4px solid #f59e0b; }
+        .change-card.approved { border-left: 4px solid #10b981; }
+        .change-card.rejected { border-left: 4px solid #ef4444; }
+
+        .change-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 15px; flex-wrap: wrap; gap: 10px;
+        }
+        .change-hr-info { display: flex; flex-direction: column; gap: 4px; }
+        .change-hr-name { font-size: 18px; font-weight: 700; color: #1e293b; }
+        .change-hr-meta { font-size: 13px; color: #64748b; }
+
+        .status-badge {
+            padding: 6px 14px; border-radius: 20px; font-size: 12px;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .changes-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px; margin-bottom: 15px;
+        }
+        .change-item {
+            background: #f8fafc; padding: 12px; border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .change-field {
+            font-size: 12px; color: #64748b; font-weight: 600;
+            text-transform: uppercase; margin-bottom: 6px;
+        }
+        .change-values { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .old-value {
+            font-size: 14px; color: #ef4444; text-decoration: line-through;
+            background: #fef2f2; padding: 3px 8px; border-radius: 4px;
+        }
+        .arrow { color: #9ca3af; font-size: 16px; }
+        .new-value {
+            font-size: 14px; color: #059669; font-weight: 600;
+            background: #ecfdf5; padding: 3px 8px; border-radius: 4px;
+        }
+
+        .change-actions {
+            display: flex; gap: 10px; margin-top: 15px;
+            padding-top: 15px; border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap; align-items: center;
+        }
+        .notes-input {
+            flex: 1; min-width: 200px; padding: 8px 12px;
+            border: 2px solid #e2e8f0; border-radius: 8px;
+            font-size: 14px; font-family: inherit;
+        }
+        .notes-input:focus { outline: none; border-color: #667eea; }
+
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 8px;
+            font-size: 14px; font-weight: bold; cursor: pointer;
+            transition: all 0.3s; display: inline-flex;
+            align-items: center; gap: 8px; font-family: inherit;
+        }
+        .btn-approve { background: #10b981; color: white; }
+        .btn-approve:hover { background: #059669; transform: translateY(-1px); }
+        .btn-reject { background: #ef4444; color: white; }
+        .btn-reject:hover { background: #dc2626; transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .review-info {
+            margin-top: 10px; padding: 10px; background: #f1f5f9;
+            border-radius: 8px; font-size: 13px; color: #475569;
+        }
+
+        .empty-state {
+            text-align: center; padding: 60px 20px; color: #666;
+        }
+        .empty-state h3 { font-size: 24px; margin-bottom: 10px; }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; width: 100%; padding: 80px 15px 15px; }
+            .admin-header { flex-direction: column; align-items: flex-start; padding: 15px 20px; gap: 10px; }
+            .admin-header h1 { font-size: 22px; }
+            .changes-grid { grid-template-columns: 1fr; }
+            .change-actions { flex-direction: column; }
+            .notes-input { min-width: 100%; }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin-overrides.css') }}">
+</head>
+<body>
+    <div class="admin-container">
+        <button class="hamburger-btn" onclick="toggleSidebar()">
+            <span></span><span></span><span></span>
+        </button>
+
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>🎓 WAPL Admin</h2>
+            </div>
+            <nav class="nav-menu">
+                <a href="/secure-admin-panel/wapl/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/secure-admin-panel/wapl/students">
+                    <i>👨‍🎓</i> Students
+                </a>
+                <a href="/secure-admin-panel/wapl/exams">
+                    <i>📝</i> Exams
+                </a>
+                <a href="/secure-admin-panel/wapl/hrs">
+                    <i>👔</i> HRs
+                </a>
+                <a href="/secure-admin-panel/wapl/assign-students">
+                    <i>🔗</i> Assign Students
+                </a>
+                <a href="/secure-admin-panel/wapl/recruitment">
+                    <i>📋</i> Recruitment
+                </a>
+                <a href="/secure-admin-panel/wapl/payments">
+                    <i>💳</i> Payments
+                </a>
+                <a href="/secure-admin-panel/wapl/hr-approvals" class="active">
+                    <i>✅</i> HR Approvals
+                </a>
+                <a href="/secure-admin-panel/wapl/reports">
+                    <i>📈</i> Reports
+                </a>
+                <a href="/secure-admin-panel/wapl/domains" id="domainsLink" style="display: none;">
+                    <i>🏷️</i> Domains
+                </a>
+                <a href="/secure-admin-panel/wapl/certificates">
+                    <i>📜</i> Certificates
+                </a>
+                <a href="/secure-admin-panel/wapl/activity-logs">
+                    <i>📋</i> Activity Logs
+                </a>
+                <a href="/secure-admin-panel/wapl/admins" id="adminsLink" style="display: none;">
+                    <i>👤</i> Admins
+                </a>
+                <a href="/secure-admin-panel/wapl/settings" id="settingsLink" style="display: none;">
+                    <i>⚙️</i> Settings
+                </a>
+                <a href="/secure-admin-panel/wapl/logout">
+                    <i>🚪</i> Logout
+                </a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <div class="admin-header">
+                <h1>✅ HR Profile Approvals</h1>
+            </div>
+
+            <div class="content-card">
+                <div style="margin: 0 0 14px 0; padding: 12px 14px; border-radius: 10px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a8a; line-height: 1.45;">
+                    <strong>Note:</strong> This page is only for <strong>HR profile change requests</strong>.
+                    For new HR registrations (Pending/Approved/Rejected), use
+                    <a href="/secure-admin-panel/wapl/hrs" style="color:#1d4ed8; font-weight:800; text-decoration:none;">HR Management</a>.
+                </div>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="filterByStatus('all')" id="tabAll">
+                        All <span class="count" id="countAll">0</span>
+                    </button>
+                    <button class="tab-btn" onclick="filterByStatus('pending')" id="tabPending">
+                        ⏳ Pending <span class="count" id="countPending">0</span>
+                    </button>
+                    <button class="tab-btn" onclick="filterByStatus('approved')" id="tabApproved">
+                        ✅ Approved <span class="count" id="countApproved">0</span>
+                    </button>
+                    <button class="tab-btn" onclick="filterByStatus('rejected')" id="tabRejected">
+                        ❌ Rejected <span class="count" id="countRejected">0</span>
+                    </button>
+                </div>
+
+                <div id="changesList">
+                    <div class="empty-state">
+                        <h3>⏳ Loading...</h3>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allChanges = [];
+        let currentFilter = 'all';
+
+        const fieldLabels = {
+            'full_name': 'Full Name',
+            'email': 'Email',
+            'phone': 'Phone',
+            'designation': 'Designation',
+            'company_name': 'Company Name',
+            'company_website': 'Company Website',
+            'address': 'Address'
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        // Check if super admin for settings link
+        async function checkSuperAdmin() {
+            try {
+                const response = await fetch('/api/admin/check-super-admin');
+                const data = await response.json();
+                if (data.is_super_admin) {
+                    if (document.getElementById('domainsLink')) document.getElementById('domainsLink').style.display = 'flex';
+                    if (document.getElementById('adminsLink')) document.getElementById('adminsLink').style.display = 'flex';
+                    if (document.getElementById('settingsLink')) document.getElementById('settingsLink').style.display = 'flex';
+                }
+            } catch (e) { console.error(e); }
+        }
+        checkSuperAdmin();
+
+        async function loadChanges() {
+            try {
+                const res = await fetch('/api/admin/hr-profile-changes');
+                if (!res.ok) throw new Error('Failed to load');
+                allChanges = await res.json();
+                updateCounts();
+                renderChanges();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('changesList').innerHTML = `
+                    <div class="empty-state">
+                        <h3>❌ Error loading change requests</h3>
+                        <p>${e.message}</p>
+                    </div>`;
+            }
+        }
+
+        function updateCounts() {
+            document.getElementById('countAll').textContent = allChanges.length;
+            document.getElementById('countPending').textContent = allChanges.filter(c => c.status === 'pending').length;
+            document.getElementById('countApproved').textContent = allChanges.filter(c => c.status === 'approved').length;
+            document.getElementById('countRejected').textContent = allChanges.filter(c => c.status === 'rejected').length;
+        }
+
+        function filterByStatus(status) {
+            currentFilter = status;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('tab' + status.charAt(0).toUpperCase() + status.slice(1)).classList.add('active');
+            renderChanges();
+        }
+
+        function renderChanges() {
+            const container = document.getElementById('changesList');
+            let filtered = allChanges;
+
+            if (currentFilter !== 'all') {
+                filtered = allChanges.filter(c => c.status === currentFilter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>📋 No Change Requests</h3>
+                        <p>No ${currentFilter === 'all' ? '' : currentFilter} HR profile change requests found.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(change => {
+                const changesHtml = Object.entries(change.changes).map(([field, newVal]) => `
+                    <div class="change-item">
+                        <div class="change-field">${fieldLabels[field] || field}</div>
+                        <div class="change-values">
+                            <span class="new-value">${newVal || '(empty)'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                let actionsHtml = '';
+                if (change.status === 'pending') {
+                    actionsHtml = `
+                        <div class="change-actions">
+                            <input type="text" class="notes-input" id="notes-${change.id}" placeholder="Optional notes...">
+                            <button class="btn btn-approve" onclick="approveChange(${change.id})">✅ Approve</button>
+                            <button class="btn btn-reject" onclick="rejectChange(${change.id})">❌ Reject</button>
+                        </div>`;
+                } else {
+                    let reviewInfo = '';
+                    if (change.review_notes) {
+                        reviewInfo += `<strong>Notes:</strong> ${change.review_notes}<br>`;
+                    }
+                    if (change.reviewed_at) {
+                        reviewInfo += `<strong>Reviewed:</strong> ${new Date(change.reviewed_at).toLocaleString('en-IN')}`;
+                    }
+                    if (reviewInfo) {
+                        actionsHtml = `<div class="review-info">${reviewInfo}</div>`;
+                    }
+                }
+
+                return `
+                    <div class="change-card ${change.status}">
+                        <div class="change-header">
+                            <div class="change-hr-info">
+                                <div class="change-hr-name">👔 ${change.hr_name}</div>
+                                <div class="change-hr-meta">
+                                    🏢 ${change.company_name || 'N/A'} &bull;
+                                    📧 ${change.hr_email || 'N/A'} &bull;
+                                    📅 ${new Date(change.created_at).toLocaleString('en-IN')}
+                                </div>
+                            </div>
+                            <span class="status-badge status-${change.status}">${change.status}</span>
+                        </div>
+                        <div class="changes-grid">${changesHtml}</div>
+                        ${actionsHtml}
+                    </div>`;
+            }).join('');
+        }
+
+        async function approveChange(id) {
+            if (!confirm('Are you sure you want to approve these profile changes?')) return;
+            const notes = document.getElementById(`notes-${id}`)?.value || '';
+
+            try {
+                const res = await fetch(`/api/admin/hr-profile-changes/${id}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    loadChanges();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to approve'));
+                }
+            } catch (e) {
+                alert('❌ Error: ' + e.message);
+            }
+        }
+
+        async function rejectChange(id) {
+            if (!confirm('Are you sure you want to reject these profile changes?')) return;
+            const notes = document.getElementById(`notes-${id}`)?.value || '';
+
+            try {
+                const res = await fetch(`/api/admin/hr-profile-changes/${id}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert('✅ ' + data.message);
+                    loadChanges();
+                } else {
+                    alert('❌ ' + (data.error || 'Failed to reject'));
+                }
+            } catch (e) {
+                alert('❌ Error: ' + e.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadChanges);
+    </script>
+</body>
+</html>

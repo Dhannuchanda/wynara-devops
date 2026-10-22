@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>Exam Schedule - WAPL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --accent-color: #667eea;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: var(--text-main); min-height: 100vh;
+            background-image:
+                radial-gradient(at 40% 20%, hsla(260,100%,93%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189,100%,96%,1) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(340,100%,96%,1) 0px, transparent 50%),
+                radial-gradient(at 80% 50%, hsla(356,100%,96%,1) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass {
+            background: var(--glass-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border); box-shadow: var(--glass-shadow);
+        }
+        .student-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px; height: 100vh; position: fixed; left: 0; top: 0; z-index: 100;
+            padding: 2rem 1.5rem; display: flex; flex-direction: column; transition: transform 0.3s ease;
+        }
+        .logo { margin-bottom: 3rem; padding-left: 0.5rem; }
+        .logo h2 {
+            font-size: 1.5rem; font-weight: 800;
+            background: var(--primary-gradient); -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .logo p { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-top: 0.25rem; }
+        .nav-menu { display: flex; flex-direction: column; gap: 0.5rem; }
+        .nav-item {
+            display: flex; align-items: center; gap: 1rem; padding: 0.85rem 1rem; border-radius: 12px;
+            text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 0.95rem;
+            transition: all 0.2s; border: none; background: none; cursor: pointer; width: 100%; text-align: left;
+        }
+        .nav-item:hover { background: rgba(102,126,234,0.08); color: var(--accent-color); }
+        .nav-item.active { background: rgba(102,126,234,0.12); color: var(--accent-color); font-weight: 600; }
+        .nav-item i { font-style: normal; font-size: 1.2rem; width: 24px; text-align: center; }
+
+        /* Main Content */
+        .main-content { margin-left: 280px; padding: 2rem; flex: 1; max-width: 1000px; }
+
+        /* Header */
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
+        .page-header p { color: var(--text-muted); margin-top: 4px; }
+
+        /* Status Banner */
+        .status-banner {
+            border-radius: 16px; padding: 20px 24px; margin-bottom: 24px; display: flex;
+            align-items: center; gap: 16px;
+        }
+        .status-banner.approved { background: linear-gradient(135deg, #dbeafe, #ede9fe); border-left: 4px solid #667eea; }
+        .status-banner.active { background: linear-gradient(135deg, #d1fae5, #ecfdf5); border-left: 4px solid #10b981; }
+        .status-banner.failed { background: linear-gradient(135deg, #fee2e2, #fef2f2); border-left: 4px solid #ef4444; }
+        .status-banner .icon { font-size: 2rem; }
+        .status-banner .text h3 { font-size: 1rem; font-weight: 700; }
+        .status-banner .text p { font-size: 0.85rem; color: var(--text-muted); margin-top: 2px; }
+
+        /* Section */
+        .section { margin-bottom: 28px; }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+
+        /* Schedule Card */
+        .schedule-card {
+            border-radius: 16px; padding: 20px; margin-bottom: 14px; transition: all 0.2s;
+        }
+        .schedule-card:hover { transform: translateY(-2px); }
+        .sched-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .sched-header h4 { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+        .sched-badge {
+            display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+        }
+        .sched-badge.open { background: #d1fae5; color: #065f46; }
+        .sched-badge.full { background: #fee2e2; color: #991b1b; }
+        .sched-badge.registered { background: #dbeafe; color: #1e40af; }
+        .sched-details { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 14px; }
+        .sched-detail { font-size: 0.85rem; color: var(--text-muted); }
+        .sched-detail strong { color: var(--text-main); font-weight: 600; }
+        .sched-actions { display: flex; gap: 10px; }
+
+        /* Result Card */
+        .result-card {
+            border-radius: 16px; padding: 20px; margin-bottom: 14px;
+        }
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .result-header h4 { font-size: 1rem; font-weight: 700; }
+        .result-score {
+            font-size: 1.4rem; font-weight: 800; padding: 4px 16px; border-radius: 12px;
+        }
+        .result-score.pass { background: #d1fae5; color: #065f46; }
+        .result-score.fail { background: #fee2e2; color: #991b1b; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px; border: none; border-radius: 10px; cursor: pointer;
+            font-size: 0.9rem; font-weight: 600; transition: all 0.2s; display: inline-flex; align-items: center; gap: 6px;
+        }
+        .btn-primary { background: var(--primary-gradient); color: white; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
+        .btn-danger { background: #fee2e2; color: #dc2626; }
+        .btn-danger:hover { background: #fecaca; }
+        .btn-outline { background: transparent; border: 1px solid #d1d5db; color: var(--text-main); }
+        .btn-outline:hover { border-color: var(--accent-color); color: var(--accent-color); }
+        .btn-sm { padding: 7px 14px; font-size: 0.8rem; }
+
+        /* Empty State */
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state .icon { font-size: 3rem; margin-bottom: 10px; }
+
+        /* Toast */
+        .toast {
+            position: fixed; bottom: 30px; right: 30px; padding: 14px 24px; border-radius: 12px;
+            color: white; font-weight: 600; z-index: 3000; transform: translateY(100px);
+            opacity: 0; transition: all 0.3s;
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        /* Mobile Hamburger */
+        .hamburger-btn {
+            display: none; position: fixed; top: 15px; left: 15px; z-index: 1001;
+            background: var(--primary-gradient); border: none; border-radius: 10px;
+            padding: 10px 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+        .hamburger-btn span { display: block; width: 22px; height: 2.5px; background: white; margin: 4px 0; border-radius: 2px; }
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 99;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.active { transform: translateX(0); }
+            .sidebar-overlay.active { display: block; }
+            .main-content { margin-left: 0; padding: 80px 15px 15px; }
+            .sched-details { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+    </button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="student-container">
+        <!-- Sidebar -->
+        <aside class="sidebar glass" id="sidebar">
+            <div class="logo">
+                <h2>WAPL ID</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/student/dashboard" class="nav-item">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/student/profile" class="nav-item">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/exam" class="nav-item active">
+                    <i>📝</i> Exam
+                </a>
+                <a href="/student/certificate" class="nav-item">
+                    <i>📜</i> Certificate
+                </a>
+                <button onclick="triggerLogout()" class="nav-item" style="color: #ef4444; margin-top: auto;">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>📝 Exam Schedule</h1>
+                <p>View upcoming exams, register for a slot, and check your results</p>
+            </div>
+
+            <!-- Status Banner -->
+            <div id="statusBanner"></div>
+
+            <!-- Available Schedules -->
+            <div class="section" id="schedulesSection">
+                <div class="section-title">📅 Available Exam Schedules</div>
+                <div id="schedulesList">
+                    <div class="empty-state"><div class="icon">⏳</div><p>Loading...</p></div>
+                </div>
+            </div>
+
+            <!-- My Registrations -->
+            <div class="section" id="registrationsSection" style="display:none;">
+                <div class="section-title">🎫 My Registrations</div>
+                <div id="registrationsList"></div>
+            </div>
+
+            <!-- My Results -->
+            <div class="section" id="resultsSection" style="display:none;">
+                <div class="section-title">📊 My Results</div>
+                <div id="resultsList"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', loadExamStatus);
+
+        function loadExamStatus() {
+            fetch('/api/exam/status')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.error) { showToast(data.error, 'error'); return; }
+                    renderStatus(data);
+                    renderSchedules(data.available_schedules || []);
+                    renderRegistrations(data.registrations || []);
+                    renderResults(data.results || []);
+                })
+                .catch(e => {
+                    console.error(e);
+                    showToast('Failed to load exam data', 'error');
+                });
+        }
+
+        function renderStatus(data) {
+            const s = data.student;
+            const banner = document.getElementById('statusBanner');
+            const domains = data.domains || [];
+            const domainStatus = data.domain_status || [];
+            const passedDomains = domainStatus.filter(d => d.passed);
+            const pendingDomains = domainStatus.filter(d => !d.passed);
+
+            let html = '';
+
+            if (s.account_status === 'active') {
+                if (pendingDomains.length > 0) {
+                    // Active but still has domains with pending exams
+                    html += `
+                        <div class="status-banner active">
+                            <div class="icon">✅</div>
+                            <div class="text">
+                                <h3>Welcome, ${s.full_name}!</h3>
+                                <p>Your WAPL ID is active. Passed: <strong>${passedDomains.map(d => d.domain_name).join(', ')}</strong></p>
+                            </div>
+                        </div>`;
+                    html += `
+                        <div class="status-banner approved" style="margin-top:10px;">
+                            <div class="icon">📋</div>
+                            <div class="text">
+                                <h3>Exams Pending</h3>
+                                <p>You still have exams to take for: <strong>${pendingDomains.map(d => d.domain_name).join(', ')}</strong></p>
+                            </div>
+                        </div>`;
+                    // Show cooldown warning for domains under cooldown
+                    const cooldownDomainsActive = domainStatus.filter(d => d.cooldown_active);
+                    if (cooldownDomainsActive.length > 0) {
+                        html += `
+                            <div class="status-banner failed" style="margin-top:10px;">
+                                <div class="icon">🚫</div>
+                                <div class="text">
+                                    <h3>Domain Cooldown Active</h3>
+                                    <p>${cooldownDomainsActive.map(d => `<strong>${d.domain_name}</strong>: re-apply after ${d.cooldown_until}`).join(' · ')}</p>
+                                </div>
+                            </div>`;
+                    }
+                } else {
+                    // Active and passed all domains
+                    html += `
+                        <div class="status-banner active">
+                            <div class="icon">🎉</div>
+                            <div class="text">
+                                <h3>All Exams Cleared!</h3>
+                                <p>Congratulations ${s.full_name}! You've passed all domain exams. Your WAPL ID is active.</p>
+                            </div>
+                        </div>`;
+                }
+            } else if (s.account_status === 'approved') {
+                if (passedDomains.length > 0 && pendingDomains.length > 0) {
+                    // Partially passed — passed some domains, pending/failed others
+                    html += `
+                        <div class="status-banner active">
+                            <div class="icon">✅</div>
+                            <div class="text">
+                                <h3>Good Progress, ${s.full_name}!</h3>
+                                <p>Passed: <strong>${passedDomains.map(d => d.domain_name).join(', ')}</strong>. Keep it up!</p>
+                            </div>
+                        </div>`;
+                    html += `
+                        <div class="status-banner approved" style="margin-top:10px;">
+                            <div class="icon">📝</div>
+                            <div class="text">
+                                <h3>Remaining Exams</h3>
+                                <p>Still need to pass: <strong>${pendingDomains.map(d => d.domain_name).join(', ')}</strong>. Register for upcoming schedules below.</p>
+                            </div>
+                        </div>`;
+                    // Show cooldown warning for domains under cooldown
+                    const cooldownDomains = domainStatus.filter(d => d.cooldown_active);
+                    if (cooldownDomains.length > 0) {
+                        html += `
+                            <div class="status-banner failed" style="margin-top:10px;">
+                                <div class="icon">🚫</div>
+                                <div class="text">
+                                    <h3>Domain Cooldown Active</h3>
+                                    <p>${cooldownDomains.map(d => `<strong>${d.domain_name}</strong>: re-apply after ${d.cooldown_until}`).join(' · ')}</p>
+                                </div>
+                            </div>`;
+                    }
+                } else {
+                    const domainNames = domains.map(d => d.domain_name).join(', ');
+                    const cooldownDomains = domainStatus.filter(d => d.cooldown_active);
+                    html += `
+                        <div class="status-banner approved">
+                            <div class="icon">📋</div>
+                            <div class="text">
+                                <h3>Welcome, ${s.full_name}!</h3>
+                                <p>Your account is approved. Register for exams in your domains: <strong>${domainNames || 'N/A'}</strong></p>
+                            </div>
+                        </div>`;
+                    if (cooldownDomains.length > 0) {
+                        html += `
+                            <div class="status-banner failed" style="margin-top:10px;">
+                                <div class="icon">🚫</div>
+                                <div class="text">
+                                    <h3>Domain Cooldown Active</h3>
+                                    <p>${cooldownDomains.map(d => `<strong>${d.domain_name}</strong>: re-apply after ${d.cooldown_until}`).join(' · ')}</p>
+                                </div>
+                            </div>`;
+                    }
+                }
+            } else if (s.account_status === 'failed') {
+                html += `
+                    <div class="status-banner failed">
+                        <div class="icon">⏰</div>
+                        <div class="text">
+                            <h3>Cooldown Period</h3>
+                            <p>You can re-apply after <strong>${s.cooldown_until || 'the cooldown period ends'}</strong>.</p>
+                        </div>
+                    </div>`;
+            }
+
+            // Show per-domain status chips if multiple domains
+            if (domainStatus.length > 1) {
+                html += '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;">';
+                domainStatus.forEach(d => {
+                    let chipBg, chipColor, label;
+                    if (d.passed) {
+                        chipBg = '#d1fae5'; chipColor = '#065f46'; label = '✓ Passed';
+                    } else if (d.cooldown_active) {
+                        chipBg = '#fee2e2'; chipColor = '#991b1b'; label = `🚫 Cooldown until ${d.cooldown_until}`;
+                    } else {
+                        chipBg = '#fef3c7'; chipColor = '#92400e'; label = '⏳ Pending';
+                    }
+                    html += `<span style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;font-size:0.8rem;font-weight:600;background:${chipBg};color:${chipColor};">
+                        ${d.domain_name}: ${label}
+                    </span>`;
+                });
+                html += '</div>';
+            }
+
+            banner.innerHTML = html;
+        }
+
+        function renderSchedules(schedules) {
+            const container = document.getElementById('schedulesList');
+            if (!schedules.length) {
+                container.innerHTML = `
+                    <div class="empty-state glass" style="border-radius:16px; padding:30px;">
+                        <div class="icon">📅</div>
+                        <p>No upcoming exam schedules available for your domains yet.<br>Check back later!</p>
+                    </div>`;
+                return;
+            }
+
+            // Group schedules by domain
+            const grouped = {};
+            schedules.forEach(s => {
+                const dn = s.domain_name;
+                if (!grouped[dn]) grouped[dn] = [];
+                grouped[dn].push(s);
+            });
+
+            let html = '';
+            for (const [domainName, domainSchedules] of Object.entries(grouped)) {
+                html += `<div style="margin-bottom:8px;font-weight:700;font-size:0.9rem;color:var(--accent-color);">🏷️ ${domainName}</div>`;
+                html += domainSchedules.map(s => {
+                const isRegistered = s.registration != null;
+                const isFull = !s.has_capacity;
+                const isCooldown = s.domain_cooldown;
+
+                let badge = '';
+                let action = '';
+
+                if (isRegistered) {
+                    badge = '<span class="sched-badge registered">✓ Registered</span>';
+                    action = `
+                        <a href="/exam/hall-ticket/${s.registration.id}" class="btn btn-primary btn-sm">🎫 Hall Ticket</a>
+                        <button class="btn btn-danger btn-sm" onclick="cancelRegistration(${s.registration.id})">Cancel</button>`;
+                } else if (isCooldown) {
+                    badge = '<span class="sched-badge full">🚫 Cooldown</span>';
+                    action = `<span style="color:#991b1b;font-size:0.85rem;font-weight:500;">Cannot register — cooldown until ${s.domain_cooldown_until}</span>`;
+                } else if (isFull) {
+                    badge = '<span class="sched-badge full">Full</span>';
+                    action = '<span style="color:#9ca3af;font-size:0.85rem;">No spots left</span>';
+                } else {
+                    badge = `<span class="sched-badge open">${s.spots_left} spots left</span>`;
+                    action = `<button class="btn btn-primary btn-sm" onclick="registerForExam(${s.id})">Register</button>`;
+                }
+
+                return `
+                    <div class="schedule-card glass">
+                        <div class="sched-header">
+                            <h4>${s.title}</h4>
+                            ${badge}
+                        </div>
+                        <div class="sched-details">
+                            <div class="sched-detail"><strong>📅 Date:</strong> ${s.exam_date}</div>
+                            <div class="sched-detail"><strong>🕐 Time:</strong> ${s.start_time} – ${s.end_time}</div>
+                            <div class="sched-detail"><strong>📍 Venue:</strong> ${s.venue}</div>
+                            <div class="sched-detail"><strong>🏷️ Domain:</strong> ${s.domain_name}</div>
+                        </div>
+                        <div class="sched-actions">${action}</div>
+                    </div>`;
+                }).join('');
+            }
+            container.innerHTML = html;
+        }
+
+        function renderRegistrations(registrations) {
+            if (!registrations.length) return;
+            document.getElementById('registrationsSection').style.display = 'block';
+            const container = document.getElementById('registrationsList');
+
+            container.innerHTML = registrations.map(r => `
+                <div class="schedule-card glass">
+                    <div class="sched-header">
+                        <h4>${r.title}</h4>
+                        <span class="sched-badge registered">Seat: ${r.seat_number}</span>
+                    </div>
+                    <div class="sched-details">
+                        <div class="sched-detail"><strong>📅 Date:</strong> ${r.exam_date}</div>
+                        <div class="sched-detail"><strong>🕐 Time:</strong> ${r.start_time} – ${r.end_time}</div>
+                        <div class="sched-detail"><strong>📍 Venue:</strong> ${r.venue}</div>
+                        <div class="sched-detail"><strong>🏷️ Domain:</strong> ${r.domain_name}</div>
+                        ${r.venue_address ? `<div class="sched-detail"><strong>📌 Address:</strong> ${r.venue_address}</div>` : ''}
+                    </div>
+                    ${r.instructions ? `<div style="background:#f0f4ff;border-radius:10px;padding:12px;font-size:0.85rem;color:#374151;margin-top:8px;"><strong>📋 Instructions:</strong> ${r.instructions}</div>` : ''}
+                    <div class="sched-actions" style="margin-top:10px;">
+                        <a href="/exam/hall-ticket/${r.id}" class="btn btn-primary btn-sm">🎫 View Hall Ticket</a>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderResults(results) {
+            if (!results.length) return;
+            document.getElementById('resultsSection').style.display = 'block';
+            const container = document.getElementById('resultsList');
+
+            container.innerHTML = results.map(r => {
+                const passed = r.passed;
+                return `
+                    <div class="result-card glass">
+                        <div class="result-header">
+                            <div>
+                                <h4>${r.schedule_title || r.domain_name}</h4>
+                                <span style="font-size:0.8rem;color:var(--text-muted);">${r.exam_date} · ${r.venue}</span>
+                            </div>
+                            <div class="result-score ${passed ? 'pass' : 'fail'}">
+                                ${r.marks_obtained}/${r.max_marks}
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:16px;font-size:0.85rem;color:var(--text-muted);">
+                            <span>Percentage: <strong>${r.percentage}%</strong></span>
+                            <span>Passing: <strong>${r.passing_marks}</strong></span>
+                            <span>Result: <strong style="color:${passed ? '#10b981' : '#ef4444'}">${passed ? 'PASSED ✓' : 'FAILED ✗'}</strong></span>
+                        </div>
+                        ${r.remarks ? `<div style="margin-top:8px;font-size:0.85rem;color:#6b7280;"><em>Remarks: ${r.remarks}</em></div>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        function registerForExam(scheduleId) {
+            if (!confirm('Register for this exam?')) return;
+            fetch('/api/exam/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ schedule_id: scheduleId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast(`Registered! Seat: ${data.seat_number}`, 'success');
+                loadExamStatus();
+            })
+            .catch(() => showToast('Registration failed', 'error'));
+        }
+
+        function cancelRegistration(regId) {
+            if (!confirm('Cancel this exam registration?')) return;
+            fetch('/api/exam/cancel-registration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registration_id: regId })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.error) { showToast(data.error, 'error'); return; }
+                showToast('Registration cancelled', 'success');
+                loadExamStatus();
+            })
+            .catch(() => showToast('Failed to cancel', 'error'));
+        }
+
+        function triggerLogout() {
+            if (confirm('Are you sure you want to logout?')) {
+                window.location.href = '/auth/logout';
+            }
+        }
+
+        function showToast(msg, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

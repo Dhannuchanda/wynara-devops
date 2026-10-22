@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>My Students - WAPL HR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+        }
+
+        .hr-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Hamburger Menu Button */
+        .hamburger-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(30, 60, 114, 0.4);
+        }
+
+        .hamburger-btn span {
+            display: block;
+            width: 25px;
+            height: 3px;
+            background: white;
+            margin: 5px 0;
+            border-radius: 2px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .logo {
+            padding: 0 20px 30px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo h2 {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .logo p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+        }
+
+        .nav-menu {
+            padding: 0 10px;
+        }
+
+        .nav-menu a,
+        .nav-menu button {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 5px;
+            transition: all 0.3s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .nav-menu a:hover,
+        .nav-menu button:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+
+        .nav-menu a.active {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu a i,
+        .nav-menu button i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+            width: calc(100% - 250px);
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .hr-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding: 20px 30px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(30, 60, 114, 0.3);
+        }
+
+        .hr-header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .student-count {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .filters-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .filters-grid select,
+        .filters-grid input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .filters-grid select:focus,
+        .filters-grid input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+
+        .students-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .student-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .student-card-image {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background: #e2e8f0;
+        }
+
+        .student-card-placeholder {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #94a3b8;
+        }
+
+        .student-card-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+
+        .student-info {
+            font-size: 13px;
+            color: #64748b;
+            margin: 4px 0;
+        }
+
+        .student-wapl-id {
+            font-family: monospace;
+            color: #1e3c72;
+            font-weight: bold;
+            font-size: 13px;
+            margin: 8px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 11px;
+            margin: 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-viewed { background: #dbeafe; color: #1e40af; }
+        .status-shortlisted { background: #fef3c7; color: #92400e; }
+        .status-interview_scheduled { background: #ede9fe; color: #5b21b6; }
+        .status-selected { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(30, 60, 114, 0.4);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #666;
+        }
+
+        /* Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hamburger-btn {
+                display: block;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .sidebar-overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 80px 15px 15px;
+            }
+
+            .hr-header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 22px;
+            }
+
+            .filters-card {
+                padding: 15px;
+            }
+
+            .filters-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .filters-grid select,
+            .filters-grid input {
+                font-size: 16px; /* Prevents iOS zoom */
+            }
+
+            .students-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .student-card-content {
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .main-content {
+                padding: 70px 10px 10px;
+            }
+
+            .hr-header h1 {
+                font-size: 20px;
+            }
+
+            .student-card-image,
+            .student-card-placeholder {
+                height: 150px;
+            }
+
+            .student-card-placeholder {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hamburger Menu Button -->
+    <button class="hamburger-btn" onclick="toggleSidebar()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="hr-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <h2>👔 WAPL HR</h2>
+                <p>Human Resources Portal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="/hr/dashboard">
+                    <i>📊</i> Dashboard
+                </a>
+                <a href="/hr/students" class="active">
+                    <i>👨‍🎓</i> My Students
+                </a>
+                <a href="/hr/profile">
+                    <i>👤</i> My Profile
+                </a>
+                <a href="/hr/messages">
+                    <i>💬</i> Messages
+                </a>
+                <button onclick="logout()">
+                    <i>🚪</i> Logout
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="hr-header">
+                <h1>My Assigned Students</h1>
+                <span class="student-count" id="studentCount">0 Students</span>
+            </div>
+
+            <div class="filters-card">
+                <h3 style="margin-bottom: 15px; color: #333;">🔍 Filter Students</h3>
+                <div class="filters-grid">
+                    <select id="domainFilter" onchange="applyFilters()">
+                        <option value="">All Domains</option>
+                    </select>
+                    <select id="statusFilter" onchange="applyFilters()">
+                        <option value="">All Statuses</option>
+                        <option value="viewed">👁️ Viewed</option>
+                        <option value="shortlisted">⭐ Shortlisted</option>
+                        <option value="interview_scheduled">📅 Interview Scheduled</option>
+                        <option value="selected">✅ Selected</option>
+                        <option value="rejected">❌ Rejected</option>
+                    </select>
+                    <input type="text" id="searchFilter" placeholder="Search by name or email..." onkeyup="applyFilters()">
+                </div>
+            </div>
+
+            <div id="studentsList" class="students-grid">
+                <p style="padding: 40px; text-align: center; color: #666;">Loading students...</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let allStudents = [];
+
+        const statusLabels = {
+            'viewed': '👁️ Viewed',
+            'shortlisted': '⭐ Shortlisted',
+            'interview_scheduled': '📅 Interview',
+            'selected': '✅ Selected',
+            'rejected': '❌ Rejected'
+        };
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('active');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        document.querySelectorAll('.nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    closeSidebar();
+                }
+            });
+        });
+
+        async function loadDomains() {
+            try {
+                const res = await fetch('/api/domains/active');
+                const domains = await res.json();
+                
+                const select = document.getElementById('domainFilter');
+                domains.forEach(domain => {
+                    const option = document.createElement('option');
+                    option.value = domain.id;
+                    option.textContent = domain.domain_name;
+                    select.appendChild(option);
+                });
+            } catch (e) {
+                console.error('Error loading domains:', e);
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const res = await fetch('/api/hr/students');
+                const students = await res.json();
+                
+                allStudents = students;
+                document.getElementById('studentCount').textContent = `${students.length} Student${students.length !== 1 ? 's' : ''}`;
+                renderStudents(students);
+            } catch (e) {
+                console.error('Error loading students:', e);
+                document.getElementById('studentsList').innerHTML = '<div class="empty-state"><h2>❌ Error loading students</h2></div>';
+            }
+        }
+
+        function renderStudents(students) {
+            const container = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📭</div>
+                        <h2>No Students Found</h2>
+                        <p>No students match your current filters or you don't have any assigned students yet.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = students.map(student => {
+                const status = student.recruitment_status || 'viewed';
+                let imageHTML = '';
+                
+                if (student.profile_pic) {
+                    const picPath = student.profile_pic.split('/').pop().split('\\').pop();
+                    imageHTML = `<img src="/uploads/profile_pics/${picPath}" alt="${student.full_name}" class="student-card-image" onerror="this.outerHTML='<div class=\\'student-card-placeholder\\'>👤</div>'">`;
+                } else {
+                    imageHTML = `<div class="student-card-placeholder">👤</div>`;
+                }
+
+                return `
+                    <div class="student-card">
+                        ${imageHTML}
+                        <div class="student-card-content">
+                            <div class="student-name">${student.full_name}</div>
+                            <div class="student-wapl-id">${student.wapl_id}</div>
+                            <div class="student-info">📧 ${student.email}</div>
+                            <div class="student-info">📱 ${student.phone || 'N/A'}</div>
+                            <div class="student-info">🏷️ ${student.domain_names || student.domain_name || 'No Domain'}</div>
+                            <span class="status-badge status-${status}">${statusLabels[status] || status}</span>
+                            <a href="/hr/student/${student.id}" class="btn btn-primary">View Profile →</a>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function applyFilters() {
+            const domainId = document.getElementById('domainFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchFilter').value.toLowerCase();
+
+            let filtered = allStudents;
+
+            if (domainId) {
+                filtered = filtered.filter(s => {
+                    if (s.domain_ids && Array.isArray(s.domain_ids)) {
+                        return s.domain_ids.includes(parseInt(domainId));
+                    }
+                    return s.domain_id == domainId;
+                });
+            }
+
+            if (status) {
+                filtered = filtered.filter(s => (s.recruitment_status || 'viewed') === status);
+            }
+
+            if (search) {
+                filtered = filtered.filter(s => 
+                    s.full_name.toLowerCase().includes(search) ||
+                    s.email.toLowerCase().includes(search) ||
+                    s.wapl_id.toLowerCase().includes(search)
+                );
+            }
+
+            renderStudents(filtered);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/hr/login';
+            } catch (error) {
+                window.location.href = '/hr/login';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDomains();
+            loadStudents();
+        });
+    </script>
+</body>
+</html>
