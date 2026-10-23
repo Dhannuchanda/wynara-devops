@@ -23,7 +23,7 @@ reportlab==4.0.9
 resend==0.7.2
 
 # Payment Gateway
-razorpay==1.4.1
+razorpay==2.0.1
 
 # Excel Export
 openpyxl==3.1.5
