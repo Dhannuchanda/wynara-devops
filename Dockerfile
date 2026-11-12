@@ -1,4 +1,4 @@
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim AS builder
 
 ENV VIRTUAL_ENV=/opt/venv
 RUN python -m venv "$VIRTUAL_ENV"
@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-FROM python:3.12-slim AS runtime
+FROM python:3.15-slim AS runtime
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
